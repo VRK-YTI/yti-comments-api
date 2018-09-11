@@ -1,0 +1,63 @@
+---
+spring:
+  profiles: automatedtest
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+
+thread:
+  pool:
+    idle-timeout: 10000
+    max: 50
+    min: 10
+
+groupmanagement:
+  url: https://rhp-dev.suomi.fi
+  publicUrl: https://rhp-dev.suomi.fi
+
+codelist:
+  url: https://koodistot-dev.suomi.fi
+  publicUrl: https://koodistot-dev.suomi.fi
+
+terminology:
+  url: https://sanastot-dev.suomi.fi
+  publicUrl: https://sanastot-dev.suomi.fi
+
+datamodel:
+  url: https://tietomallit-dev.suomi.fi
+  publicUrl: https://tietomallit-dev.suomi.fi
+
+service:
+  name: yti-comments-api
+  database-name: yti_comments
+
+hikari:
+  jdbcUrl: jdbc:postgresql://${environment.postgres.host}:${testpostgres.port}/${service.database-name}
+  username: postgres
+  password:
+  minimumIdle: 10
+  maximumPoolSize: 300
+
+environment:
+  postgres:
+    host: 127.0.0.1
+    port: 5432
+
+server:
+  port: 9701
+
+application:
+  scheme: http
+  host: localhost
+  port: 9701
+  contextPath: /comments-api
+  access-log: true
+
+uri_suomi:
+  scheme: http
+  host: uri.suomi.fi
+  contextPath: /codelist
+
+session:
+  timeout-mins: 10
