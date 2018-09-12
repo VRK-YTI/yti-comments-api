@@ -54,10 +54,5 @@ application:
   contextPath: /comments-api
   access-log: true
 
-uri_suomi:
-  scheme: http
-  host: uri.suomi.fi
-  contextPath: /codelist
-
 session:
   timeout-mins: 10
