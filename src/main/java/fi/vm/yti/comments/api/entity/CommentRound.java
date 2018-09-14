@@ -27,8 +27,11 @@ public class CommentRound extends AbstractTimeStampedIdentifyableEntity implemen
     private UUID userId;
     private String label;
     private String description;
+    private String status;
     private Source source;
     private Set<Comment> comments;
+    private boolean fixedComments;
+    private boolean openComments;
 
     @Column(name = "startdate")
     public LocalDate getStartDate() {
@@ -92,5 +95,32 @@ public class CommentRound extends AbstractTimeStampedIdentifyableEntity implemen
 
     public void setComments(final Set<Comment> comments) {
         this.comments = comments;
+    }
+
+    @Column(name = "status")
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(final String status) {
+        this.status = status;
+    }
+
+    @Column(name = "fixedcomments")
+    public boolean isFixedComments() {
+        return fixedComments;
+    }
+
+    public void setFixedComments(final boolean fixedComments) {
+        this.fixedComments = fixedComments;
+    }
+
+    @Column(name = "opencomments")
+    public boolean isOpenComments() {
+        return openComments;
+    }
+
+    public void setOpenComments(final boolean openComments) {
+        this.openComments = openComments;
     }
 }

@@ -54,8 +54,8 @@ public class DtoMapper {
         commentDto.setId(id);
         commentDto.setUrl(urlGenerator.createResourceUrl(API_PATH_COMMENTS, id.toString()));
         commentDto.setCreated(comment.getCreated());
-        commentDto.setModified(comment.getModified());
         commentDto.setContent(comment.getContent());
+        commentDto.setResourceSuggestion(comment.getResourceSuggestion());
         commentDto.setResourceUri(comment.getResourceUri());
         commentDto.setUserId(comment.getUserId());
         commentDto.setProposedStatus(comment.getProposedStatus());

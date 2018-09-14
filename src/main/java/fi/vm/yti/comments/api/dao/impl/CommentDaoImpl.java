@@ -91,6 +91,7 @@ public class CommentDaoImpl implements CommentDao {
         comment.setId(UUID.randomUUID());
         comment.setUserId(fromComment.getUserId());
         comment.setResourceUri(fromComment.getResourceUri());
+        comment.setResourceSuggestion(fromComment.getResourceSuggestion());
         comment.setContent(fromComment.getContent());
         comment.setProposedStatus(fromComment.getProposedStatus());
         resolveGlobalComments(comment, fromComment);
@@ -98,15 +99,14 @@ public class CommentDaoImpl implements CommentDao {
         resolveRelatedComment(comment, fromComment);
         final LocalDateTime timeStamp = LocalDateTime.now();
         comment.setCreated(timeStamp);
-        comment.setModified(timeStamp);
         return comment;
     }
 
     private Comment updateComment(final Comment existingComment,
                                   final CommentDTO fromComment) {
         existingComment.setUserId(fromComment.getUserId());
-        existingComment.setModified(LocalDateTime.now());
         existingComment.setResourceUri(fromComment.getResourceUri());
+        existingComment.setResourceSuggestion(fromComment.getResourceSuggestion());
         existingComment.setContent(fromComment.getContent());
         existingComment.setProposedStatus(fromComment.getProposedStatus());
         resolveGlobalComments(existingComment, fromComment);
@@ -114,7 +114,6 @@ public class CommentDaoImpl implements CommentDao {
         resolveRelatedComment(existingComment, fromComment);
         return existingComment;
     }
-
 
     private void resolveGlobalComments(final Comment comment,
                                        final CommentDTO fromComment) {

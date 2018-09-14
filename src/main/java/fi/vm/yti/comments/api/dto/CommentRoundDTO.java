@@ -20,7 +20,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 @JsonFilter("commentRound")
 @XmlRootElement
-@XmlType(propOrder = { "id", "url", "created", "modified", "startDate", "endDate", "comments"})
+@XmlType(propOrder = { "id", "url", "created", "modified", "startDate", "endDate", "status", "fixedComments", "openComments", "comments" })
 @ApiModel(value = "CommentRound", description = "CommentRound entity that represents data for one single comment round.")
 public class CommentRoundDTO extends AbstractTimeStampedIdentifyableEntityDTO implements Serializable {
 
@@ -32,8 +32,11 @@ public class CommentRoundDTO extends AbstractTimeStampedIdentifyableEntityDTO im
     private UUID userId;
     private String label;
     private String description;
+    private String status;
     private SourceDTO source;
     private Set<CommentDTO> comments;
+    private boolean fixedComments;
+    private boolean openComments;
 
     @ApiModelProperty(dataType = "dateTime")
     @JsonSerialize(using = LocalDateSerializer.class)
@@ -105,5 +108,29 @@ public class CommentRoundDTO extends AbstractTimeStampedIdentifyableEntityDTO im
 
     public void setComments(final Set<CommentDTO> comments) {
         this.comments = comments;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(final String status) {
+        this.status = status;
+    }
+
+    public boolean getFixedComments() {
+        return fixedComments;
+    }
+
+    public void setFixedComments(final boolean fixedComments) {
+        this.fixedComments = fixedComments;
+    }
+
+    public boolean getOpenComments() {
+        return openComments;
+    }
+
+    public void setOpenComments(final boolean openComments) {
+        this.openComments = openComments;
     }
 }

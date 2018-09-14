@@ -1,6 +1,7 @@
 package fi.vm.yti.comments.api.entity;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -14,17 +15,19 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Entity
 @Table(name = "comment")
 @XmlRootElement
-public class Comment extends AbstractTimeStampedIdentifyableEntity implements Serializable {
+public class Comment extends AbstractIdentifyableEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     private String resourceUri;
+    private String resourceSuggestion;
     private UUID userId;
     private Comment relatedComment;
     private CommentRound commentRound;
     private String content;
     private String proposedStatus;
     private GlobalComments globalComments;
+    private LocalDateTime created;
 
     @Column(name = "resourceuri")
     public String getResourceUri() {
@@ -33,6 +36,15 @@ public class Comment extends AbstractTimeStampedIdentifyableEntity implements Se
 
     public void setResourceUri(final String resourceUri) {
         this.resourceUri = resourceUri;
+    }
+
+    @Column(name = "resourcesuggestion")
+    public String getResourceSuggestion() {
+        return resourceSuggestion;
+    }
+
+    public void setResourceSuggestion(final String resourceSuggestion) {
+        this.resourceSuggestion = resourceSuggestion;
     }
 
     @Column(name = "user_id")
@@ -90,5 +102,14 @@ public class Comment extends AbstractTimeStampedIdentifyableEntity implements Se
 
     public void setGlobalComments(final GlobalComments globalComments) {
         this.globalComments = globalComments;
+    }
+
+    @Column(name = "created")
+    public LocalDateTime getCreated() {
+        return created;
+    }
+
+    public void setCreated(final LocalDateTime created) {
+        this.created = created;
     }
 }
