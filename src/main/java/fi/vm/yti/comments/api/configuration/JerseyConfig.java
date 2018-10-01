@@ -7,18 +7,20 @@ import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonP
 import org.glassfish.jersey.server.ResourceConfig;
 import org.springframework.stereotype.Component;
 
+import fi.vm.yti.comments.api.exception.exceptionmapping.UncaughtExceptionMapper;
+import fi.vm.yti.comments.api.exception.exceptionmapping.YtiCommentsExceptionMapper;
 import fi.vm.yti.comments.api.filter.CacheFilter;
 import fi.vm.yti.comments.api.filter.RequestLoggingFilter;
 import fi.vm.yti.comments.api.resource.AuthenticatedUserResource;
 import fi.vm.yti.comments.api.resource.CommentResource;
 import fi.vm.yti.comments.api.resource.CommentRoundResource;
+import fi.vm.yti.comments.api.resource.CommentThreadResource;
 import fi.vm.yti.comments.api.resource.ConfigurationResource;
 import fi.vm.yti.comments.api.resource.ImpersonateUserResource;
 import fi.vm.yti.comments.api.resource.OrganizationResource;
 import fi.vm.yti.comments.api.resource.PingResource;
 import fi.vm.yti.comments.api.resource.SourceResource;
 import fi.vm.yti.comments.api.resource.SwaggerResource;
-import fi.vm.yti.comments.api.resource.CommentThreadResource;
 import fi.vm.yti.comments.api.resource.externalresources.CodelistProxyResource;
 import fi.vm.yti.comments.api.resource.externalresources.DatamodelProxyResource;
 import fi.vm.yti.comments.api.resource.externalresources.GroupManagementProxyResource;
@@ -64,6 +66,10 @@ public class JerseyConfig extends ResourceConfig {
 
         // Cache control headers to no cache.
         register(CacheFilter.class);
+
+        // ExceptionMappers
+        register(YtiCommentsExceptionMapper.class);
+        register(UncaughtExceptionMapper.class);
 
         // Logging
         register(RequestLoggingFilter.class);
