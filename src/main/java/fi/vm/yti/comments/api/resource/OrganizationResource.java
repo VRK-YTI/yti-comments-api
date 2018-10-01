@@ -67,9 +67,6 @@ public class OrganizationResource implements AbstractBaseResource {
     public Response getOrganization(@ApiParam(value = "Organization UUID.", required = true) @PathParam("organizationId") final UUID organizationId,
                                     @ApiParam(value = "Filter string (csl) for expanding specific child resources.") @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new AbstractBaseResource.FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_ORGANIZATION, expand)));
-        final Meta meta = new Meta();
-        final ResponseWrapper<OrganizationDTO> wrapper = new ResponseWrapper<>();
-        wrapper.setMeta(meta);
         final OrganizationDTO organization = organizationService.findById(organizationId);
         if (organization != null) {
             return Response.ok(organization).build();
