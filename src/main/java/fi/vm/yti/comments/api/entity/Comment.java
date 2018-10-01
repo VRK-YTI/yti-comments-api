@@ -19,33 +19,12 @@ public class Comment extends AbstractIdentifyableEntity implements Serializable 
 
     private static final long serialVersionUID = 1L;
 
-    private String resourceUri;
-    private String resourceSuggestion;
     private UUID userId;
-    private Comment relatedComment;
-    private CommentRound commentRound;
+    private Comment parentComment;
+    private CommentThread commentThread;
     private String content;
     private String proposedStatus;
-    private GlobalComments globalComments;
     private LocalDateTime created;
-
-    @Column(name = "resourceuri")
-    public String getResourceUri() {
-        return resourceUri;
-    }
-
-    public void setResourceUri(final String resourceUri) {
-        this.resourceUri = resourceUri;
-    }
-
-    @Column(name = "resourcesuggestion")
-    public String getResourceSuggestion() {
-        return resourceSuggestion;
-    }
-
-    public void setResourceSuggestion(final String resourceSuggestion) {
-        this.resourceSuggestion = resourceSuggestion;
-    }
 
     @Column(name = "user_id")
     public UUID getUserId() {
@@ -57,23 +36,23 @@ public class Comment extends AbstractIdentifyableEntity implements Serializable 
     }
 
     @OneToOne
-    @JoinColumn(name = "relatedcomment_id")
-    public Comment getRelatedComment() {
-        return relatedComment;
+    @JoinColumn(name = "parentcomment_id")
+    public Comment getParentComment() {
+        return parentComment;
     }
 
-    public void setRelatedComment(final Comment relatedComment) {
-        this.relatedComment = relatedComment;
+    public void setParentComment(final Comment parentComment) {
+        this.parentComment = parentComment;
     }
 
     @ManyToOne
-    @JoinColumn(name = "commentround_id")
-    public CommentRound getCommentRound() {
-        return commentRound;
+    @JoinColumn(name = "commentthread_id")
+    public CommentThread getCommentThread() {
+        return commentThread;
     }
 
-    public void setCommentRound(final CommentRound commentRound) {
-        this.commentRound = commentRound;
+    public void setCommentThread(final CommentThread commentThread) {
+        this.commentThread = commentThread;
     }
 
     @Column(name = "content")
@@ -92,16 +71,6 @@ public class Comment extends AbstractIdentifyableEntity implements Serializable 
 
     public void setProposedStatus(final String proposedStatus) {
         this.proposedStatus = proposedStatus;
-    }
-
-    @ManyToOne
-    @JoinColumn(name = "globalcomments_id")
-    public GlobalComments getGlobalComments() {
-        return globalComments;
-    }
-
-    public void setGlobalComments(final GlobalComments globalComments) {
-        this.globalComments = globalComments;
     }
 
     @Column(name = "created")

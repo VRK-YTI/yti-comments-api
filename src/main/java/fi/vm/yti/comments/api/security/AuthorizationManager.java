@@ -2,7 +2,7 @@ package fi.vm.yti.comments.api.security;
 
 import java.util.UUID;
 
-interface AuthorizationManager {
+public interface AuthorizationManager {
 
     boolean isSuperUser();
 

@@ -29,7 +29,7 @@
                             "parent": "%X{X-B3-ParentSpanId:-}",
                             "exportable": "%X{X-Span-Export:-}",
                             "pid": "${PID:-}",
-                            "thread": "%thread",
+                            "commentThread": "%commentThread",
                             "class": "%logger{40}",
                             "rest": "%message"
                             }
@@ -42,7 +42,7 @@
         <logger name="org.apache" level="WARN"/>
         <logger name="org.springframework" level="INFO"/>
         <logger name="fi.vm" level="INFO"/>
-        <logger name="fi.vm.yti.comments.filter" level="DEBUG"/>
+        <logger name="fi.vm.yti.comments.api.filter" level="DEBUG"/>
         <logger name="fi.vm.yti.security" level="INFO"/>
 
         <root level="INFO">
@@ -56,13 +56,13 @@
         <logger name="org.springframework" level="INFO"/>
         <logger name="fi.vm" level="DEBUG"/>
         <logger name="fi.vm.yti.security" level="INFO"/>
-        <logger name="fi.vm.yti.comments.filter" level="INFO"/>
+        <logger name="fi.vm.yti.comments.api.filter" level="INFO"/>
     </springProfile>
 
     <springProfile name="automatedtest">
         <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
             <layout class="ch.qos.logback.classic.PatternLayout">
-                <Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</Pattern>
+                <Pattern>%d{HH:mm:ss.SSS} [%commentThread] %-5level %logger{36} - %msg%n</Pattern>
             </layout>
         </appender>
 
@@ -71,7 +71,7 @@
         <logger name="fi.vm" level="DEBUG"/>
         <logger name="org.hibernate.type" level="WARN" />
         <logger name="org.hibernate" level="WARN" />
-        <logger name="fi.vm.yti.comments.filter" level="INFO"/>
+        <logger name="fi.vm.yti.comments.api.filter" level="INFO"/>
 
         <root level="debug">
             <appender-ref ref="CONSOLE"/>

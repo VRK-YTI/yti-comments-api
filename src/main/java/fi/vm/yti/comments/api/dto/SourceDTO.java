@@ -11,16 +11,15 @@ import io.swagger.annotations.ApiModel;
 
 @JsonFilter("source")
 @XmlRootElement
-@XmlType(propOrder = { "id", "url", "containerType", "containerUri", "globalComments" })
+@XmlType(propOrder = { "id", "url", "containerType", "containerUri" })
 @ApiModel(value = "Source", description = "Source DTO that represents data for one single source.")
-public class SourceDTO extends AbstractIdentifyableEntityDTO implements Serializable {
+public class SourceDTO extends AbstractIdentifyableDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     private String url;
     private String containerType;
     private String containerUri;
-    private GlobalCommentsDTO globalComments;
 
     public String getContainerType() {
         return containerType;
@@ -44,13 +43,5 @@ public class SourceDTO extends AbstractIdentifyableEntityDTO implements Serializ
 
     public void setUrl(final String url) {
         this.url = url;
-    }
-
-    public GlobalCommentsDTO getGlobalComments() {
-        return globalComments;
-    }
-
-    public void setGlobalComments(final GlobalCommentsDTO globalComments) {
-        this.globalComments = globalComments;
     }
 }

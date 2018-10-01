@@ -17,4 +17,23 @@ public interface CommentRoundRepository extends PagingAndSortingRepository<Comme
     CommentRound findById(final UUID commentRoundId);
 
     Set<CommentRound> findAll();
+
+    Set<CommentRound> findByOrganizationsIdAndStatus(final UUID id,
+                                                     final String status);
+
+    Set<CommentRound> findByOrganizationsId(final UUID id);
+
+    Set<CommentRound> findByStatus(final String status);
+
+    Set<CommentRound> findBySourceContainerType(final String containerType);
+
+    Set<CommentRound> findByOrganizationsIdAndStatusAndSourceContainerType(final UUID id,
+                                                                           final String status,
+                                                                           final String containerType);
+
+    Set<CommentRound> findByOrganizationsIdAndSourceContainerType(final UUID id,
+                                                                  final String containerType);
+
+    Set<CommentRound> findByStatusAndSourceContainerType(final String status,
+                                                         final String containerType);
 }

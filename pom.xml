@@ -42,7 +42,7 @@
         <dependency>
             <groupId>fi.vm.yti</groupId>
             <artifactId>yti-spring-security</artifactId>
-            <version>0.1.0</version>
+            <version>0.1.1</version>
         </dependency>
 
         <!-- Spring security -->
@@ -391,7 +391,7 @@
             <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
-                <version>0.25.2</version>
+                <version>0.26.1</version>
                 <configuration>
                     <portPropertyFile>target/test-classes/test-port.properties</portPropertyFile>
                     <images>
@@ -489,7 +489,8 @@
         <git.properties>git.properties</git.properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <spotify-docker.version>1.0.0</spotify-docker.version>
+        <spotify-docker.version>1.1.1</spotify-docker.version>
+        <dockerfile-maven-version>1.4.4</dockerfile-maven-version>
         <swagger.version>1.5.18</swagger.version>
         <swagger-ui.version>3.1.6</swagger-ui.version>
         <swagger-maven-plugin.version>3.1.6</swagger-maven-plugin.version>

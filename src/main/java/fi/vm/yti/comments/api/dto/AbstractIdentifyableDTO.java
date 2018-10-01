@@ -2,7 +2,7 @@ package fi.vm.yti.comments.api.dto;
 
 import java.util.UUID;
 
-public class AbstractIdentifyableEntityDTO {
+public class AbstractIdentifyableDTO {
 
     private UUID id;
 

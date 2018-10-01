@@ -10,7 +10,7 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 
 import io.swagger.annotations.ApiModelProperty;
 
-class AbstractTimeStampedIdentifyableEntityDTO extends AbstractIdentifyableEntityDTO {
+class AbstractTimeStampedIdentifyableDTO extends AbstractIdentifyableDTO {
 
     private LocalDateTime created;
     private LocalDateTime modified;

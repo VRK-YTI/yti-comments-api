@@ -2,16 +2,23 @@ package fi.vm.yti.comments.api.entity;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -29,9 +36,11 @@ public class CommentRound extends AbstractTimeStampedIdentifyableEntity implemen
     private String description;
     private String status;
     private Source source;
-    private Set<Comment> comments;
-    private boolean fixedComments;
-    private boolean openComments;
+    private boolean fixedThreads;
+    private boolean openThreads;
+    private Set<Organization> organizations;
+    private Set<CommentThread> commentThreads;
+    private Map<String, String> sourceLabel;
 
     @Column(name = "startdate")
     public LocalDate getStartDate() {
@@ -78,7 +87,7 @@ public class CommentRound extends AbstractTimeStampedIdentifyableEntity implemen
         this.description = description;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "source_id", nullable = false)
     public Source getSource() {
         return source;
@@ -86,15 +95,6 @@ public class CommentRound extends AbstractTimeStampedIdentifyableEntity implemen
 
     public void setSource(final Source source) {
         this.source = source;
-    }
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "commentRound", cascade = CascadeType.ALL)
-    public Set<Comment> getComments() {
-        return comments;
-    }
-
-    public void setComments(final Set<Comment> comments) {
-        this.comments = comments;
     }
 
     @Column(name = "status")
@@ -106,21 +106,57 @@ public class CommentRound extends AbstractTimeStampedIdentifyableEntity implemen
         this.status = status;
     }
 
-    @Column(name = "fixedcomments")
-    public boolean isFixedComments() {
-        return fixedComments;
+    @Column(name = "fixedthreads")
+    public boolean getFixedThreads() {
+        return fixedThreads;
     }
 
-    public void setFixedComments(final boolean fixedComments) {
-        this.fixedComments = fixedComments;
+    public void setFixedThreads(final boolean fixedThreads) {
+        this.fixedThreads = fixedThreads;
     }
 
-    @Column(name = "opencomments")
-    public boolean isOpenComments() {
-        return openComments;
+    @Column(name = "openthreads")
+    public boolean getOpenThreads() {
+        return openThreads;
     }
 
-    public void setOpenComments(final boolean openComments) {
-        this.openComments = openComments;
+    public void setOpenThreads(final boolean openThreads) {
+        this.openThreads = openThreads;
+    }
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "commentround_organization",
+        joinColumns = {
+            @JoinColumn(name = "commentround_id", referencedColumnName = "id") },
+        inverseJoinColumns = {
+            @JoinColumn(name = "organization_id", referencedColumnName = "id") })
+    public Set<Organization> getOrganizations() {
+        return organizations;
+    }
+
+    public void setOrganizations(final Set<Organization> organizations) {
+        this.organizations = organizations;
+    }
+
+    @ElementCollection(targetClass = String.class, fetch = FetchType.EAGER)
+    @CollectionTable(name = "commentround_sourcelabel", joinColumns = @JoinColumn(name = "commentround_id", referencedColumnName = "id"))
+    @MapKeyColumn(name = "language")
+    @Column(name = "sourcelabel")
+    @OrderColumn
+    public Map<String, String> getSourceLabel() {
+        return sourceLabel;
+    }
+
+    public void setSourceLabel(final Map<String, String> sourceLabel) {
+        this.sourceLabel = sourceLabel;
+    }
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "commentRound", cascade = CascadeType.ALL)
+    public Set<CommentThread> getCommentThreads() {
+        return commentThreads;
+    }
+
+    public void setCommentThreads(final Set<CommentThread> commentThreads) {
+        this.commentThreads = commentThreads;
     }
 }

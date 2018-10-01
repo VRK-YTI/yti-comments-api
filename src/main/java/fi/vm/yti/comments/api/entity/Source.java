@@ -19,7 +19,6 @@ public class Source extends AbstractIdentifyableEntity implements Serializable {
 
     private String containerType;
     private String containerUri;
-    private GlobalComments globalComments;
 
     @Column(name = "containertype")
     public String getContainerType() {
@@ -37,14 +36,5 @@ public class Source extends AbstractIdentifyableEntity implements Serializable {
 
     public void setContainerUri(final String containerUri) {
         this.containerUri = containerUri;
-    }
-
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "source", cascade = CascadeType.ALL)
-    public GlobalComments getGlobalComments() {
-        return globalComments;
-    }
-
-    public void setGlobalComments(final GlobalComments globalComments) {
-        this.globalComments = globalComments;
     }
 }

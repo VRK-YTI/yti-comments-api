@@ -26,21 +26,21 @@ public class SourceServiceImpl implements SourceService {
 
     @Transactional
     public Set<SourceDTO> findAll() {
-        return dtoMapper.mapDeepSources(sourceDao.findAll());
+        return dtoMapper.mapSources(sourceDao.findAll());
     }
 
     @Transactional
     public SourceDTO findById(final UUID sourceId) {
-        return dtoMapper.mapDeepSource(sourceDao.findById(sourceId));
+        return dtoMapper.mapSource(sourceDao.findById(sourceId));
     }
 
     @Transactional
     public SourceDTO addOrUpdateSourceFromDto(final SourceDTO fromSource) {
-        return dtoMapper.mapDeepSource(sourceDao.addOrUpdateSourceFromDto(fromSource));
+        return dtoMapper.mapSource(sourceDao.addOrUpdateSourceFromDto(fromSource));
     }
 
     @Transactional
     public Set<SourceDTO> addOrUpdateSourcesFromDtos(final Set<SourceDTO> fromSources) {
-        return dtoMapper.mapDeepSources(sourceDao.addOrUpdateSourcesFromDtos(fromSources));
+        return dtoMapper.mapSources(sourceDao.addOrUpdateSourcesFromDtos(fromSources));
     }
 }

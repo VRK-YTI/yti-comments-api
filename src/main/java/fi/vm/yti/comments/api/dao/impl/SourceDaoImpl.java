@@ -5,13 +5,17 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import fi.vm.yti.comments.api.dao.SourceDao;
 import fi.vm.yti.comments.api.dto.DtoMapper;
 import fi.vm.yti.comments.api.dto.SourceDTO;
 import fi.vm.yti.comments.api.entity.Source;
+import fi.vm.yti.comments.api.error.ErrorModel;
+import fi.vm.yti.comments.api.exception.YtiCommentsException;
 import fi.vm.yti.comments.api.jpa.SourceRepository;
 
 @Component
@@ -20,8 +24,7 @@ public class SourceDaoImpl implements SourceDao {
     private final SourceRepository sourceRepository;
 
     @Inject
-    public SourceDaoImpl(final SourceRepository sourceRepository,
-                         final DtoMapper dtoMapper) {
+    public SourceDaoImpl(final SourceRepository sourceRepository) {
         this.sourceRepository = sourceRepository;
     }
 
@@ -33,12 +36,14 @@ public class SourceDaoImpl implements SourceDao {
         return sourceRepository.findById(sourceId);
     }
 
+    @Transactional
     public Source addOrUpdateSourceFromDto(final SourceDTO fromSource) {
         final Source source = createOrUpdateSource(fromSource);
         sourceRepository.save(source);
         return source;
     }
 
+    @Transactional
     public Set<Source> addOrUpdateSourcesFromDtos(final Set<SourceDTO> fromSources) {
         final Set<Source> sources = new HashSet<>();
         for (final SourceDTO fromSource : fromSources) {
@@ -46,6 +51,20 @@ public class SourceDaoImpl implements SourceDao {
         }
         sourceRepository.saveAll(sources);
         return sources;
+    }
+
+    @Transactional
+    public Source getOrCreateByDto(final SourceDTO fromSource) {
+        if (fromSource.getContainerUri() != null) {
+            final Source existingSource = sourceRepository.findByContainerUri(fromSource.getContainerUri());
+            if (existingSource != null) {
+                return existingSource;
+            } else {
+                return createSource(fromSource);
+            }
+        } else {
+            throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), "Invalid source data."));
+        }
     }
 
     private Source createOrUpdateSource(final SourceDTO fromSource) {

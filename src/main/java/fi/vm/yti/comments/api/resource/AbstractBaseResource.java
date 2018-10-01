@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import static fi.vm.yti.comments.api.constants.ApiConstants.*;
 
-interface AbstractBaseResource {
+public interface AbstractBaseResource {
 
     default SimpleFilterProvider createSimpleFilterProviderWithSingleFilter(final String baseFilter,
                                                                             final String expand) {
@@ -31,8 +31,9 @@ interface AbstractBaseResource {
         filterProvider.addFilter(FILTER_NAME_COMMENT, SimpleBeanPropertyFilter.filterOutAllExcept(FIELD_NAME_ID));
         filterProvider.addFilter(FILTER_NAME_SOURCE, SimpleBeanPropertyFilter.filterOutAllExcept(FIELD_NAME_ID));
         filterProvider.addFilter(FILTER_NAME_COMMENTROUND, SimpleBeanPropertyFilter.filterOutAllExcept(FIELD_NAME_ID));
-        filterProvider.addFilter(FILTER_NAME_COMMENTROUNDGROUP, SimpleBeanPropertyFilter.filterOutAllExcept(FIELD_NAME_ID));
-        filterProvider.addFilter(FILTER_NAME_GLOBALCOMMENTS, SimpleBeanPropertyFilter.filterOutAllExcept(FIELD_NAME_ID));
+        filterProvider.addFilter(FILTER_NAME_COMMENTTHREAD, SimpleBeanPropertyFilter.filterOutAllExcept(FIELD_NAME_ID));
+        filterProvider.addFilter(FILTER_NAME_ORGANIZATION, SimpleBeanPropertyFilter.filterOutAllExcept(FIELD_NAME_ID));
+        filterProvider.addFilter(FILTER_NAME_COMMENTROUNDORGANIZATION, SimpleBeanPropertyFilter.filterOutAllExcept(FIELD_NAME_ID));
         filterProvider.setFailOnUnknownId(false);
         if (baseFilters != null) {
             for (final String baseFilter : baseFilters) {

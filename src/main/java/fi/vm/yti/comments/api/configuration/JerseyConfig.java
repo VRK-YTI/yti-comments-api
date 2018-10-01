@@ -9,13 +9,20 @@ import org.springframework.stereotype.Component;
 
 import fi.vm.yti.comments.api.filter.CacheFilter;
 import fi.vm.yti.comments.api.filter.RequestLoggingFilter;
+import fi.vm.yti.comments.api.resource.AuthenticatedUserResource;
 import fi.vm.yti.comments.api.resource.CommentResource;
-import fi.vm.yti.comments.api.resource.CommentRoundGroupResource;
 import fi.vm.yti.comments.api.resource.CommentRoundResource;
-import fi.vm.yti.comments.api.resource.GlobalCommentsResource;
+import fi.vm.yti.comments.api.resource.ConfigurationResource;
+import fi.vm.yti.comments.api.resource.ImpersonateUserResource;
+import fi.vm.yti.comments.api.resource.OrganizationResource;
 import fi.vm.yti.comments.api.resource.PingResource;
 import fi.vm.yti.comments.api.resource.SourceResource;
 import fi.vm.yti.comments.api.resource.SwaggerResource;
+import fi.vm.yti.comments.api.resource.CommentThreadResource;
+import fi.vm.yti.comments.api.resource.externalresources.CodelistProxyResource;
+import fi.vm.yti.comments.api.resource.externalresources.DatamodelProxyResource;
+import fi.vm.yti.comments.api.resource.externalresources.GroupManagementProxyResource;
+import fi.vm.yti.comments.api.resource.externalresources.TerminologyProxyResource;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.Contact;
 import io.swagger.annotations.Info;
@@ -67,11 +74,26 @@ public class JerseyConfig extends ResourceConfig {
         // Swagger
         register(SwaggerResource.class);
 
+        // GroupManagement
+        register(GroupManagementProxyResource.class);
+
+        // Authentication
+        register(AuthenticatedUserResource.class);
+        register(ImpersonateUserResource.class);
+
+        // Configuration
+        register(ConfigurationResource.class);
+
+        // Integrations
+        register(CodelistProxyResource.class);
+        register(DatamodelProxyResource.class);
+        register(TerminologyProxyResource.class);
+
         // APIs
         register(SourceResource.class);
         register(CommentResource.class);
         register(CommentRoundResource.class);
-        register(CommentRoundGroupResource.class);
-        register(GlobalCommentsResource.class);
+        register(CommentThreadResource.class);
+        register(OrganizationResource.class);
     }
 }

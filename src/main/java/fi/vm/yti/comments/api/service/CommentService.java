@@ -11,11 +11,13 @@ public interface CommentService {
 
     CommentDTO findById(final UUID commentId);
 
-    Set<CommentDTO> findByGlobalCommentsId(final UUID globalComments);
+    Set<CommentDTO> findByCommentThreadId(final UUID commentRoundId);
 
-    Set<CommentDTO> findByCommentRoundId(final UUID commentRound);
+    CommentDTO addOrUpdateCommentFromDto(final UUID commentRoundId,
+                                         final UUID commentThreadId,
+                                         final CommentDTO fromComment);
 
-    CommentDTO addOrUpdateCommentFromDto(final CommentDTO fromComment);
-
-    Set<CommentDTO> addOrUpdateCommentsFromDtos(final Set<CommentDTO> fromComments);
+    Set<CommentDTO> addOrUpdateCommentsFromDtos(final UUID commentRoundId,
+                                                final UUID commentThreadId,
+                                                final Set<CommentDTO> fromComments);
 }

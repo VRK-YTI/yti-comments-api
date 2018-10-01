@@ -19,38 +19,19 @@ import io.swagger.annotations.ApiModelProperty;
 
 @JsonFilter("comment")
 @XmlRootElement
-@XmlType(propOrder = { "id", "url", "created", "resourceUri", "resourceSuggestion", "userId", "relatedComment", "content", "globalComments" })
-@ApiModel(value = "Comment", description = "Comment entity that represents data for one single comment.")
-public class CommentDTO extends AbstractIdentifyableEntityDTO implements Serializable {
+@XmlType(propOrder = { "id", "url", "created", "userId", "content", "proposedStatus", "parentComment", "commentThread" })
+@ApiModel(value = "Comment", description = "Comment entity that represents data for one single comment in a commmentThread.")
+public class CommentDTO extends AbstractIdentifyableDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     private String url;
-    private String resourceUri;
-    private String resourceSuggestion;
     private UUID userId;
-    private CommentDTO relatedComment;
-    private CommentRoundDTO commentRound;
+    private CommentDTO parentComment;
+    private CommentThreadDTO commmentThread;
     private String content;
     private String proposedStatus;
-    private GlobalCommentsDTO globalComments;
     private LocalDateTime created;
-
-    public String getResourceUri() {
-        return resourceUri;
-    }
-
-    public void setResourceUri(final String resourceUri) {
-        this.resourceUri = resourceUri;
-    }
-
-    public String getResourceSuggestion() {
-        return resourceSuggestion;
-    }
-
-    public void setResourceSuggestion(final String resourceSuggestion) {
-        this.resourceSuggestion = resourceSuggestion;
-    }
 
     public UUID getUserId() {
         return userId;
@@ -60,20 +41,20 @@ public class CommentDTO extends AbstractIdentifyableEntityDTO implements Seriali
         this.userId = userId;
     }
 
-    public CommentDTO getRelatedComment() {
-        return relatedComment;
+    public CommentDTO getParentComment() {
+        return parentComment;
     }
 
-    public void setRelatedComment(final CommentDTO relatedComment) {
-        this.relatedComment = relatedComment;
+    public void setParentComment(final CommentDTO parentComment) {
+        this.parentComment = parentComment;
     }
 
-    public CommentRoundDTO getCommentRound() {
-        return commentRound;
+    public CommentThreadDTO getCommentThread() {
+        return commmentThread;
     }
 
-    public void setCommentRound(final CommentRoundDTO commentRound) {
-        this.commentRound = commentRound;
+    public void setCommentThread(final CommentThreadDTO commentThread) {
+        this.commmentThread = commentThread;
     }
 
     public String getContent() {
@@ -90,14 +71,6 @@ public class CommentDTO extends AbstractIdentifyableEntityDTO implements Seriali
 
     public void setProposedStatus(final String proposedStatus) {
         this.proposedStatus = proposedStatus;
-    }
-
-    public GlobalCommentsDTO getGlobalComments() {
-        return globalComments;
-    }
-
-    public void setGlobalComments(final GlobalCommentsDTO globalComments) {
-        this.globalComments = globalComments;
     }
 
     public String getUrl() {

@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import fi.vm.yti.comments.api.dto.CommentDTO;
 import fi.vm.yti.comments.api.entity.Comment;
+import fi.vm.yti.comments.api.entity.CommentThread;
 
 public interface CommentDao {
 
@@ -12,11 +13,11 @@ public interface CommentDao {
 
     Comment findById(final UUID commentId);
 
-    Set<Comment> findByGlobalCommentsId(final UUID globalCommentsId);
+    Set<Comment> findByCommentThreadId(final UUID commentRoundId);
 
-    Set<Comment> findByCommentRoundId(final UUID commentRoundId);
+    Comment addOrUpdateCommentFromDto(final CommentThread commentThread,
+                                      final CommentDTO commentDto);
 
-    Comment addOrUpdateCommentFromDto(final CommentDTO commentDto);
-
-    Set<Comment> addOrUpdateCommentsFromDtos(final Set<CommentDTO> commentDtos);
+    Set<Comment> addOrUpdateCommentsFromDtos(final CommentThread commentThread,
+                                             final Set<CommentDTO> commentDtos);
 }

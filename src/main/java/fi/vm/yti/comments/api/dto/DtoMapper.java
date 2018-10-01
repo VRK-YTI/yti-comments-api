@@ -4,13 +4,15 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.transaction.Transactional;
+
 import org.springframework.stereotype.Component;
 
 import fi.vm.yti.comments.api.api.UrlGenerator;
 import fi.vm.yti.comments.api.entity.Comment;
 import fi.vm.yti.comments.api.entity.CommentRound;
-import fi.vm.yti.comments.api.entity.CommentRoundGroup;
-import fi.vm.yti.comments.api.entity.GlobalComments;
+import fi.vm.yti.comments.api.entity.CommentThread;
+import fi.vm.yti.comments.api.entity.Organization;
 import fi.vm.yti.comments.api.entity.Source;
 import static fi.vm.yti.comments.api.constants.ApiConstants.*;
 
@@ -23,27 +25,29 @@ public class DtoMapper {
         this.urlGenerator = urlGenerator;
     }
 
+    @Transactional
     public Set<CommentDTO> mapComments(final Set<Comment> comments,
                                        boolean deep) {
         final Set<CommentDTO> commentDtos = new HashSet<>();
-        for (final Comment comment : comments) {
-            commentDtos.add(mapComment(comment, deep));
+        if (comments != null && !comments.isEmpty()) {
+            for (final Comment comment : comments) {
+                commentDtos.add(mapComment(comment, deep));
+            }
         }
         return commentDtos;
     }
 
+    @Transactional
     public Set<CommentDTO> mapDeepComments(final Set<Comment> comments) {
-        final Set<CommentDTO> commentDtos = new HashSet<>();
-        for (final Comment comment : comments) {
-            commentDtos.add(mapDeepComment(comment));
-        }
-        return commentDtos;
+        return mapComments(comments, true);
     }
 
+    @Transactional
     public CommentDTO mapDeepComment(final Comment comment) {
         return mapComment(comment, true);
     }
 
+    @Transactional
     public CommentDTO mapComment(final Comment comment,
                                  final boolean deep) {
         if (comment == null) {
@@ -55,32 +59,42 @@ public class DtoMapper {
         commentDto.setUrl(urlGenerator.createResourceUrl(API_PATH_COMMENTS, id.toString()));
         commentDto.setCreated(comment.getCreated());
         commentDto.setContent(comment.getContent());
-        commentDto.setResourceSuggestion(comment.getResourceSuggestion());
-        commentDto.setResourceUri(comment.getResourceUri());
         commentDto.setUserId(comment.getUserId());
         commentDto.setProposedStatus(comment.getProposedStatus());
         if (deep) {
-            commentDto.setCommentRound(mapCommentRound(comment.getCommentRound(), false));
-            commentDto.setGlobalComments(mapGlobalComments(comment.getGlobalComments(), false));
-            commentDto.setRelatedComment(mapComment(comment.getRelatedComment(), false));
+            commentDto.setParentComment(mapComment(comment.getParentComment(), false));
+            commentDto.setCommentThread(mapCommentThread(comment.getCommentThread(), false));
         }
         return commentDto;
     }
 
+    @Transactional
     public Set<CommentRoundDTO> mapDeepCommentRounds(final Set<CommentRound> commentRounds) {
+        return mapCommentRounds(commentRounds, true);
+    }
+
+    @Transactional
+    public Set<CommentRoundDTO> mapCommentRounds(final Set<CommentRound> commentRounds,
+                                                 final boolean deep) {
         final Set<CommentRoundDTO> commentRoundDtos = new HashSet<>();
-        for (final CommentRound commentRound : commentRounds) {
-            commentRoundDtos.add(mapDeepCommentRound(commentRound));
+        if (commentRounds != null && !commentRounds.isEmpty()) {
+            for (final CommentRound commentRound : commentRounds) {
+                commentRoundDtos.add(mapCommentRound(commentRound, deep, false, false));
+            }
         }
         return commentRoundDtos;
     }
 
+    @Transactional
     public CommentRoundDTO mapDeepCommentRound(final CommentRound commentRound) {
-        return mapCommentRound(commentRound, true);
+        return mapCommentRound(commentRound, true, true, true);
     }
 
+    @Transactional
     public CommentRoundDTO mapCommentRound(final CommentRound commentRound,
-                                           final boolean deep) {
+                                           final boolean deep,
+                                           final boolean mapSource,
+                                           final boolean mapOrganization) {
         if (commentRound == null) {
             return null;
         }
@@ -93,61 +107,83 @@ public class DtoMapper {
         commentRoundDto.setStartDate(commentRound.getStartDate());
         commentRoundDto.setEndDate(commentRound.getEndDate());
         commentRoundDto.setDescription(commentRound.getDescription());
+        commentRoundDto.setOpenThreads(commentRound.getOpenThreads());
+        commentRoundDto.setFixedThreads(commentRound.getFixedThreads());
+        commentRoundDto.setSourceLabel(commentRound.getSourceLabel());
         commentRoundDto.setLabel(commentRound.getLabel());
         commentRoundDto.setUserId(commentRound.getUserId());
+        commentRoundDto.setStatus(commentRound.getStatus());
         if (deep) {
-            commentRoundDto.setSource(mapSource(commentRound.getSource(), false));
-            commentRoundDto.setComments(mapComments(commentRound.getComments(), false));
-
+            commentRoundDto.setCommentThreads(mapCommentThreads(commentRound.getCommentThreads(), false));
+        }
+        if (deep || mapSource) {
+            commentRoundDto.setSource(mapSource(commentRound.getSource()));
+        }
+        if (deep || mapOrganization) {
+            commentRoundDto.setOrganizations(mapOrganizations(commentRound.getOrganizations(), false));
         }
         return commentRoundDto;
     }
 
-    public Set<GlobalCommentsDTO> mapDeepGlobalComments(final Set<GlobalComments> globalCommentsSet) {
-        final Set<GlobalCommentsDTO> globalGommentsDtos = new HashSet<>();
-        for (final GlobalComments globalComments : globalCommentsSet) {
-            globalGommentsDtos.add(mapDeepGlobalComments(globalComments));
-        }
-        return globalGommentsDtos;
-    }
-
-    public GlobalCommentsDTO mapDeepGlobalComments(final GlobalComments globalComments) {
-        return mapGlobalComments(globalComments, true);
-    }
-
-    public GlobalCommentsDTO mapGlobalComments(final GlobalComments globalComments,
-                                               final boolean deep) {
-        if (globalComments == null) {
-            return null;
-        }
-        final GlobalCommentsDTO globalCommentsDto = new GlobalCommentsDTO();
-        final UUID id = globalComments.getId();
-        globalCommentsDto.setId(id);
-        globalCommentsDto.setUrl(urlGenerator.createResourceUrl(API_PATH_GLOBALCOMMENTS, id.toString()));
-        globalCommentsDto.setCreated(globalComments.getCreated());
-        if (deep) {
-            globalCommentsDto.setSource(mapSource(globalComments.getSource(), false));
-            if (globalComments.getComments() != null) {
-                globalCommentsDto.setComments(mapComments(globalComments.getComments(), false));
+    @Transactional
+    public Set<CommentThreadDTO> mapCommentThreads(final Set<CommentThread> commentThreads,
+                                                   final boolean deep) {
+        final Set<CommentThreadDTO> commentThreadDtos = new HashSet<>();
+        if (commentThreads != null && !commentThreads.isEmpty()) {
+            for (final CommentThread commentThread : commentThreads) {
+                commentThreadDtos.add(mapCommentThread(commentThread, deep));
             }
         }
-        return globalCommentsDto;
+        return commentThreadDtos;
     }
 
-    public Set<SourceDTO> mapDeepSources(final Set<Source> sources) {
+    @Transactional
+    public Set<CommentThreadDTO> mapDeepCommentThreads(final Set<CommentThread> commentThreads) {
+        return mapCommentThreads(commentThreads, true);
+    }
+
+    @Transactional
+    public CommentThreadDTO mapDeepCommentThread(final CommentThread commentThread) {
+        return mapCommentThread(commentThread, true);
+    }
+
+    @Transactional
+    public CommentThreadDTO mapCommentThread(final CommentThread commentThread,
+                                             final boolean deep) {
+        if (commentThread == null) {
+            return null;
+        }
+        final CommentThreadDTO commentThreadDto = new CommentThreadDTO();
+        final UUID id = commentThread.getId();
+        commentThreadDto.setId(id);
+        commentThreadDto.setUrl(urlGenerator.createResourceUrl(API_PATH_THREADS, id.toString()));
+        commentThreadDto.setResourceUri(commentThread.getResourceUri());
+        commentThreadDto.setProposedStatus(commentThread.getProposedStatus());
+        commentThreadDto.setProposedText(commentThread.getProposedText());
+        commentThreadDto.setCreated(commentThread.getCreated());
+        commentThreadDto.setLabel(commentThread.getLabel());
+        commentThreadDto.setDefinition(commentThread.getDefinition());
+        commentThreadDto.setUserId(commentThread.getUserId());
+        if (deep) {
+            commentThreadDto.setCommentRound(mapCommentRound(commentThread.getCommentRound(), false, true, true));
+            commentThreadDto.setComments(mapComments(commentThread.getComments(), false));
+        }
+        return commentThreadDto;
+    }
+
+    @Transactional
+    public Set<SourceDTO> mapSources(final Set<Source> sources) {
         final Set<SourceDTO> sourceDtos = new HashSet<>();
-        for (final Source source : sources) {
-            sourceDtos.add(mapDeepSource(source));
+        if (sources != null && !sources.isEmpty()) {
+            for (final Source source : sources) {
+                sourceDtos.add(mapSource(source));
+            }
         }
         return sourceDtos;
     }
 
-    public SourceDTO mapDeepSource(final Source source) {
-        return mapSource(source, true);
-    }
-
-    public SourceDTO mapSource(final Source source,
-                               final boolean deep) {
+    @Transactional
+    public SourceDTO mapSource(final Source source) {
         if (source == null) {
             return null;
         }
@@ -157,33 +193,31 @@ public class DtoMapper {
         sourceDto.setUrl(urlGenerator.createResourceUrl(API_PATH_SOURCES, id.toString()));
         sourceDto.setContainerType(source.getContainerType());
         sourceDto.setContainerUri(source.getContainerUri());
-        if (deep) {
-            sourceDto.setGlobalComments(mapGlobalComments(source.getGlobalComments(), false));
-        }
         return sourceDto;
     }
 
-    public Set<CommentRoundGroupDTO> mapDeepCommentRoundGroups(final Set<CommentRoundGroup> commentRoundGroups) {
-        final Set<CommentRoundGroupDTO> commentRoundGroupDtos = new HashSet<>();
-        for (final CommentRoundGroup commentRoundGroup : commentRoundGroups) {
-            commentRoundGroupDtos.add(mapDeepCommentRoundGroup(commentRoundGroup));
+    @Transactional
+    public OrganizationDTO mapOrganization(final Organization organization,
+                                           final boolean deep) {
+        final OrganizationDTO organizationDto = new OrganizationDTO();
+        organizationDto.setId(organization.getId());
+        organizationDto.setRemoved(organization.getRemoved());
+        organizationDto.setUrl(organization.getUrl());
+        organizationDto.setDescription(organization.getDescription());
+        organizationDto.setPrefLabel(organization.getPrefLabel());
+        if (deep && organization.getCommentRounds() != null) {
+            organizationDto.setCommentRounds(mapCommentRounds(organization.getCommentRounds(), false));
         }
-        return commentRoundGroupDtos;
+        return organizationDto;
     }
 
-    public CommentRoundGroupDTO mapDeepCommentRoundGroup(final CommentRoundGroup commentRoundGroup) {
-        return mapCommentRoundGroup(commentRoundGroup, true);
-    }
-
-    public CommentRoundGroupDTO mapCommentRoundGroup(final CommentRoundGroup commentRoundGroup,
-                                                     final boolean deep) {
-        final CommentRoundGroupDTO commentRoundGroupDto = new CommentRoundGroupDTO();
-        final UUID id = commentRoundGroup.getId();
-        commentRoundGroupDto.setId(id);
-        commentRoundGroupDto.setUrl(urlGenerator.createResourceUrl(API_PATH_COMMENTROUNDGROUPS, id.toString()));
-        if (deep) {
-            commentRoundGroupDto.setCommentRound(mapCommentRound(commentRoundGroup.getCommentRound(), false));
+    @Transactional
+    public Set<OrganizationDTO> mapOrganizations(final Set<Organization> organizations,
+                                                 final boolean deep) {
+        final Set<OrganizationDTO> organizationDtos = new HashSet<>();
+        if (organizations != null && !organizations.isEmpty()) {
+            organizations.forEach(organization -> organizationDtos.add(mapOrganization(organization, deep)));
         }
-        return commentRoundGroupDto;
+        return organizationDtos;
     }
 }

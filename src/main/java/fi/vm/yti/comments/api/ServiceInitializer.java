@@ -27,21 +27,26 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import fi.vm.yti.comments.api.configuration.CommentsApiConfiguration;
 import fi.vm.yti.comments.api.configuration.VersionInformation;
+import fi.vm.yti.comments.api.groupmanagement.OrganizationUpdater;
 import fi.vm.yti.comments.api.utils.FileUtils;
 
 @Component
 public class ServiceInitializer implements ApplicationRunner {
 
     public static final String LOCAL_SWAGGER_DATA_DIR = "/data/yti/yti-comments-api/swagger/";
+
     private static final Logger LOG = LoggerFactory.getLogger(ServiceInitializer.class);
     private final CommentsApiConfiguration commentsApiProperties;
     private final VersionInformation versionInformation;
+    private final OrganizationUpdater organizationUpdater;
 
     @Inject
     public ServiceInitializer(final VersionInformation versionInformation,
-                              final CommentsApiConfiguration publicApiServiceProperties) {
+                              final CommentsApiConfiguration publicApiServiceProperties,
+                              final OrganizationUpdater organizationUpdater) {
         this.versionInformation = versionInformation;
         this.commentsApiProperties = publicApiServiceProperties;
+        this.organizationUpdater = organizationUpdater;
     }
 
     @Override
@@ -52,6 +57,8 @@ public class ServiceInitializer implements ApplicationRunner {
     public void initialize() {
         printLogo();
         updateSwaggerHost();
+        LOG.info("*** Updating organizations. ***");
+        organizationUpdater.updateOrganizations();
     }
 
     public void printLogo() {

@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import fi.vm.yti.comments.api.api.ResponseWrapper;
 import fi.vm.yti.comments.api.dto.SourceDTO;
 import fi.vm.yti.comments.api.error.Meta;
+import fi.vm.yti.comments.api.exception.NotFoundException;
 import fi.vm.yti.comments.api.parser.SourceParser;
 import fi.vm.yti.comments.api.service.SourceService;
 import io.swagger.annotations.Api;
@@ -76,7 +77,7 @@ public class SourceResource implements AbstractBaseResource {
         if (source != null) {
             return Response.ok(source).build();
         } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            throw new NotFoundException();
         }
     }
 
@@ -117,7 +118,7 @@ public class SourceResource implements AbstractBaseResource {
         if (source != null) {
             return Response.ok(source).build();
         } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            throw new NotFoundException();
         }
     }
 }

@@ -2,6 +2,7 @@ package fi.vm.yti.comments.api.dto;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -20,9 +21,9 @@ import io.swagger.annotations.ApiModelProperty;
 
 @JsonFilter("commentRound")
 @XmlRootElement
-@XmlType(propOrder = { "id", "url", "created", "modified", "startDate", "endDate", "status", "fixedComments", "openComments", "comments" })
+@XmlType(propOrder = { "id", "url", "created", "modified", "startDate", "endDate", "status", "sourceLabel", "fixedThreads", "openThreads", "organizations", "commentThreads" })
 @ApiModel(value = "CommentRound", description = "CommentRound entity that represents data for one single comment round.")
-public class CommentRoundDTO extends AbstractTimeStampedIdentifyableEntityDTO implements Serializable {
+public class CommentRoundDTO extends AbstractTimeStampedIdentifyableDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -34,9 +35,11 @@ public class CommentRoundDTO extends AbstractTimeStampedIdentifyableEntityDTO im
     private String description;
     private String status;
     private SourceDTO source;
-    private Set<CommentDTO> comments;
-    private boolean fixedComments;
-    private boolean openComments;
+    private Map<String, String> sourceLabel;
+    private boolean fixedThreads;
+    private boolean openThreads;
+    private Set<OrganizationDTO> organizations;
+    private Set<CommentThreadDTO> commentThreads;
 
     @ApiModelProperty(dataType = "dateTime")
     @JsonSerialize(using = LocalDateSerializer.class)
@@ -86,14 +89,6 @@ public class CommentRoundDTO extends AbstractTimeStampedIdentifyableEntityDTO im
         this.description = description;
     }
 
-    public SourceDTO getSource() {
-        return source;
-    }
-
-    public void setSource(final SourceDTO source) {
-        this.source = source;
-    }
-
     public String getUrl() {
         return url;
     }
@@ -102,35 +97,59 @@ public class CommentRoundDTO extends AbstractTimeStampedIdentifyableEntityDTO im
         this.url = url;
     }
 
-    public Set<CommentDTO> getComments() {
-        return comments;
-    }
-
-    public void setComments(final Set<CommentDTO> comments) {
-        this.comments = comments;
-    }
-
     public String getStatus() {
         return status;
+    }
+
+    public SourceDTO getSource() {
+        return source;
+    }
+
+    public void setSource(final SourceDTO source) {
+        this.source = source;
     }
 
     public void setStatus(final String status) {
         this.status = status;
     }
 
-    public boolean getFixedComments() {
-        return fixedComments;
+    public Map<String, String> getSourceLabel() {
+        return sourceLabel;
     }
 
-    public void setFixedComments(final boolean fixedComments) {
-        this.fixedComments = fixedComments;
+    public void setSourceLabel(final Map<String, String> sourceLabel) {
+        this.sourceLabel = sourceLabel;
     }
 
-    public boolean getOpenComments() {
-        return openComments;
+    public boolean getFixedThreads() {
+        return fixedThreads;
     }
 
-    public void setOpenComments(final boolean openComments) {
-        this.openComments = openComments;
+    public void setFixedThreads(final boolean fixedThreads) {
+        this.fixedThreads = fixedThreads;
+    }
+
+    public boolean getOpenThreads() {
+        return openThreads;
+    }
+
+    public void setOpenThreads(final boolean openThreads) {
+        this.openThreads = openThreads;
+    }
+
+    public Set<OrganizationDTO> getOrganizations() {
+        return organizations;
+    }
+
+    public void setOrganizations(final Set<OrganizationDTO> organizations) {
+        this.organizations = organizations;
+    }
+
+    public Set<CommentThreadDTO> getCommentThreads() {
+        return commentThreads;
+    }
+
+    public void setCommentThreads(final Set<CommentThreadDTO> commentThreads) {
+        this.commentThreads = commentThreads;
     }
 }

@@ -16,5 +16,7 @@ public interface SourceRepository extends PagingAndSortingRepository<Source, Str
 
     Source findById(final UUID sourceId);
 
+    Source findByContainerUri(final String containerUri);
+
     Set<Source> findAll();
 }

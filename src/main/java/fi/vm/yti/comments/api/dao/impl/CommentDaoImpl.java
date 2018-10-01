@@ -6,71 +6,77 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import fi.vm.yti.comments.api.dao.CommentDao;
-import fi.vm.yti.comments.api.dao.CommentRoundDao;
-import fi.vm.yti.comments.api.dao.GlobalCommentsDao;
 import fi.vm.yti.comments.api.dto.CommentDTO;
-import fi.vm.yti.comments.api.dto.CommentRoundDTO;
-import fi.vm.yti.comments.api.dto.GlobalCommentsDTO;
 import fi.vm.yti.comments.api.entity.Comment;
-import fi.vm.yti.comments.api.entity.CommentRound;
-import fi.vm.yti.comments.api.entity.GlobalComments;
+import fi.vm.yti.comments.api.entity.CommentThread;
 import fi.vm.yti.comments.api.error.ErrorModel;
 import fi.vm.yti.comments.api.exception.YtiCommentsException;
 import fi.vm.yti.comments.api.jpa.CommentRepository;
+import fi.vm.yti.comments.api.security.AuthorizationManager;
 
 @Component
 public class CommentDaoImpl implements CommentDao {
 
     private final CommentRepository commentRepository;
-    private final GlobalCommentsDao globalCommentsDao;
-    private final CommentRoundDao commentRoundDao;
+    private final AuthorizationManager authorizationManager;
 
     @Inject
     public CommentDaoImpl(final CommentRepository commentRepository,
-                          final GlobalCommentsDao globalCommentsDao,
-                          final CommentRoundDao commentRoundDao) {
+                          final AuthorizationManager authorizationManager) {
         this.commentRepository = commentRepository;
-        this.globalCommentsDao = globalCommentsDao;
-        this.commentRoundDao = commentRoundDao;
+        this.authorizationManager = authorizationManager;
     }
 
+    @Transactional
     public Set<Comment> findAll() {
         return commentRepository.findAll();
     }
 
+    @Transactional
     public Comment findById(final UUID commentId) {
         return commentRepository.findById(commentId);
     }
 
-    public Set<Comment> findByCommentRoundId(final UUID commentRoundId) {
-        return commentRepository.findByCommentRoundIdOrderByCreatedAsc(commentRoundId);
+    @Transactional
+    public Set<Comment> findByCommentThreadId(final UUID commentThreadId) {
+        return commentRepository.findByCommentThreadIdOrderByCreatedAsc(commentThreadId);
     }
 
-    public Set<Comment> findByGlobalCommentsId(final UUID globalCommentsId) {
-        return commentRepository.findByGlobalCommentsIdOrderByCreatedAsc(globalCommentsId);
-    }
-
-    public Comment addOrUpdateCommentFromDto(final CommentDTO fromComment) {
-        final Comment comment = createOrUpdateComment(fromComment);
+    @Transactional
+    public Comment addOrUpdateCommentFromDto(final CommentThread commentThread,
+                                             final CommentDTO fromComment) {
+        final Comment comment = createOrUpdateComment(commentThread, fromComment);
         commentRepository.save(comment);
         return comment;
     }
 
-    public Set<Comment> addOrUpdateCommentsFromDtos(final Set<CommentDTO> fromComments) {
+    @Transactional
+    public Set<Comment> addOrUpdateCommentsFromDtos(final CommentThread commentThread,
+                                                    final Set<CommentDTO> fromComments) {
         final Set<Comment> comments = new HashSet<>();
         for (final CommentDTO fromComment : fromComments) {
-            comments.add(createOrUpdateComment(fromComment));
+            comments.add(createOrUpdateComment(commentThread, fromComment));
         }
         commentRepository.saveAll(comments);
         return comments;
     }
 
-    private Comment createOrUpdateComment(final CommentDTO fromComment) {
+    private void validateCommentThread(final CommentThread commentThread,
+                                       final CommentDTO fromComment) {
+        if (!commentThread.getId().equals(fromComment.getCommentThread().getId())) {
+            throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), "Comment DTO data has invalid comment thread id."));
+        }
+    }
+
+    private Comment createOrUpdateComment(final CommentThread commentThread,
+                                          final CommentDTO fromComment) {
+        validateCommentThread(commentThread, fromComment);
         final Comment existingComment;
         if (fromComment.getId() != null) {
             existingComment = commentRepository.findById(fromComment.getId());
@@ -81,22 +87,20 @@ public class CommentDaoImpl implements CommentDao {
         if (existingComment != null) {
             comment = updateComment(existingComment, fromComment);
         } else {
-            comment = createComment(fromComment);
+            comment = createComment(commentThread, fromComment);
         }
         return comment;
     }
 
-    private Comment createComment(final CommentDTO fromComment) {
+    private Comment createComment(final CommentThread commentThread,
+                                  final CommentDTO fromComment) {
         final Comment comment = new Comment();
         comment.setId(UUID.randomUUID());
-        comment.setUserId(fromComment.getUserId());
-        comment.setResourceUri(fromComment.getResourceUri());
-        comment.setResourceSuggestion(fromComment.getResourceSuggestion());
+        comment.setUserId(authorizationManager.getUserId());
         comment.setContent(fromComment.getContent());
         comment.setProposedStatus(fromComment.getProposedStatus());
-        resolveGlobalComments(comment, fromComment);
-        resolveCommentRound(comment, fromComment);
-        resolveRelatedComment(comment, fromComment);
+        comment.setCommentThread(commentThread);
+        resolveParentComment(comment, fromComment);
         final LocalDateTime timeStamp = LocalDateTime.now();
         comment.setCreated(timeStamp);
         return comment;
@@ -104,57 +108,22 @@ public class CommentDaoImpl implements CommentDao {
 
     private Comment updateComment(final Comment existingComment,
                                   final CommentDTO fromComment) {
-        existingComment.setUserId(fromComment.getUserId());
-        existingComment.setResourceUri(fromComment.getResourceUri());
-        existingComment.setResourceSuggestion(fromComment.getResourceSuggestion());
         existingComment.setContent(fromComment.getContent());
         existingComment.setProposedStatus(fromComment.getProposedStatus());
-        resolveGlobalComments(existingComment, fromComment);
-        resolveCommentRound(existingComment, fromComment);
-        resolveRelatedComment(existingComment, fromComment);
+        resolveParentComment(existingComment, fromComment);
         return existingComment;
     }
 
-    private void resolveGlobalComments(final Comment comment,
-                                       final CommentDTO fromComment) {
-        final GlobalCommentsDTO globalCommentsDto = fromComment.getGlobalComments();
-        if (globalCommentsDto != null && globalCommentsDto.getId() != null) {
-            final GlobalComments globalComments = globalCommentsDao.findById(globalCommentsDto.getId());
-            if (globalComments != null) {
-                comment.setGlobalComments(globalComments);
+    private void resolveParentComment(final Comment comment,
+                                      final CommentDTO fromComment) {
+        final CommentDTO parentCommentDto = fromComment.getParentComment();
+        if (parentCommentDto != null && parentCommentDto.getId() != null) {
+            final Comment parentComment = findById(parentCommentDto.getId());
+            if (parentComment != null) {
+                comment.setParentComment(parentComment);
             } else {
-                throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), "Invalid globalComments in DTO data."));
+                throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), "Invalid parentComment in DTO data."));
             }
-        } else {
-            throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), "Invalid globalComments in DTO data."));
-        }
-    }
-
-    private void resolveRelatedComment(final Comment comment,
-                                       final CommentDTO fromComment) {
-        final CommentDTO relatedCommentDto = fromComment.getRelatedComment();
-        if (relatedCommentDto != null && relatedCommentDto.getId() != null) {
-            final Comment relatedComment = findById(relatedCommentDto.getId());
-            if (relatedComment != null) {
-                comment.setRelatedComment(relatedComment);
-            } else {
-                throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), "Invalid relatedComment in DTO data."));
-            }
-        }
-    }
-
-    private void resolveCommentRound(final Comment comment,
-                                     final CommentDTO fromComment) {
-        final CommentRoundDTO commentRoundDto = fromComment.getCommentRound();
-        if (commentRoundDto != null && commentRoundDto.getId() != null) {
-            final CommentRound commentRound = commentRoundDao.findById(commentRoundDto.getId());
-            if (commentRound != null) {
-                comment.setCommentRound(commentRound);
-            } else {
-                throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), "Invalid commentRound in DTO data."));
-            }
-        } else {
-            throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), "Invalid commentRound in DTO data."));
         }
     }
 }

@@ -6,49 +6,100 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import fi.vm.yti.comments.api.dao.CommentRoundDao;
+import fi.vm.yti.comments.api.dao.OrganizationDao;
 import fi.vm.yti.comments.api.dao.SourceDao;
 import fi.vm.yti.comments.api.dto.CommentRoundDTO;
-import fi.vm.yti.comments.api.dto.DtoMapper;
+import fi.vm.yti.comments.api.dto.OrganizationDTO;
 import fi.vm.yti.comments.api.dto.SourceDTO;
 import fi.vm.yti.comments.api.entity.CommentRound;
+import fi.vm.yti.comments.api.entity.Organization;
 import fi.vm.yti.comments.api.entity.Source;
-import fi.vm.yti.comments.api.error.ErrorModel;
-import fi.vm.yti.comments.api.exception.YtiCommentsException;
+import fi.vm.yti.comments.api.exception.NotFoundException;
 import fi.vm.yti.comments.api.jpa.CommentRoundRepository;
+import fi.vm.yti.comments.api.security.AuthorizationManager;
 
 @Component
 public class CommentRoundDaoImpl implements CommentRoundDao {
 
     private final CommentRoundRepository commentRoundRepository;
     private final SourceDao sourceDao;
+    private final OrganizationDao organizationDao;
+    private final AuthorizationManager authorizationManager;
 
     @Inject
     public CommentRoundDaoImpl(final CommentRoundRepository commentRoundRepository,
-                               final DtoMapper dtoMapper,
-                               final SourceDao sourceDao) {
+                               final SourceDao sourceDao,
+                               final OrganizationDao organizationDao,
+                               final AuthorizationManager authorizationManager) {
         this.commentRoundRepository = commentRoundRepository;
         this.sourceDao = sourceDao;
+        this.organizationDao = organizationDao;
+        this.authorizationManager = authorizationManager;
     }
 
+    @Transactional
     public Set<CommentRound> findAll() {
         return commentRoundRepository.findAll();
     }
 
+    @Transactional
+    public Set<CommentRound> findByOrganizationsIdAndStatus(final UUID organizationId,
+                                                            final String status) {
+        return commentRoundRepository.findByOrganizationsIdAndStatus(organizationId, status);
+    }
+
+    @Transactional
+    public Set<CommentRound> findByOrganizationsId(final UUID organizationId) {
+        return commentRoundRepository.findByOrganizationsId(organizationId);
+    }
+
+    @Transactional
+    public Set<CommentRound> findByStatus(final String status) {
+        return commentRoundRepository.findByStatus(status);
+    }
+
+    @Transactional
+    public Set<CommentRound> findBySourceContainerType(final String containerType) {
+        return commentRoundRepository.findBySourceContainerType(containerType);
+    }
+
+    @Transactional
+    public Set<CommentRound> findByOrganizationsIdAndStatusAndSourceContainerType(final UUID organizationId,
+                                                                                  final String status,
+                                                                                  final String containerType) {
+        return commentRoundRepository.findByOrganizationsIdAndStatusAndSourceContainerType(organizationId, status, containerType);
+    }
+
+    @Transactional
+    public Set<CommentRound> findByOrganizationsIdAndSourceContainerType(final UUID organizationId,
+                                                                         final String containerType) {
+        return commentRoundRepository.findByOrganizationsIdAndSourceContainerType(organizationId, containerType);
+    }
+
+    @Transactional
+    public Set<CommentRound> findByStatusAndSourceContainerType(final String status,
+                                                                final String containerType) {
+        return commentRoundRepository.findByStatusAndSourceContainerType(status, containerType);
+    }
+
+    @Transactional
     public CommentRound findById(final UUID commentRoundId) {
         return commentRoundRepository.findById(commentRoundId);
     }
 
+    @Transactional
     public CommentRound addOrUpdateCommentRoundFromDto(final CommentRoundDTO fromCommentRound) {
         final CommentRound commentRound = createOrUpdateCommentRound(fromCommentRound);
         commentRoundRepository.save(commentRound);
         return commentRound;
     }
 
+    @Transactional
     public Set<CommentRound> addOrUpdateCommentRoundsFromDtos(final Set<CommentRoundDTO> fromCommentRounds) {
         final Set<CommentRound> commentRounds = new HashSet<>();
         for (final CommentRoundDTO fromCommentRound : fromCommentRounds) {
@@ -78,48 +129,62 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
     private CommentRound createCommentRound(final CommentRoundDTO fromCommentRound) {
         final CommentRound commentRound = new CommentRound();
         commentRound.setId(UUID.randomUUID());
-        commentRound.setUserId(fromCommentRound.getUserId());
-        commentRound.setDescription(fromCommentRound.getDescription());
+        commentRound.setUserId(authorizationManager.getUserId());
         commentRound.setLabel(fromCommentRound.getLabel());
+        commentRound.setDescription(fromCommentRound.getDescription());
         commentRound.setStatus(fromCommentRound.getStatus());
-        commentRound.setOpenComments(fromCommentRound.getOpenComments());
-        commentRound.setFixedComments(fromCommentRound.getFixedComments());
+        commentRound.setOpenThreads(fromCommentRound.getOpenThreads());
+        commentRound.setFixedThreads(fromCommentRound.getFixedThreads());
         commentRound.setStartDate(fromCommentRound.getStartDate());
         commentRound.setEndDate(fromCommentRound.getEndDate());
+        commentRound.setSourceLabel(fromCommentRound.getSourceLabel());
         final LocalDateTime timeStamp = LocalDateTime.now();
         commentRound.setCreated(timeStamp);
         commentRound.setModified(timeStamp);
-        resolveSource(commentRound, fromCommentRound);
+        resolveAndSetSource(commentRound, fromCommentRound);
+        resolveAndSetOrganizations(commentRound, fromCommentRound);
         return commentRound;
     }
 
     private CommentRound updateCommentRound(final CommentRound existingCommentRound,
                                             final CommentRoundDTO fromCommentRound) {
-        existingCommentRound.setUserId(fromCommentRound.getUserId());
-        existingCommentRound.setDescription(fromCommentRound.getDescription());
         existingCommentRound.setLabel(fromCommentRound.getLabel());
+        existingCommentRound.setDescription(fromCommentRound.getDescription());
         existingCommentRound.setStatus(fromCommentRound.getStatus());
-        existingCommentRound.setOpenComments(fromCommentRound.getOpenComments());
-        existingCommentRound.setFixedComments(fromCommentRound.getFixedComments());
+        existingCommentRound.setOpenThreads(fromCommentRound.getOpenThreads());
+        existingCommentRound.setFixedThreads(fromCommentRound.getFixedThreads());
         existingCommentRound.setStartDate(fromCommentRound.getStartDate());
         existingCommentRound.setEndDate(fromCommentRound.getEndDate());
         existingCommentRound.setModified(LocalDateTime.now());
-        resolveSource(existingCommentRound, fromCommentRound);
+        existingCommentRound.setSourceLabel(fromCommentRound.getSourceLabel());
+        resolveAndSetSource(existingCommentRound, fromCommentRound);
+        resolveAndSetOrganizations(existingCommentRound, fromCommentRound);
         return existingCommentRound;
     }
 
-    private void resolveSource(final CommentRound commentRound,
-                               final CommentRoundDTO fromCommentRound) {
+    private void resolveAndSetSource(final CommentRound commentRound,
+                                     final CommentRoundDTO fromCommentRound) {
         final SourceDTO sourceDto = fromCommentRound.getSource();
-        if (sourceDto != null && sourceDto.getId() != null) {
-            final Source source = sourceDao.findById(sourceDto.getId());
+        if (sourceDto != null && sourceDto.getContainerUri() != null) {
+            final Source source = sourceDao.getOrCreateByDto(sourceDto);
             if (source != null) {
                 commentRound.setSource(source);
-            } else {
-                throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), "Invalid source in DTO data."));
             }
-        } else {
-            throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), "Invalid source in DTO data."));
         }
+    }
+
+    private void resolveAndSetOrganizations(final CommentRound commentRound,
+                                            final CommentRoundDTO fromCommentRound) {
+        final Set<OrganizationDTO> organizationDtos = fromCommentRound.getOrganizations();
+        final Set<Organization> organizations = new HashSet<>();
+        organizationDtos.forEach(organizationDto -> {
+            final Organization organization = organizationDao.findById(organizationDto.getId());
+            if (organization != null) {
+                organizations.add(organization);
+            } else {
+                throw new NotFoundException();
+            }
+        });
+        commentRound.setOrganizations(organizations);
     }
 }

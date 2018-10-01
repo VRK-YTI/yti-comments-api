@@ -12,6 +12,8 @@ public interface SourceDao {
 
     Source findById(final UUID sourceId);
 
+    Source getOrCreateByDto(final SourceDTO sourceDto);
+
     Source addOrUpdateSourceFromDto(final SourceDTO sourcDto);
 
     Set<Source> addOrUpdateSourcesFromDtos(final Set<SourceDTO> sourcDtos);
