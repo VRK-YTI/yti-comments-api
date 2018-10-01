@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
@@ -21,7 +20,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 @JsonFilter("commentThread")
 @XmlRootElement
-@XmlType(propOrder = { "id", "url", "resourceUri", "label", "definition", "proposedText", "proposedStatus", "userId", "created", "comments", "commentRound" })
+@XmlType(propOrder = { "id", "url", "created", "user", "resourceUri", "label", "definition", "proposedText", "proposedStatus", "comments", "commentRound" })
 @ApiModel(value = "Source", description = "Source DTO that represents data for one single source.")
 public class CommentThreadDTO extends AbstractIdentifyableDTO implements Serializable {
 
@@ -33,7 +32,7 @@ public class CommentThreadDTO extends AbstractIdentifyableDTO implements Seriali
     private Map<String, String> definition;
     private String proposedText;
     private String proposedStatus;
-    private UUID userId;
+    private UserDTO user;
     private LocalDateTime created;
     private Set<CommentDTO> comments;
     private CommentRoundDTO commentRound;
@@ -86,12 +85,12 @@ public class CommentThreadDTO extends AbstractIdentifyableDTO implements Seriali
         this.proposedStatus = proposedStatus;
     }
 
-    public UUID getUserId() {
-        return userId;
+    public UserDTO getUser() {
+        return user;
     }
 
-    public void setUserId(final UUID userId) {
-        this.userId = userId;
+    public void setUser(final UserDTO user) {
+        this.user = user;
     }
 
     @ApiModelProperty(dataType = "dateTime")

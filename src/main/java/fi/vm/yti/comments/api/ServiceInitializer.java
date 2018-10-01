@@ -28,6 +28,8 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import fi.vm.yti.comments.api.configuration.CommentsApiConfiguration;
 import fi.vm.yti.comments.api.configuration.VersionInformation;
 import fi.vm.yti.comments.api.groupmanagement.OrganizationUpdater;
+import fi.vm.yti.comments.api.service.UserService;
+import fi.vm.yti.comments.api.service.impl.UserServiceImpl;
 import fi.vm.yti.comments.api.utils.FileUtils;
 
 @Component
@@ -39,14 +41,17 @@ public class ServiceInitializer implements ApplicationRunner {
     private final CommentsApiConfiguration commentsApiProperties;
     private final VersionInformation versionInformation;
     private final OrganizationUpdater organizationUpdater;
+    private final UserService userService;
 
     @Inject
     public ServiceInitializer(final VersionInformation versionInformation,
                               final CommentsApiConfiguration publicApiServiceProperties,
-                              final OrganizationUpdater organizationUpdater) {
+                              final OrganizationUpdater organizationUpdater,
+                              final UserServiceImpl userService) {
         this.versionInformation = versionInformation;
         this.commentsApiProperties = publicApiServiceProperties;
         this.organizationUpdater = organizationUpdater;
+        this.userService = userService;
     }
 
     @Override
@@ -59,6 +64,8 @@ public class ServiceInitializer implements ApplicationRunner {
         updateSwaggerHost();
         LOG.info("*** Updating organizations. ***");
         organizationUpdater.updateOrganizations();
+        LOG.info("*** Updating users. ***");
+        userService.updateUsers();
     }
 
     public void printLogo() {

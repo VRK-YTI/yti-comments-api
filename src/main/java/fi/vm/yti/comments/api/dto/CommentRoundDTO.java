@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
@@ -21,7 +20,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 @JsonFilter("commentRound")
 @XmlRootElement
-@XmlType(propOrder = { "id", "url", "created", "modified", "startDate", "endDate", "status", "sourceLabel", "fixedThreads", "openThreads", "organizations", "commentThreads" })
+@XmlType(propOrder = { "id", "url", "created", "modified", "user", "startDate", "endDate", "status", "sourceLabel", "fixedThreads", "openThreads", "organizations", "commentThreads" })
 @ApiModel(value = "CommentRound", description = "CommentRound entity that represents data for one single comment round.")
 public class CommentRoundDTO extends AbstractTimeStampedIdentifyableDTO implements Serializable {
 
@@ -30,7 +29,7 @@ public class CommentRoundDTO extends AbstractTimeStampedIdentifyableDTO implemen
     private String url;
     private LocalDate startDate;
     private LocalDate endDate;
-    private UUID userId;
+    private UserDTO user;
     private String label;
     private String description;
     private String status;
@@ -65,12 +64,12 @@ public class CommentRoundDTO extends AbstractTimeStampedIdentifyableDTO implemen
         this.endDate = endDate;
     }
 
-    public UUID getUserId() {
-        return userId;
+    public UserDTO getUser() {
+        return user;
     }
 
-    public void setUserId(final UUID userId) {
-        this.userId = userId;
+    public void setUser(final UserDTO user) {
+        this.user = user;
     }
 
     public String getLabel() {
@@ -101,16 +100,16 @@ public class CommentRoundDTO extends AbstractTimeStampedIdentifyableDTO implemen
         return status;
     }
 
+    public void setStatus(final String status) {
+        this.status = status;
+    }
+
     public SourceDTO getSource() {
         return source;
     }
 
     public void setSource(final SourceDTO source) {
         this.source = source;
-    }
-
-    public void setStatus(final String status) {
-        this.status = status;
     }
 
     public Map<String, String> getSourceLabel() {

@@ -1,7 +1,5 @@
 package fi.vm.yti.comments.api.groupmanagement;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -43,12 +41,11 @@ public class OrganizationUpdater {
 
     @Transactional
     public void updateOrganizations() {
-        final Map<String, String> vars = new HashMap<>();
         try {
-            final String response = restTemplate.getForObject(getGroupManagementOrganizationsApiUrl(), String.class, vars);
+            final String response = restTemplate.getForObject(getGroupManagementOrganizationsApiUrl(), String.class);
             final Set<OrganizationDTO> organizations = organizationService.parseAndPersistGroupManagementOrganizationsFromJson(response);
             if (organizations != null) {
-                LOG.info(String.format("Successfully synced %d from groupmanagement service!", organizations.size()));
+                LOG.info(String.format("Successfully synced %d organizations from groupmanagement service!", organizations.size()));
             }
         } catch (final Exception e) {
             LOG.error("Organization fetching failed due to exception.", e);

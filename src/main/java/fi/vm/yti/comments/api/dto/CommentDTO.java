@@ -2,7 +2,6 @@ package fi.vm.yti.comments.api.dto;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
@@ -19,26 +18,26 @@ import io.swagger.annotations.ApiModelProperty;
 
 @JsonFilter("comment")
 @XmlRootElement
-@XmlType(propOrder = { "id", "url", "created", "userId", "content", "proposedStatus", "parentComment", "commentThread" })
+@XmlType(propOrder = { "id", "url", "created", "user", "content", "proposedStatus", "parentComment", "commentThread" })
 @ApiModel(value = "Comment", description = "Comment entity that represents data for one single comment in a commmentThread.")
 public class CommentDTO extends AbstractIdentifyableDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     private String url;
-    private UUID userId;
+    private UserDTO user;
     private CommentDTO parentComment;
     private CommentThreadDTO commmentThread;
     private String content;
     private String proposedStatus;
     private LocalDateTime created;
 
-    public UUID getUserId() {
-        return userId;
+    public UserDTO getUser() {
+        return user;
     }
 
-    public void setUserId(final UUID userId) {
-        this.userId = userId;
+    public void setUser(final UserDTO user) {
+        this.user = user;
     }
 
     public CommentDTO getParentComment() {
