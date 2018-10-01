@@ -11,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import fi.vm.yti.comments.api.dao.SourceDao;
-import fi.vm.yti.comments.api.dto.DtoMapper;
 import fi.vm.yti.comments.api.dto.SourceDTO;
 import fi.vm.yti.comments.api.entity.Source;
 import fi.vm.yti.comments.api.error.ErrorModel;
