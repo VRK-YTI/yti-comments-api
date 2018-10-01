@@ -80,16 +80,12 @@ public class CodelistProxyResource implements AbstractBaseResource {
                 final ResponseWrapper<ResourceDTO> wrapper = new ResponseWrapper<>(meta);
                 final Set<ResourceDTO> containers;
                 final String data = response.getBody().toString();
-                if (data != null) {
-                    containers = mapper.readValue(data, new TypeReference<Set<ResourceDTO>>() {
-                    });
-                    meta.setCode(200);
-                    meta.setResultCount(containers.size());
-                    wrapper.setResults(containers);
-                    return Response.ok(wrapper).build();
-                } else {
-                    throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), "Invalid data from code list containers integration API."));
-                }
+                containers = mapper.readValue(data, new TypeReference<Set<ResourceDTO>>() {
+                });
+                meta.setCode(200);
+                meta.setResultCount(containers.size());
+                wrapper.setResults(containers);
+                return Response.ok(wrapper).build();
             } catch (final IOException e) {
                 LOG.error("Error parsing containers from codelist response! ", e);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -124,16 +120,12 @@ public class CodelistProxyResource implements AbstractBaseResource {
                 final ResponseWrapper<ResourceDTO> wrapper = new ResponseWrapper<>(meta);
                 final Set<ResourceDTO> containers;
                 final String data = response.getBody().toString();
-                if (data != null) {
-                    containers = mapper.readValue(data, new TypeReference<Set<ResourceDTO>>() {
-                    });
-                    meta.setCode(200);
-                    meta.setResultCount(containers.size());
-                    wrapper.setResults(containers);
-                    return Response.ok(wrapper).build();
-                } else {
-                    throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), "Invalid data from codelist resources integration API."));
-                }
+                containers = mapper.readValue(data, new TypeReference<Set<ResourceDTO>>() {
+                });
+                meta.setCode(200);
+                meta.setResultCount(containers.size());
+                wrapper.setResults(containers);
+                return Response.ok(wrapper).build();
             } catch (final IOException e) {
                 LOG.error("Error parsing containers from codelist API response! ", e);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();

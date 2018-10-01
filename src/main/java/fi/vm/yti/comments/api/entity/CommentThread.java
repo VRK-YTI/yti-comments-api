@@ -1,5 +1,6 @@
 package fi.vm.yti.comments.api.entity;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Set;
@@ -22,7 +23,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Entity
 @Table(name = "commentthread")
 @XmlRootElement
-public class CommentThread extends AbstractIdentifyableEntity {
+public class CommentThread extends AbstractIdentifyableEntity implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String resourceUri;
     private Map<String, String> label;
