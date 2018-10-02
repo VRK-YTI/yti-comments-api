@@ -101,7 +101,7 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
         commentThread.setId(UUID.randomUUID());
         commentThread.setUserId(authorizationManager.getUserId());
         commentThread.setLabel(fromCommentThread.getLabel());
-        commentThread.setDefinition(fromCommentThread.getDefinition());
+        commentThread.setDescription(fromCommentThread.getDescription());
         commentThread.setResourceUri(fromCommentThread.getResourceUri());
         commentThread.setProposedStatus(fromCommentThread.getProposedStatus());
         commentThread.setProposedText(fromCommentThread.getProposedText());
@@ -114,7 +114,7 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
     private CommentThread updateCommentThread(final CommentThread existingCommentThread,
                                               final CommentThreadDTO fromCommentThread) {
         existingCommentThread.setLabel(fromCommentThread.getLabel());
-        existingCommentThread.setDefinition(fromCommentThread.getDefinition());
+        existingCommentThread.setDescription(fromCommentThread.getDescription());
         existingCommentThread.setResourceUri(fromCommentThread.getResourceUri());
         existingCommentThread.setProposedStatus(fromCommentThread.getProposedStatus());
         existingCommentThread.setProposedText(fromCommentThread.getProposedText());

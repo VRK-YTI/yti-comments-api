@@ -29,7 +29,7 @@ public class CommentThread extends AbstractIdentifyableEntity implements Seriali
 
     private String resourceUri;
     private Map<String, String> label;
-    private Map<String, String> definition;
+    private Map<String, String> description;
     private String proposedText;
     private String proposedStatus;
     private UUID userId;
@@ -60,16 +60,16 @@ public class CommentThread extends AbstractIdentifyableEntity implements Seriali
     }
 
     @ElementCollection(targetClass = String.class, fetch = FetchType.EAGER)
-    @CollectionTable(name = "commentthread_definition", joinColumns = @JoinColumn(name = "commentthread_id", referencedColumnName = "id"))
+    @CollectionTable(name = "commentthread_description", joinColumns = @JoinColumn(name = "commentthread_id", referencedColumnName = "id"))
     @MapKeyColumn(name = "language")
-    @Column(name = "definition")
+    @Column(name = "description")
     @OrderColumn
-    public Map<String, String> getDefinition() {
-        return definition;
+    public Map<String, String> getDescription() {
+        return description;
     }
 
-    public void setDefinition(final Map<String, String> definition) {
-        this.definition = definition;
+    public void setDescription(final Map<String, String> description) {
+        this.description = description;
     }
 
     @Column(name = "proposedtext")

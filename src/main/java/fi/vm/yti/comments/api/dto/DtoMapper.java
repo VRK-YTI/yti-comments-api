@@ -168,7 +168,7 @@ public class DtoMapper {
         commentThreadDto.setProposedText(commentThread.getProposedText());
         commentThreadDto.setCreated(commentThread.getCreated());
         commentThreadDto.setLabel(commentThread.getLabel());
-        commentThreadDto.setDefinition(commentThread.getDefinition());
+        commentThreadDto.setDescription(commentThread.getDescription());
         commentThreadDto.setUser(userServiceImpl.getUserById(commentThread.getUserId()));
         if (deep) {
             commentThreadDto.setCommentRound(mapCommentRound(commentThread.getCommentRound(), false, true, true));

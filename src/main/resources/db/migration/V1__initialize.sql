@@ -65,7 +65,7 @@ CREATE TABLE commentround_organization (
 
 CREATE table commentthread (
   id uuid UNIQUE NOT NULL,
-  resourceuri text NOT NULL,
+  resourceuri text NULL,
   proposedtext text NULL,
   proposedstatus text NULL,
   user_id uuid NOT NULL,
@@ -83,11 +83,11 @@ CREATE TABLE commentthread_label (
   CONSTRAINT fk_commentthread_label FOREIGN KEY (commentthread_id) REFERENCES commentthread (id) MATCH SIMPLE ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
-CREATE TABLE commentthread_definition (
+CREATE TABLE commentthread_description (
   commentthread_id uuid NOT NULL,
   language text NOT NULL,
-  definition text NOT NULL,
-  CONSTRAINT commentthread_definition_pkey PRIMARY KEY (commentthread_id, language),
+  description text NOT NULL,
+  CONSTRAINT commentthread_description_pkey PRIMARY KEY (commentthread_id, language),
   CONSTRAINT fk_commentthread_label FOREIGN KEY (commentthread_id) REFERENCES commentthread (id) MATCH SIMPLE ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
@@ -95,7 +95,7 @@ CREATE TABLE comment (
   id uuid UNIQUE NOT NULL,
   user_id uuid NOT NULL,
   content text NOT NULL,
-  proposedStatus text NULL,
+  proposedstatus text NULL,
   created timestamp without time zone NOT NULL,
   parentcomment_id uuid NULL,
   commentthread_id uuid NOT NULL,
