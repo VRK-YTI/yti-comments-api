@@ -103,6 +103,7 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
         commentThread.setLabel(fromCommentThread.getLabel());
         commentThread.setDescription(fromCommentThread.getDescription());
         commentThread.setResourceUri(fromCommentThread.getResourceUri());
+        commentThread.setCurrentStatus(fromCommentThread.getCurrentStatus());
         commentThread.setProposedStatus(fromCommentThread.getProposedStatus());
         commentThread.setProposedText(fromCommentThread.getProposedText());
         final LocalDateTime timeStamp = LocalDateTime.now();
@@ -116,6 +117,7 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
         existingCommentThread.setLabel(fromCommentThread.getLabel());
         existingCommentThread.setDescription(fromCommentThread.getDescription());
         existingCommentThread.setResourceUri(fromCommentThread.getResourceUri());
+        existingCommentThread.setCurrentStatus(fromCommentThread.getCurrentStatus());
         existingCommentThread.setProposedStatus(fromCommentThread.getProposedStatus());
         existingCommentThread.setProposedText(fromCommentThread.getProposedText());
         return existingCommentThread;

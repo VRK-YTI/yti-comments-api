@@ -31,6 +31,7 @@ public class CommentThread extends AbstractIdentifyableEntity implements Seriali
     private Map<String, String> label;
     private Map<String, String> description;
     private String proposedText;
+    private String currentStatus;
     private String proposedStatus;
     private UUID userId;
     private LocalDateTime created;
@@ -79,6 +80,15 @@ public class CommentThread extends AbstractIdentifyableEntity implements Seriali
 
     public void setProposedText(final String proposedText) {
         this.proposedText = proposedText;
+    }
+
+    @Column(name = "currentstatus")
+    public String getCurrentStatus() {
+        return currentStatus;
+    }
+
+    public void setCurrentStatus(final String currentStatus) {
+        this.currentStatus = currentStatus;
     }
 
     @Column(name = "proposedstatus")

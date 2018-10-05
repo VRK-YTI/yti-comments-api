@@ -164,6 +164,7 @@ public class DtoMapper {
         commentThreadDto.setId(id);
         commentThreadDto.setUrl(urlGenerator.createResourceUrl(API_PATH_THREADS, id.toString()));
         commentThreadDto.setResourceUri(commentThread.getResourceUri());
+        commentThreadDto.setCurrentStatus(commentThread.getCurrentStatus());
         commentThreadDto.setProposedStatus(commentThread.getProposedStatus());
         commentThreadDto.setProposedText(commentThread.getProposedText());
         commentThreadDto.setCreated(commentThread.getCreated());
