@@ -91,7 +91,7 @@ public class ServiceInitializer implements ApplicationRunner {
     private void updateSwaggerHost() {
         final ObjectMapper mapper = new ObjectMapper();
         try (final InputStream inputStream = FileUtils.loadFileFromClassPath("/swagger/swagger.json")) {
-            final ObjectNode jsonObject = (ObjectNode) mapper.readTree(new InputStreamReader(inputStream, "UTF-8"));
+            final ObjectNode jsonObject = (ObjectNode) mapper.readTree(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
             final String hostname = commentsApiProperties.getCommentsHostName();
             jsonObject.put("host", hostname);
             final String scheme = commentsApiProperties.getScheme();
