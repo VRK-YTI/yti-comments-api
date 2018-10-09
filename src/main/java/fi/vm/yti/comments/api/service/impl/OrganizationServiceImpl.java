@@ -47,7 +47,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     @Transactional
     public Set<OrganizationDTO> findByRemovedIsFalse(final boolean hasCommentRounds) {
-        Set<Organization> organizations = null;
+        final Set<Organization> organizations;
         if (hasCommentRounds) {
             organizations = organizationRepository.findByRemovedIsFalseAndCommentRoundsIsNotNull();
         } else {
