@@ -37,7 +37,7 @@ public class DtoMapper {
         final Set<CommentDTO> commentDtos = new HashSet<>();
         if (comments != null && !comments.isEmpty()) {
             for (final Comment comment : comments) {
-                commentDtos.add(mapComment(comment, deep));
+                commentDtos.add(mapComment(comment, deep, false));
             }
         }
         return commentDtos;
@@ -49,13 +49,19 @@ public class DtoMapper {
     }
 
     @Transactional
+    public CommentDTO mapDeepCommentWithCommentRound(final Comment comment) {
+        return mapComment(comment, true, true);
+    }
+
+    @Transactional
     public CommentDTO mapDeepComment(final Comment comment) {
-        return mapComment(comment, true);
+        return mapComment(comment, true, false);
     }
 
     @Transactional
     public CommentDTO mapComment(final Comment comment,
-                                 final boolean deep) {
+                                 final boolean deep,
+                                 final boolean mapDeepCommentThread) {
         if (comment == null) {
             return null;
         }
@@ -68,8 +74,10 @@ public class DtoMapper {
         commentDto.setUser(userServiceImpl.getUserById(comment.getUserId()));
         commentDto.setProposedStatus(comment.getProposedStatus());
         if (deep) {
-            commentDto.setParentComment(mapComment(comment.getParentComment(), false));
-            commentDto.setCommentThread(mapCommentThread(comment.getCommentThread(), false));
+            commentDto.setParentComment(mapComment(comment.getParentComment(), false, false));
+        }
+        if (deep || mapDeepCommentThread) {
+            commentDto.setCommentThread(mapCommentThread(comment.getCommentThread(), true));
         }
         return commentDto;
     }

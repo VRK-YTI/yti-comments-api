@@ -42,7 +42,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Transactional
     public CommentDTO findById(final UUID commentId) {
-        return dtoMapper.mapDeepComment(commentDao.findById(commentId));
+        return dtoMapper.mapDeepCommentWithCommentRound(commentDao.findById(commentId));
     }
 
     @Transactional
