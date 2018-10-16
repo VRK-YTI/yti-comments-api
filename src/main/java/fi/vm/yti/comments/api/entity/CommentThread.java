@@ -127,7 +127,7 @@ public class CommentThread extends AbstractIdentifyableEntity implements Seriali
         this.comments = comments;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "commentround_id", nullable = false, updatable = false)
     public CommentRound getCommentRound() {
         return commentRound;

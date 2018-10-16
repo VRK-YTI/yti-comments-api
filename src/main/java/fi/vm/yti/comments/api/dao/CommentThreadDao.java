@@ -9,9 +9,14 @@ import fi.vm.yti.comments.api.entity.CommentThread;
 
 public interface CommentThreadDao {
 
+    void delete(final CommentThread commentThread);
+
     Set<CommentThread> findAll();
 
     CommentThread findById(final UUID commentThreadId);
+
+    CommentThread findByCommentRoundAndId(final CommentRound commentRound,
+                                          final UUID commentThreadId);
 
     Set<CommentThread> findByCommentRoundId(final UUID commentRoundId);
 

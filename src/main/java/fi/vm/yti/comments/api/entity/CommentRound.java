@@ -28,7 +28,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class CommentRound extends AbstractTimeStampedIdentifyableEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
     private LocalDate startDate;
     private LocalDate endDate;
     private UUID userId;
@@ -39,8 +38,8 @@ public class CommentRound extends AbstractTimeStampedIdentifyableEntity implemen
     private boolean fixedThreads;
     private boolean openThreads;
     private Set<Organization> organizations;
-    private Set<CommentThread> commentThreads;
     private Map<String, String> sourceLabel;
+    private Set<CommentThread> commentThreads;
 
     @Column(name = "startdate")
     public LocalDate getStartDate() {

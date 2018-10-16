@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -11,12 +12,15 @@ import javax.transaction.Transactional;
 import org.springframework.stereotype.Component;
 
 import fi.vm.yti.comments.api.dao.CommentRoundDao;
+import fi.vm.yti.comments.api.dao.CommentThreadDao;
 import fi.vm.yti.comments.api.dao.OrganizationDao;
 import fi.vm.yti.comments.api.dao.SourceDao;
 import fi.vm.yti.comments.api.dto.CommentRoundDTO;
 import fi.vm.yti.comments.api.dto.OrganizationDTO;
 import fi.vm.yti.comments.api.dto.SourceDTO;
+import fi.vm.yti.comments.api.entity.AbstractIdentifyableEntity;
 import fi.vm.yti.comments.api.entity.CommentRound;
+import fi.vm.yti.comments.api.entity.CommentThread;
 import fi.vm.yti.comments.api.entity.Organization;
 import fi.vm.yti.comments.api.entity.Source;
 import fi.vm.yti.comments.api.exception.NotFoundException;
@@ -30,16 +34,19 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
     private final SourceDao sourceDao;
     private final OrganizationDao organizationDao;
     private final AuthorizationManager authorizationManager;
+    private final CommentThreadDao commentThreadDao;
 
     @Inject
     public CommentRoundDaoImpl(final CommentRoundRepository commentRoundRepository,
                                final SourceDao sourceDao,
                                final OrganizationDao organizationDao,
-                               final AuthorizationManager authorizationManager) {
+                               final AuthorizationManager authorizationManager,
+                               final CommentThreadDao commentThreadDao) {
         this.commentRoundRepository = commentRoundRepository;
         this.sourceDao = sourceDao;
         this.organizationDao = organizationDao;
         this.authorizationManager = authorizationManager;
+        this.commentThreadDao = commentThreadDao;
     }
 
     @Transactional
@@ -159,6 +166,19 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
         existingCommentRound.setSourceLabel(fromCommentRound.getSourceLabel());
         resolveAndSetSource(existingCommentRound, fromCommentRound);
         resolveAndSetOrganizations(existingCommentRound, fromCommentRound);
+        final Set<CommentThread> commentThreads = commentThreadDao.addOrUpdateCommentThreadsFromDtos(existingCommentRound, fromCommentRound.getCommentThreads());
+        final Set<CommentThread> existingCommentThreads = existingCommentRound.getCommentThreads();
+        //
+        if (commentThreads != null) {
+            final Set<UUID> newCommentThreadIds = commentThreads.stream().map(AbstractIdentifyableEntity::getId).collect(Collectors.toSet());
+            existingCommentThreads.forEach(commentThread -> {
+                if (!newCommentThreadIds.contains(commentThread.getId())) {
+                    commentThread.setCommentRound(null);
+                    commentThreadDao.delete(commentThread);
+                }
+            });
+        }
+        existingCommentRound.setCommentThreads(commentThreads);
         return existingCommentRound;
     }
 

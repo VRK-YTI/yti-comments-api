@@ -36,6 +36,11 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
     }
 
     @Transactional
+    public void delete(final CommentThread commentThread) {
+        commentThreadRepository.delete(commentThread);
+    }
+
+    @Transactional
     public Set<CommentThread> findAll() {
         return commentThreadRepository.findAll();
     }
@@ -43,6 +48,13 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
     @Transactional
     public CommentThread findById(final UUID commentThreadId) {
         return commentThreadRepository.findById(commentThreadId);
+    }
+
+
+    @Transactional
+    public CommentThread findByCommentRoundAndId(final CommentRound commentRound,
+                                                 final UUID commentThreadId) {
+        return commentThreadRepository.findByCommentRoundAndId(commentRound, commentThreadId);
     }
 
     @Transactional
@@ -71,7 +83,7 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
 
     private void validateCommentRound(final CommentRound commentRound,
                                       final CommentThreadDTO fromCommentThread) {
-        if (!commentRound.getId().equals(fromCommentThread.getCommentRound().getId())) {
+        if (fromCommentThread.getCommentRound() != null && !commentRound.getId().equals(fromCommentThread.getCommentRound().getId())) {
             throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), "Comment thread data has invalid comment round id."));
         }
     }
@@ -82,6 +94,8 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
         final CommentThread existingCommentThread;
         if (fromCommentThread.getId() != null) {
             existingCommentThread = commentThreadRepository.findById(fromCommentThread.getId());
+        } else if (fromCommentThread.getResourceUri() != null) {
+            existingCommentThread = commentThreadRepository.findByCommentRoundAndResourceUri(commentRound, fromCommentThread.getResourceUri());
         } else {
             existingCommentThread = null;
         }

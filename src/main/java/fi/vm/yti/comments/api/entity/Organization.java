@@ -120,7 +120,7 @@ public class Organization extends AbstractIdentifyableEntity implements Serializ
         setDescription(this.description);
     }
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "commentround_organization",
         joinColumns = {
             @JoinColumn(name = "organization_id", referencedColumnName = "id") },

@@ -46,6 +46,12 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Transactional
+    public Set<CommentDTO> findCommentRoundMainLevelCommentsForUserId(final UUID commentRoundId,
+                                                                      final UUID userId) {
+        return dtoMapper.mapDeepComments(commentDao.findCommentRoundMainLevelCommentsForUserId(commentRoundId, userId));
+    }
+
+    @Transactional
     public Set<CommentDTO> findByCommentThreadId(final UUID commentThreadId) {
         return dtoMapper.mapDeepComments(commentDao.findByCommentThreadId(commentThreadId));
     }
@@ -79,6 +85,17 @@ public class CommentServiceImpl implements CommentService {
             } else {
                 throw new NotFoundException();
             }
+        } else {
+            throw new NotFoundException();
+        }
+    }
+
+    @Transactional
+    public Set<CommentDTO> addOrUpdateCommentsFromDtos(final UUID commentRoundId,
+                                                       final Set<CommentDTO> fromComments) {
+        final CommentRound commentRound = commentRoundDao.findById(commentRoundId);
+        if (commentRound != null) {
+            return dtoMapper.mapDeepComments(commentDao.addOrUpdateCommentsFromDtos(commentRound, fromComments));
         } else {
             throw new NotFoundException();
         }
