@@ -139,7 +139,7 @@ public class CommentDaoImpl implements CommentDao {
     private Comment createComment(final CommentThread commentThread,
                                   final CommentDTO fromComment) {
         final Comment comment = new Comment();
-        comment.setId(UUID.randomUUID());
+        comment.setId(fromComment.getId() != null ? fromComment.getId() : UUID.randomUUID());
         comment.setUserId(authorizationManager.getUserId());
         comment.setContent(fromComment.getContent());
         comment.setProposedStatus(fromComment.getProposedStatus());

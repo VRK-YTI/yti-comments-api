@@ -112,7 +112,7 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
     private CommentThread createCommentThread(final CommentRound commentRound,
                                               final CommentThreadDTO fromCommentThread) {
         final CommentThread commentThread = new CommentThread();
-        commentThread.setId(UUID.randomUUID());
+        commentThread.setId(fromCommentThread.getId() != null ? fromCommentThread.getId() : UUID.randomUUID());
         commentThread.setUserId(authorizationManager.getUserId());
         commentThread.setLabel(fromCommentThread.getLabel());
         commentThread.setDescription(fromCommentThread.getDescription());

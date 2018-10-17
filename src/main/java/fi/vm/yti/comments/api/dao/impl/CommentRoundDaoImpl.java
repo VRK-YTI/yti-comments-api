@@ -135,7 +135,7 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
 
     private CommentRound createCommentRound(final CommentRoundDTO fromCommentRound) {
         final CommentRound commentRound = new CommentRound();
-        commentRound.setId(UUID.randomUUID());
+        commentRound.setId(fromCommentRound.getId() != null ? fromCommentRound.getId() : UUID.randomUUID());
         commentRound.setUserId(authorizationManager.getUserId());
         commentRound.setLabel(fromCommentRound.getLabel());
         commentRound.setDescription(fromCommentRound.getDescription());
