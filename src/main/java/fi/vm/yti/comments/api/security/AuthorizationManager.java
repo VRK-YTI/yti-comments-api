@@ -2,6 +2,7 @@ package fi.vm.yti.comments.api.security;
 
 import java.util.UUID;
 
+import fi.vm.yti.comments.api.entity.Comment;
 import fi.vm.yti.comments.api.entity.CommentRound;
 
 public interface AuthorizationManager {
@@ -9,6 +10,8 @@ public interface AuthorizationManager {
     boolean isSuperUser();
 
     UUID getUserId();
+
+    boolean canUserModifyComment(final Comment comment);
 
     boolean canUserAddCommentsToCommentRound(final CommentRound commentRound);
 

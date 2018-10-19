@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import org.springframework.stereotype.Service;
 
 import fi.vm.yti.comments.api.entity.AbstractIdentifyableEntity;
+import fi.vm.yti.comments.api.entity.Comment;
 import fi.vm.yti.comments.api.entity.CommentRound;
 import fi.vm.yti.security.AuthenticatedUserProvider;
 import fi.vm.yti.security.YtiUser;
@@ -31,6 +32,11 @@ public class AuthorizationManagerImpl implements AuthorizationManager {
 
     public UUID getUserId() {
         return userProvider.getUser().getId();
+    }
+
+    public boolean canUserModifyComment(final Comment comment) {
+        final YtiUser user = userProvider.getUser();
+        return user.getId() == comment.getUserId();
     }
 
     public boolean canUserAddCommentsToCommentRound(final CommentRound commentRound) {

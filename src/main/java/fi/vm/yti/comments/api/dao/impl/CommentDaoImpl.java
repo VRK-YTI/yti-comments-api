@@ -107,6 +107,9 @@ public class CommentDaoImpl implements CommentDao {
         }
         final Comment comment;
         if (existingComment != null) {
+            if (existingComment.getUserId() != authorizationManager.getUserId()) {
+                throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), "User is not allowed to modify existing content from another user."));
+            }
             comment = updateComment(existingComment, fromComment);
         } else {
             comment = createComment(commentThread, fromComment);

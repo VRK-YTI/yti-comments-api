@@ -19,10 +19,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import fi.vm.yti.comments.api.api.ResponseWrapper;
+import fi.vm.yti.comments.api.dao.CommentDao;
 import fi.vm.yti.comments.api.dao.CommentRoundDao;
 import fi.vm.yti.comments.api.dto.CommentDTO;
 import fi.vm.yti.comments.api.dto.CommentRoundDTO;
 import fi.vm.yti.comments.api.dto.CommentThreadDTO;
+import fi.vm.yti.comments.api.entity.Comment;
 import fi.vm.yti.comments.api.entity.CommentRound;
 import fi.vm.yti.comments.api.error.ErrorModel;
 import fi.vm.yti.comments.api.error.Meta;
@@ -50,6 +52,7 @@ public class CommentRoundResource implements AbstractBaseResource {
 
     private final CommentRoundService commentRoundService;
     private final CommentRoundDao commentRoundDao;
+    private final CommentDao commentDao;
     private final CommentThreadService commentThreadService;
     private final CommentService commentService;
     private final CommentRoundParser commentRoundParser;
@@ -60,6 +63,7 @@ public class CommentRoundResource implements AbstractBaseResource {
     @Inject
     public CommentRoundResource(final CommentRoundService commentRoundService,
                                 final CommentRoundDao commentRoundDao,
+                                final CommentDao commentDao,
                                 final CommentThreadService commentThreadService,
                                 final CommentService commentService,
                                 final CommentRoundParser commentRoundParser,
@@ -68,6 +72,7 @@ public class CommentRoundResource implements AbstractBaseResource {
                                 final AuthorizationManager authorizationManager) {
         this.commentRoundService = commentRoundService;
         this.commentRoundDao = commentRoundDao;
+        this.commentDao = commentDao;
         this.commentThreadService = commentThreadService;
         this.commentService = commentService;
         this.commentRoundParser = commentRoundParser;
@@ -380,7 +385,8 @@ public class CommentRoundResource implements AbstractBaseResource {
     public Response createOrUpdateCommentRoundCommentThreadsComments(@ApiParam(value = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
                                                                      @ApiParam(value = "CommentThread UUID.", required = true) @PathParam("commentThreadId") final UUID commentThreadId,
                                                                      @ApiParam(value = "JSON playload for commentRound commentThread data.", required = true) final String jsonPayload) {
-        if (!authorizationManager.isSuperUser()) {
+        final CommentRound commentRound = commentRoundDao.findById(commentRoundId);
+        if (!authorizationManager.canUserAddCommentsToCommentRound(commentRound)) {
             throw new UnauthorizedException(new ErrorModel(HttpStatus.UNAUTHORIZED.value(), ERR_MSG_USER_401));
         }
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENT, FILTER_NAME_COMMENTTHREAD + "," + FILTER_NAME_COMMENTROUND)));
@@ -408,13 +414,14 @@ public class CommentRoundResource implements AbstractBaseResource {
                                                            @ApiParam(value = "CommentThread UUID.", required = true) @PathParam("commentThreadId") final UUID commentThreadId,
                                                            @ApiParam(value = "Comment UUID.", required = true) @PathParam("commentId") final UUID commentId,
                                                            @ApiParam(value = "JSON playload for commentRound data.", required = true) final String jsonPayload) {
-        if (!authorizationManager.isSuperUser()) {
+        final Comment comment = commentDao.findById(commentId);
+        if (!authorizationManager.canUserModifyComment(comment)) {
             throw new UnauthorizedException(new ErrorModel(HttpStatus.UNAUTHORIZED.value(), ERR_MSG_USER_401));
         }
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENT, FILTER_NAME_COMMENTTHREAD + "," + FILTER_NAME_COMMENTROUND)));
-        final CommentDTO comment = commentService.addOrUpdateCommentFromDto(commentRoundId, commentThreadId, commentParser.parseCommentFromJson(jsonPayload));
-        if (comment != null) {
-            return Response.ok(comment).build();
+        final CommentDTO commentDto = commentService.addOrUpdateCommentFromDto(commentRoundId, commentThreadId, commentParser.parseCommentFromJson(jsonPayload));
+        if (commentDto != null) {
+            return Response.ok(commentDto).build();
         } else {
             throw new NotFoundException();
         }
