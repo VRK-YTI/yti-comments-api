@@ -1,5 +1,6 @@
 package fi.vm.yti.comments.api.dao.impl;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -50,6 +51,11 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
     }
 
     @Transactional
+    public void saveAll(final Set<CommentRound> commentRounds) {
+        commentRoundRepository.saveAll(commentRounds);
+    }
+
+    @Transactional
     public Set<CommentRound> findAll() {
         return commentRoundRepository.findAll();
     }
@@ -69,6 +75,13 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
     public Set<CommentRound> findByStatus(final String status) {
         return commentRoundRepository.findByStatus(status);
     }
+
+    @Transactional
+    public Set<CommentRound> findByStatusAndEndDateBefore(final String status,
+                                                          final LocalDate now) {
+        return commentRoundRepository.findByStatusAndEndDateBefore(status, now);
+    }
+
 
     @Transactional
     public Set<CommentRound> findBySourceContainerType(final String containerType) {

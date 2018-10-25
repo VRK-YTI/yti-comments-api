@@ -1,5 +1,6 @@
 package fi.vm.yti.comments.api.jpa;
 
+import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
 
@@ -24,6 +25,8 @@ public interface CommentRoundRepository extends PagingAndSortingRepository<Comme
     Set<CommentRound> findByOrganizationsId(final UUID id);
 
     Set<CommentRound> findByStatus(final String status);
+
+    Set<CommentRound> findByStatusAndEndDateBefore(final String status, final LocalDate now);
 
     Set<CommentRound> findBySourceContainerType(final String containerType);
 

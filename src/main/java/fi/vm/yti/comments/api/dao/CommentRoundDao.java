@@ -1,5 +1,6 @@
 package fi.vm.yti.comments.api.dao;
 
+import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
 
@@ -7,6 +8,8 @@ import fi.vm.yti.comments.api.dto.CommentRoundDTO;
 import fi.vm.yti.comments.api.entity.CommentRound;
 
 public interface CommentRoundDao {
+
+    void saveAll(final Set<CommentRound> commentRounds);
 
     Set<CommentRound> findAll();
 
@@ -16,6 +19,8 @@ public interface CommentRoundDao {
     Set<CommentRound> findByOrganizationsId(final UUID organizationId);
 
     Set<CommentRound> findByStatus(final String status);
+
+    Set<CommentRound> findByStatusAndEndDateBefore(final String status, final LocalDate now);
 
     Set<CommentRound> findBySourceContainerType(final String containerType);
 
