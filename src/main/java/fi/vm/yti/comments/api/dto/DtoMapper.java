@@ -15,20 +15,24 @@ import fi.vm.yti.comments.api.entity.CommentRound;
 import fi.vm.yti.comments.api.entity.CommentThread;
 import fi.vm.yti.comments.api.entity.Organization;
 import fi.vm.yti.comments.api.entity.Source;
-import fi.vm.yti.comments.api.service.impl.UserServiceImpl;
+import fi.vm.yti.comments.api.service.ResultService;
+import fi.vm.yti.comments.api.service.UserService;
 import static fi.vm.yti.comments.api.constants.ApiConstants.*;
 
 @Component
 public class DtoMapper {
 
-    private final UserServiceImpl userServiceImpl;
+    private final UserService userService;
     private final UrlGenerator urlGenerator;
+    private final ResultService resultService;
 
     @Inject
-    public DtoMapper(final UserServiceImpl userServiceImpl,
-                     final UrlGenerator urlGenerator) {
-        this.userServiceImpl = userServiceImpl;
+    public DtoMapper(final UserService userService,
+                     final UrlGenerator urlGenerator,
+                     final ResultService resultService) {
+        this.userService = userService;
         this.urlGenerator = urlGenerator;
+        this.resultService = resultService;
     }
 
     @Transactional
@@ -71,7 +75,7 @@ public class DtoMapper {
         commentDto.setUrl(urlGenerator.createResourceUrl(API_PATH_COMMENTS, id.toString()));
         commentDto.setCreated(comment.getCreated());
         commentDto.setContent(comment.getContent());
-        commentDto.setUser(userServiceImpl.getUserById(comment.getUserId()));
+        commentDto.setUser(userService.getUserById(comment.getUserId()));
         commentDto.setProposedStatus(comment.getProposedStatus());
         if (deep) {
             commentDto.setParentComment(mapComment(comment.getParentComment(), false, false));
@@ -125,7 +129,7 @@ public class DtoMapper {
         commentRoundDto.setFixedThreads(commentRound.getFixedThreads());
         commentRoundDto.setSourceLabel(commentRound.getSourceLabel());
         commentRoundDto.setLabel(commentRound.getLabel());
-        commentRoundDto.setUser(userServiceImpl.getUserById(commentRound.getUserId()));
+        commentRoundDto.setUser(userService.getUserById(commentRound.getUserId()));
         commentRoundDto.setStatus(commentRound.getStatus());
         if (deep) {
             commentRoundDto.setCommentThreads(mapCommentThreads(commentRound.getCommentThreads(), false));
@@ -178,7 +182,8 @@ public class DtoMapper {
         commentThreadDto.setCreated(commentThread.getCreated());
         commentThreadDto.setLabel(commentThread.getLabel());
         commentThreadDto.setDescription(commentThread.getDescription());
-        commentThreadDto.setUser(userServiceImpl.getUserById(commentThread.getUserId()));
+        commentThreadDto.setUser(userService.getUserById(commentThread.getUserId()));
+        commentThreadDto.setResults(resultService.getResultsForCommentThread(commentThread.getId()));
         if (deep) {
             commentThreadDto.setCommentRound(mapCommentRound(commentThread.getCommentRound(), false, true, true));
             commentThreadDto.setComments(mapComments(commentThread.getComments(), false));

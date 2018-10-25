@@ -145,7 +145,7 @@ public class CommentDaoImpl implements CommentDao {
         comment.setId(fromComment.getId() != null ? fromComment.getId() : UUID.randomUUID());
         comment.setUserId(authorizationManager.getUserId());
         comment.setContent(fromComment.getContent());
-        comment.setProposedStatus(fromComment.getProposedStatus());
+        comment.setProposedStatus(fromComment.getProposedStatus() != null && "NOSTATUS".equalsIgnoreCase(fromComment.getProposedStatus()) ? fromComment.getProposedStatus() : null);
         comment.setCommentThread(commentThread);
         resolveParentComment(comment, fromComment);
         final LocalDateTime timeStamp = LocalDateTime.now();
@@ -156,7 +156,7 @@ public class CommentDaoImpl implements CommentDao {
     private Comment updateComment(final Comment existingComment,
                                   final CommentDTO fromComment) {
         existingComment.setContent(fromComment.getContent());
-        existingComment.setProposedStatus(fromComment.getProposedStatus());
+        existingComment.setProposedStatus(fromComment.getProposedStatus() != null && "NOSTATUS".equalsIgnoreCase(fromComment.getProposedStatus()) ? fromComment.getProposedStatus() : null);
         resolveParentComment(existingComment, fromComment);
         return existingComment;
     }

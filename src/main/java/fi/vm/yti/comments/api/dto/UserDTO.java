@@ -13,7 +13,7 @@ import io.swagger.annotations.ApiModel;
 @JsonFilter("user")
 @XmlRootElement
 @XmlType(propOrder = { "id", "email", "firstName", "lastName" })
-@ApiModel(value = "User", description = "User DTO for groupmanagement users.")
+@ApiModel(value = "User", description = "User DTO for a single groupmanagement user.")
 public class UserDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
