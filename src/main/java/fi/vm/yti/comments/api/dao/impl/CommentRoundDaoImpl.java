@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import fi.vm.yti.comments.api.dao.CommentRoundDao;
@@ -24,9 +25,12 @@ import fi.vm.yti.comments.api.entity.CommentRound;
 import fi.vm.yti.comments.api.entity.CommentThread;
 import fi.vm.yti.comments.api.entity.Organization;
 import fi.vm.yti.comments.api.entity.Source;
+import fi.vm.yti.comments.api.error.ErrorModel;
 import fi.vm.yti.comments.api.exception.NotFoundException;
+import fi.vm.yti.comments.api.exception.YtiCommentsException;
 import fi.vm.yti.comments.api.jpa.CommentRoundRepository;
 import fi.vm.yti.comments.api.security.AuthorizationManager;
+import static fi.vm.yti.comments.api.constants.ApiConstants.*;
 
 @Component
 public class CommentRoundDaoImpl implements CommentRoundDao {
@@ -82,6 +86,11 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
         return commentRoundRepository.findByStatusAndEndDateBefore(status, now);
     }
 
+    @Transactional
+    public Set<CommentRound> findByStatusAndStartDateAfter(final String status,
+                                                           final LocalDate now) {
+        return commentRoundRepository.findByStatusAndStartDateAfter(status, now);
+    }
 
     @Transactional
     public Set<CommentRound> findBySourceContainerType(final String containerType) {
@@ -152,7 +161,7 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
         commentRound.setUserId(authorizationManager.getUserId());
         commentRound.setLabel(fromCommentRound.getLabel());
         commentRound.setDescription(fromCommentRound.getDescription());
-        commentRound.setStatus(fromCommentRound.getStatus());
+        commentRound.setStatus(STATUS_INCOMPLETE);
         commentRound.setOpenThreads(fromCommentRound.getOpenThreads());
         commentRound.setFixedThreads(fromCommentRound.getFixedThreads());
         commentRound.setStartDate(fromCommentRound.getStartDate());
@@ -192,6 +201,7 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
             });
         }
         existingCommentRound.setCommentThreads(commentThreads);
+        ensureProperStatus(existingCommentRound);
         return existingCommentRound;
     }
 
@@ -219,5 +229,23 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
             }
         });
         commentRound.setOrganizations(organizations);
+    }
+
+    private void ensureProperStatus(final CommentRound commentRound) {
+        final String currentStatus = commentRound.getStatus();
+        if (STATUS_INPROGRESS.equalsIgnoreCase(currentStatus)) {
+            if (commentRound.getCommentThreads().size() == 0) {
+                throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), "There are no resources to comment, status change not allowed."));
+            }
+            final LocalDate now = LocalDate.now();
+            final LocalDate startDate = commentRound.getStartDate();
+            final LocalDate endDate = commentRound.getEndDate();
+            if (startDate != null && startDate.isAfter(now)) {
+                commentRound.setStatus(STATUS_AWAIT);
+            }
+            if (endDate != null && endDate.isBefore(LocalDate.now())) {
+                commentRound.setStatus(STATUS_ENDED);
+            }
+        }
     }
 }

@@ -12,12 +12,12 @@ import org.springframework.stereotype.Component;
 
 import fi.vm.yti.comments.api.dao.CommentRoundDao;
 import fi.vm.yti.comments.api.entity.CommentRound;
+import static fi.vm.yti.comments.api.constants.ApiConstants.STATUS_AWAIT;
+import static fi.vm.yti.comments.api.constants.ApiConstants.STATUS_ENDED;
+import static fi.vm.yti.comments.api.constants.ApiConstants.STATUS_INPROGRESS;
 
 @Component
 public class CommentRoundScheduler {
-
-    private static final String STATUS_INPROGRESS = "INPROGRESS";
-    private static final String STATUS_ENDED = "ENDED";
 
     private CommentRoundDao commentRoundDao;
 
@@ -33,9 +33,23 @@ public class CommentRoundScheduler {
 
     @Transactional
     public void updateStatuses() {
+        updateEnding();
+        updateStarting();
+    }
+
+    private void updateEnding() {
         final Set<CommentRound> commentRounds = commentRoundDao.findByStatusAndEndDateBefore(STATUS_INPROGRESS, LocalDate.now());
         commentRounds.forEach(commentRound -> {
             commentRound.setStatus(STATUS_ENDED);
+            commentRound.setModified(LocalDateTime.now());
+        });
+        commentRoundDao.saveAll(commentRounds);
+    }
+
+    private void updateStarting() {
+        final Set<CommentRound> commentRounds = commentRoundDao.findByStatusAndStartDateAfter(STATUS_AWAIT, LocalDate.now());
+        commentRounds.forEach(commentRound -> {
+            commentRound.setStatus(STATUS_INPROGRESS);
             commentRound.setModified(LocalDateTime.now());
         });
         commentRoundDao.saveAll(commentRounds);

@@ -39,4 +39,37 @@ public abstract class ApiConstants {
 
     public static final String LANGUAGE_CODE_EN = "en";
 
+    public static final String FORMAT_JSON = "json";
+    public static final String FORMAT_EXCEL = "excel";
+    public static final String FORMAT_EXCEL_XLS = "xls";
+    public static final String FORMAT_EXCEL_XLSX = "xlsx";
+
+    public static final String STATUS_INCOMPLETE = "INCOMPLETE";
+    public static final String STATUS_AWAIT = "AWAIT";
+    public static final String STATUS_INPROGRESS = "INPROGRESS";
+    public static final String STATUS_ENDED = "ENDED";
+    public static final String STATUS_CLOSED = "CLOSED";
+
+    public static final String EXCEL_SHEET_COMMENTROUND = "CommentRound";
+    public static final String EXCEL_SHEET_COMMENTTHREADS = "CommentThreads";
+    public static final String EXCEL_SHEET_COMMENTS = "Comments";
+
+    public static final String HEADER_CONTENT_DISPOSITION = "content-disposition";
+
+    public static final String CONTENT_HEADER_ID = "ID";
+    public static final String CONTENT_HEADER_COMMENTTHREAD_ID = "COMMENTTHREADID";
+    public static final String CONTENT_HEADER_USER_ID = "USER_ID";
+    public static final String CONTENT_HEADER_USER = "USER";
+    public static final String CONTENT_HEADER_PARENTCOMMENT = "PARENTCOMMENT";
+    public static final String CONTENT_HEADER_CONTENT = "CONTENT";
+    public static final String CONTENT_HEADER_LABEL = "LABEL";
+    public static final String CONTENT_HEADER_DESCRIPTION = "DESCRIPTION";
+    public static final String CONTENT_HEADER_CREATED = "CREATED";
+    public static final String CONTENT_HEADER_MODIFIED = "MODIFIED";
+    public static final String CONTENT_HEADER_STARTDATE = "STARTDATE";
+    public static final String CONTENT_HEADER_ENDDATE = "ENDDATE";
+    public static final String CONTENT_HEADER_LABEL_PREFIX = "LABEL_";
+    public static final String CONTENT_HEADER_DESCRIPTION_PREFIX = "DESCRIPTION_";
+    public static final String CONTENT_HEADER_PROPOSEDSTATUS = "PROPOSEDSTATUS";
+    public static final String CONTENT_HEADER_PROPOSEDTEXT = "PROPOSEDTEXT";
 }

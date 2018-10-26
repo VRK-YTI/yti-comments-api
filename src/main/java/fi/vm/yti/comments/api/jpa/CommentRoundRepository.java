@@ -28,6 +28,8 @@ public interface CommentRoundRepository extends PagingAndSortingRepository<Comme
 
     Set<CommentRound> findByStatusAndEndDateBefore(final String status, final LocalDate now);
 
+    Set<CommentRound> findByStatusAndStartDateAfter(final String status, final LocalDate now);
+
     Set<CommentRound> findBySourceContainerType(final String containerType);
 
     Set<CommentRound> findByOrganizationsIdAndStatusAndSourceContainerType(final UUID id,

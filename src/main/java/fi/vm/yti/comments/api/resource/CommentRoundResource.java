@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -30,6 +31,7 @@ import fi.vm.yti.comments.api.error.ErrorModel;
 import fi.vm.yti.comments.api.error.Meta;
 import fi.vm.yti.comments.api.exception.NotFoundException;
 import fi.vm.yti.comments.api.exception.UnauthorizedException;
+import fi.vm.yti.comments.api.export.ExportService;
 import fi.vm.yti.comments.api.parser.CommentParser;
 import fi.vm.yti.comments.api.parser.CommentRoundParser;
 import fi.vm.yti.comments.api.parser.CommentThreadParser;
@@ -59,6 +61,7 @@ public class CommentRoundResource implements AbstractBaseResource {
     private final CommentThreadParser commentThreadParser;
     private final CommentParser commentParser;
     private final AuthorizationManager authorizationManager;
+    private final ExportService exportService;
 
     @Inject
     public CommentRoundResource(final CommentRoundService commentRoundService,
@@ -69,7 +72,8 @@ public class CommentRoundResource implements AbstractBaseResource {
                                 final CommentRoundParser commentRoundParser,
                                 final CommentThreadParser commentThreadParser,
                                 final CommentParser commentParser,
-                                final AuthorizationManager authorizationManager) {
+                                final AuthorizationManager authorizationManager,
+                                final ExportService exportService) {
         this.commentRoundService = commentRoundService;
         this.commentRoundDao = commentRoundDao;
         this.commentDao = commentDao;
@@ -79,6 +83,7 @@ public class CommentRoundResource implements AbstractBaseResource {
         this.commentThreadParser = commentThreadParser;
         this.commentParser = commentParser;
         this.authorizationManager = authorizationManager;
+        this.exportService = exportService;
     }
 
     @GET
@@ -120,7 +125,7 @@ public class CommentRoundResource implements AbstractBaseResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Produces({ MediaType.APPLICATION_JSON + ";charset=UTF-8", "application/xlsx" })
     @ApiOperation(value = "CommentRound API for requesting single commentRound.")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Returns single commentRound."),
@@ -129,13 +134,23 @@ public class CommentRoundResource implements AbstractBaseResource {
     @Transactional
     @Path("{commentRoundId}")
     public Response getCommentRound(@ApiParam(value = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
-                                    @ApiParam(value = "Filter string (csl) for expanding specific child commentRounds.") @QueryParam("expand") final String expand) {
+                                    @ApiParam(value = "Filter string (csl) for expanding specific child commentRounds.") @QueryParam("expand") final String expand,
+                                    @ApiParam(value = "Format for output.") @QueryParam("format") @DefaultValue(FORMAT_JSON) final String format) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTROUND, expand)));
-        final CommentRoundDTO commentRound = commentRoundService.findById(commentRoundId);
-        if (commentRound != null) {
-            return Response.ok(commentRound).build();
+        if (FORMAT_EXCEL.equalsIgnoreCase(format)) {
+            final CommentRound commentRound = commentRoundDao.findById(commentRoundId);
+            if (commentRound != null) {
+                return streamExcelOutput(exportService.exportCommentRoundToExcel(commentRound), "commentround.xlsx");
+            } else {
+                throw new NotFoundException();
+            }
         } else {
-            throw new NotFoundException();
+            final CommentRoundDTO commentRound = commentRoundService.findById(commentRoundId);
+            if (commentRound != null) {
+                return Response.ok(commentRound).build();
+            } else {
+                throw new NotFoundException();
+            }
         }
     }
 

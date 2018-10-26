@@ -7,12 +7,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import io.swagger.annotations.ApiModel;
 
 @JsonFilter("user")
 @XmlRootElement
 @XmlType(propOrder = { "id", "email", "firstName", "lastName" })
+@JsonIgnoreProperties({ "displayName" })
 @ApiModel(value = "User", description = "User DTO for a single groupmanagement user.")
 public class UserDTO implements Serializable {
 
@@ -53,5 +55,9 @@ public class UserDTO implements Serializable {
 
     public void setLastName(final String lastName) {
         this.lastName = lastName;
+    }
+
+    public String getDisplayNameWithEmail() {
+        return firstName + " " + lastName + " (" + email + ")";
     }
 }

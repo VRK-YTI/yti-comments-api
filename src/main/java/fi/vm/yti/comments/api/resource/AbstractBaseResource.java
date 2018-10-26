@@ -4,9 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 
+import org.apache.poi.ss.usermodel.Workbook;
 import org.glassfish.jersey.jackson.internal.jackson.jaxrs.cfg.EndpointConfigBase;
 import org.glassfish.jersey.jackson.internal.jackson.jaxrs.cfg.ObjectWriterModifier;
+import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -14,6 +18,8 @@ import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
+import fi.vm.yti.comments.api.error.ErrorModel;
+import fi.vm.yti.comments.api.exception.YtiCommentsException;
 import static fi.vm.yti.comments.api.constants.ApiConstants.*;
 
 public interface AbstractBaseResource {
@@ -47,6 +53,18 @@ public interface AbstractBaseResource {
             }
         }
         return filterProvider;
+    }
+
+    default Response streamExcelOutput(final Workbook workbook,
+                                       final String filename) {
+        final StreamingOutput stream = output -> {
+            try {
+                workbook.write(output);
+            } catch (final Exception e) {
+                throw new YtiCommentsException(new ErrorModel(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Excel output generation failed!"));
+            }
+        };
+        return Response.ok(stream).header(HEADER_CONTENT_DISPOSITION, "attachment; filename = " + filename).build();
     }
 
     class FilterModifier extends ObjectWriterModifier {
