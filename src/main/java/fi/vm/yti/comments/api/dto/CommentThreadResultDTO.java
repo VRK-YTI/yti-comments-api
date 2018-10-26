@@ -5,8 +5,6 @@ import java.io.Serializable;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
-
 import io.swagger.annotations.ApiModel;
 
 @XmlRootElement
