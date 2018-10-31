@@ -13,6 +13,10 @@ public interface AuthorizationManager {
 
     boolean canUserModifyComment(final Comment comment);
 
+    boolean canUserAddCommentRound();
+
+    boolean canUserModifyCommentRound(final CommentRound commentRound);
+
     boolean canUserAddCommentsToCommentRound(final CommentRound commentRound);
 
     boolean canUserAddCommentThreadsToCommentRound(final CommentRound commentRound);

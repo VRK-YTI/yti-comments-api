@@ -39,6 +39,16 @@ public class AuthorizationManagerImpl implements AuthorizationManager {
         return user.getId().equals(comment.getUserId());
     }
 
+    public boolean canUserAddCommentRound() {
+        final YtiUser user = userProvider.getUser();
+        return user.isSuperuser() || (user.isInRoleInAnyOrganization(ADMIN) || user.isInRoleInAnyOrganization(CODE_LIST_EDITOR) || user.isInRoleInAnyOrganization(TERMINOLOGY_EDITOR) || user.isInRoleInAnyOrganization(DATA_MODEL_EDITOR));
+    }
+
+    public boolean canUserModifyCommentRound(final CommentRound commentRound) {
+        final YtiUser user = userProvider.getUser();
+        return user.isSuperuser() || user.getId().equals(commentRound.getUserId());
+    }
+
     public boolean canUserAddCommentsToCommentRound(final CommentRound commentRound) {
         final YtiUser user = userProvider.getUser();
         final Collection<UUID> organizationIds = commentRound.getOrganizations().stream().map(AbstractIdentifyableEntity::getId).collect(Collectors.toList());
