@@ -1,7 +1,11 @@
 package fi.vm.yti.comments.api.resource;
 
+import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -146,6 +150,9 @@ public class CommentRoundResource implements AbstractBaseResource {
             }
         } else {
             final CommentRoundDTO commentRound = commentRoundService.findById(commentRoundId);
+            if (commentRound.getCommentThreads() != null) {
+                commentRound.setCommentThreads(commentRound.getCommentThreads().stream().sorted(Comparator.comparing(CommentThreadDTO::getResourceUri, Comparator.nullsLast(Comparator.reverseOrder()))).collect(Collectors.toCollection(LinkedHashSet::new)));
+            }
             if (commentRound != null) {
                 return Response.ok(commentRound).build();
             } else {
@@ -167,11 +174,12 @@ public class CommentRoundResource implements AbstractBaseResource {
                                                   @ApiParam(value = "Filter string (csl) for expanding specific child commentRounds.") @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENT, expand)));
         final Set<CommentDTO> commentDtos = commentService.findCommentRoundMainLevelCommentsForUserId(commentRoundId, authorizationManager.getUserId());
+        final Set<CommentDTO> sortedComments = commentDtos.stream().sorted(Comparator.comparing(CommentDTO::getCreated)).collect(Collectors.toCollection(LinkedHashSet::new));
         final Meta meta = new Meta();
         final ResponseWrapper<CommentDTO> responseWrapper = new ResponseWrapper<>(meta);
-        meta.setMessage("CommentRound main level comments found: " + commentDtos.size());
+        meta.setMessage("CommentRound main level comments found: " + sortedComments.size());
         meta.setCode(200);
-        responseWrapper.setResults(commentDtos);
+        responseWrapper.setResults(sortedComments);
         return Response.ok(responseWrapper).build();
     }
 
@@ -188,11 +196,12 @@ public class CommentRoundResource implements AbstractBaseResource {
                                                   @ApiParam(value = "Filter string (csl) for expanding specific child commentRounds.") @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTTHREAD, expand)));
         final Set<CommentThreadDTO> commentThreadDtos = commentThreadService.findByCommentRoundId(commentRoundId);
+        final Set<CommentThreadDTO> sortedThreads = commentThreadDtos.stream().sorted(Comparator.comparing(CommentThreadDTO::getResourceUri, Comparator.nullsLast(Comparator.reverseOrder()))).collect(Collectors.toCollection(LinkedHashSet::new));
         final Meta meta = new Meta();
         final ResponseWrapper<CommentThreadDTO> responseWrapper = new ResponseWrapper<>(meta);
-        meta.setMessage("CommentRound commentThreads found: " + commentThreadDtos.size());
+        meta.setMessage("CommentRound commentThreads found: " + sortedThreads.size());
         meta.setCode(200);
-        responseWrapper.setResults(commentThreadDtos);
+        responseWrapper.setResults(sortedThreads);
         return Response.ok(responseWrapper).build();
     }
 
@@ -271,7 +280,7 @@ public class CommentRoundResource implements AbstractBaseResource {
     })
     @Transactional
     public Response createOrUpdateCommentRounds(@ApiParam(value = "JSON playload for commentRound data.", required = true) final String jsonPayload) {
-        if (!authorizationManager.isSuperUser()) {
+        if (!authorizationManager.canUserAddCommentRound()) {
             throw new UnauthorizedException(new ErrorModel(HttpStatus.UNAUTHORIZED.value(), ERR_MSG_USER_401));
         }
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTROUND, FILTER_NAME_COMMENTTHREAD)));
@@ -297,13 +306,18 @@ public class CommentRoundResource implements AbstractBaseResource {
     @Path("{commentRoundId}")
     public Response updateCommentRound(@ApiParam(value = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
                                        @ApiParam(value = "JSON playload for commentRound data.", required = true) final String jsonPayload) {
-        if (!authorizationManager.isSuperUser()) {
-            throw new UnauthorizedException(new ErrorModel(HttpStatus.UNAUTHORIZED.value(), ERR_MSG_USER_401));
-        }
-        ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTROUND, FILTER_NAME_COMMENTTHREAD)));
-        final CommentRoundDTO commentRound = commentRoundService.addOrUpdateCommentRoundFromDto(commentRoundParser.parseCommentRoundFromJson(jsonPayload));
+        final CommentRound commentRound = commentRoundDao.findById(commentRoundId);
         if (commentRound != null) {
-            return Response.ok(commentRound).build();
+            if (!authorizationManager.canUserModifyCommentRound(commentRound)) {
+                throw new UnauthorizedException(new ErrorModel(HttpStatus.UNAUTHORIZED.value(), ERR_MSG_USER_401));
+            }
+            ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTROUND, FILTER_NAME_COMMENTTHREAD)));
+            final CommentRoundDTO commentRoundDto = commentRoundService.addOrUpdateCommentRoundFromDto(commentRoundParser.parseCommentRoundFromJson(jsonPayload));
+            if (commentRoundDto != null) {
+                return Response.ok(commentRoundDto).build();
+            } else {
+                throw new NotFoundException();
+            }
         } else {
             throw new NotFoundException();
         }
@@ -353,11 +367,12 @@ public class CommentRoundResource implements AbstractBaseResource {
         }
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTTHREAD, FILTER_NAME_COMMENT)));
         final Set<CommentThreadDTO> commentThreadDtos = commentThreadService.addOrUpdateCommentThreadsFromDtos(commentRoundId, commentThreadParser.parseCommentThreadsFromJson(jsonPayload));
+        final Set<CommentThreadDTO> sortedThreads = commentThreadDtos.stream().sorted(Comparator.comparing(CommentThreadDTO::getResourceUri, Comparator.nullsLast(Comparator.reverseOrder()))).collect(Collectors.toCollection(LinkedHashSet::new));
         final Meta meta = new Meta();
         final ResponseWrapper<CommentThreadDTO> responseWrapper = new ResponseWrapper<>(meta);
-        meta.setMessage("CommentThreads added or modified: " + commentThreadDtos.size());
+        meta.setMessage("CommentThreads added or modified: " + sortedThreads.size());
         meta.setCode(200);
-        responseWrapper.setResults(commentThreadDtos);
+        responseWrapper.setResults(sortedThreads);
         return Response.ok(responseWrapper).build();
     }
 
