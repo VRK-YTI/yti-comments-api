@@ -1,5 +1,7 @@
 package fi.vm.yti.comments.api.configuration;
 
+import java.nio.charset.Charset;
+
 import javax.sql.DataSource;
 
 import org.apache.catalina.connector.Connector;
@@ -14,6 +16,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -66,6 +69,9 @@ public class SpringAppConfig {
 
     @Bean
     RestTemplate restTemplate() {
-        return new RestTemplate(httpRequestFactory());
+        final RestTemplate restTemplate = new RestTemplate(httpRequestFactory());
+        restTemplate.getMessageConverters()
+            .add(0, new StringHttpMessageConverter(Charset.forName("UTF-8")));
+        return restTemplate;
     }
 }
