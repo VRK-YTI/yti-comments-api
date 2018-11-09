@@ -87,7 +87,7 @@ public class TerminologyProxyResource implements AbstractBaseResource {
                 wrapper.setResults(containers);
                 return Response.ok(wrapper).build();
             } catch (final IOException e) {
-                LOG.error("Error parsing containers from codelist response! ", e);
+                LOG.error("Error parsing containers from terminology response! ", e);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
             }
         } else {
@@ -100,14 +100,14 @@ public class TerminologyProxyResource implements AbstractBaseResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @ApiOperation(value = "Get resources from terminology API.")
     @ApiResponse(code = 200, message = "Returns success.")
-    public Response getResources(@ApiParam(value = "Container URI.", required = true) @QueryParam("uri") final String uri) {
+    public Response getResources(@ApiParam(value = "Container URI.", required = true) @QueryParam("container") final String container) {
         final YtiUser user = authenticatedUserProvider.getUser();
         if (user.isAnonymous()) {
             throw new UnauthorizedException(new ErrorModel(HttpStatus.UNAUTHORIZED.value(), ERR_MSG_USER_401));
         }
         final String requestUrl;
-        if (uri != null && !uri.isEmpty()) {
-            requestUrl = createTerminologyResourcesApiUrl() + "/?uri=" + uri;
+        if (container != null && !container.isEmpty()) {
+            requestUrl = createTerminologyResourcesApiUrl() + "/?container=" + container;
         } else {
             throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), "Invalid request to terminology resources integration API."));
         }

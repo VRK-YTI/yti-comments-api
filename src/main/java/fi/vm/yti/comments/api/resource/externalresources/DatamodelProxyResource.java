@@ -87,7 +87,7 @@ public class DatamodelProxyResource implements AbstractBaseResource {
                 wrapper.setResults(containers);
                 return Response.ok(wrapper).build();
             } catch (final IOException e) {
-                LOG.error("Error parsing containers from codelist response! ", e);
+                LOG.error("Error parsing containers from datamodel response! ", e);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
             }
         } else {
@@ -100,14 +100,14 @@ public class DatamodelProxyResource implements AbstractBaseResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @ApiOperation(value = "Get resources from datamodel API.")
     @ApiResponse(code = 200, message = "Returns success.")
-    public Response getResources(@ApiParam(value = "Container URI.", required = true) @QueryParam("uri") final String uri) {
+    public Response getResources(@ApiParam(value = "Container URI.", required = true) @QueryParam("container") final String container) {
         final YtiUser user = authenticatedUserProvider.getUser();
         if (user.isAnonymous()) {
             throw new UnauthorizedException(new ErrorModel(HttpStatus.UNAUTHORIZED.value(), ERR_MSG_USER_401));
         }
         final String requestUrl;
-        if (uri != null && !uri.isEmpty()) {
-            requestUrl = createTerminologyResourcesApiUrl() + "/?uri=" + uri;
+        if (container != null && !container.isEmpty()) {
+            requestUrl = createDatamodelResourcesApiUrl() + "/?container=" + container;
         } else {
             throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), "Invalid request to datamodel resources integration API."));
         }
@@ -136,10 +136,10 @@ public class DatamodelProxyResource implements AbstractBaseResource {
     }
 
     private String createDatamodelContainerApiUrl() {
-        return datamodelProperties.getUrl() + "/" + API_BASE_PATH + "/" + API_INTEGRATION + "/" + API_CONTAINERS;
+        return datamodelProperties.getUrl() + "/" + API_BASE_PATH + "/" + API_REST + "/" + API_INTEGRATION + "/" + API_CONTAINERS;
     }
 
-    private String createTerminologyResourcesApiUrl() {
-        return datamodelProperties.getUrl() + "/" + API_BASE_PATH + "/" + API_INTEGRATION + "/" + API_RESOURCES;
+    private String createDatamodelResourcesApiUrl() {
+        return datamodelProperties.getUrl() + "/" + API_BASE_PATH + "/" + API_REST + "/" + API_INTEGRATION + "/" + API_RESOURCES;
     }
 }

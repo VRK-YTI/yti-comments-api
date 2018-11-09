@@ -66,7 +66,7 @@ public class ResourceDTO implements Serializable {
     }
 
     @ApiModelProperty(dataType = "dateTime")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     public Date getModified() {
         if (modified != null) {
             return new Date(modified.getTime());

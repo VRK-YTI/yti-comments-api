@@ -19,6 +19,7 @@ public abstract class ApiConstants {
     public static final String CODELIST_API_VERSION = "v1";
 
     public static final String API_INTEGRATION = "integration";
+    public static final String API_REST = "rest";
     public static final String API_CONTAINERS = "containers";
     public static final String API_RESOURCES = "resources";
 
