@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import fi.vm.yti.comments.api.exception.exceptionmapping.UncaughtExceptionMapper;
 import fi.vm.yti.comments.api.exception.exceptionmapping.YtiCommentsExceptionMapper;
 import fi.vm.yti.comments.api.filter.CacheFilter;
+import fi.vm.yti.comments.api.filter.CharsetResponseFilter;
 import fi.vm.yti.comments.api.filter.RequestLoggingFilter;
 import fi.vm.yti.comments.api.resource.AuthenticatedUserResource;
 import fi.vm.yti.comments.api.resource.CommentResource;
@@ -63,6 +64,9 @@ public class JerseyConfig extends ResourceConfig {
     public JerseyConfig() {
         final JacksonJaxbJsonProvider provider = new JacksonJaxbJsonProvider();
         provider.setMapper(new CustomObjectMapper());
+
+        // Charset filter
+        register(CharsetResponseFilter.class);
 
         // Cache control headers to no cache.
         register(CacheFilter.class);
