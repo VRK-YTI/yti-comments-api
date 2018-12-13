@@ -94,15 +94,16 @@ public class CommentRoundResource implements AbstractBaseResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @ApiOperation(value = "CommentRound API for requesting all commentRounds.")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Returns all commentRounds from the system as a list.")
+        @ApiResponse(code = 200, message = "Returns all commentRounds from the system as a set.")
     })
     @Transactional
     public Response getCommentRounds(@ApiParam(value = "Filter option for organization filtering.") @QueryParam("organizationId") final UUID organizationId,
                                      @ApiParam(value = "Filter option for status filtering.") @QueryParam("status") final String status,
                                      @ApiParam(value = "Filter option for integration source type filtering.") @QueryParam("containerType") final String containerType,
+                                     @ApiParam(value = "Filter option for incomplete filtering for round creator only") @QueryParam("filterIncomplete") @DefaultValue("false") final Boolean filterIncomplete,
                                      @ApiParam(value = "Filter string (csl) for expanding specific child recommentRounds.") @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTROUND, expand)));
-        final Set<CommentRoundDTO> commentRoundDtos;
+        Set<CommentRoundDTO> commentRoundDtos;
         if (organizationId != null && status != null && containerType != null) {
             commentRoundDtos = commentRoundService.findByOrganizationsIdAndStatusAndSourceContainerType(organizationId, status, containerType);
         } else if (organizationId != null && status != null) {
@@ -119,6 +120,18 @@ public class CommentRoundResource implements AbstractBaseResource {
             commentRoundDtos = commentRoundService.findBySourceContainerType(containerType);
         } else {
             commentRoundDtos = commentRoundService.findAll();
+        }
+        if (filterIncomplete) {
+            final UUID userUuid = authorizationManager.getUserId();
+            commentRoundDtos = commentRoundDtos.stream().filter(commentRound -> {
+                if (STATUS_INCOMPLETE.equalsIgnoreCase(commentRound.getStatus()) && userUuid != null && userUuid.equals(commentRound.getUser().getId())) {
+                    return true;
+                } else if (!STATUS_INCOMPLETE.equalsIgnoreCase(commentRound.getStatus())) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }).collect(Collectors.toSet());
         }
         final Meta meta = new Meta();
         final ResponseWrapper<CommentRoundDTO> responseWrapper = new ResponseWrapper<>(meta);
