@@ -107,7 +107,7 @@ public class CodelistProxyResource implements AbstractBaseResource {
         }
         final String requestUrl;
         if (container != null && !container.isEmpty()) {
-            requestUrl = createCodelistResourcesApiUrl() + "/?container=" + container;
+            requestUrl = createCodelistResourcesApiUrl() + "/?uri=" + container;
         } else {
             throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), "Invalid request to codelist resources integration API."));
         }
