@@ -1,5 +1,5 @@
 # Pull base image
-FROM yti-codelist-docker-java-base:alpine
+FROM yti-docker-java-base:alpine
 
 # Deploy project
 ADD target/yti-comments-api.jar ${deploy_dir}/yti-comments-api.jar
