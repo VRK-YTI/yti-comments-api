@@ -136,10 +136,10 @@ public class TerminologyProxyResource implements AbstractBaseResource {
     }
 
     private String createTerminologyContainerApiUrl() {
-        return terminologyProperties.getUrl() + "/" + API_BASE_PATH + "/" + API_INTEGRATION + "/" + API_CONTAINERS;
+        return terminologyProperties.getUrl() + "/" + API_INTEGRATION + "/" + API_CONTAINERS;
     }
 
     private String createTerminologyResourcesApiUrl() {
-        return terminologyProperties.getUrl() + "/" + API_BASE_PATH + "/" + API_INTEGRATION + "/" + API_RESOURCES;
+        return terminologyProperties.getUrl() + "/" + API_INTEGRATION + "/" + API_RESOURCES;
     }
 }
