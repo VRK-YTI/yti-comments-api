@@ -16,6 +16,7 @@ import fi.vm.yti.comments.api.entity.Source;
 import fi.vm.yti.comments.api.error.ErrorModel;
 import fi.vm.yti.comments.api.exception.YtiCommentsException;
 import fi.vm.yti.comments.api.jpa.SourceRepository;
+import static fi.vm.yti.comments.api.exception.ErrorConstants.ERR_MSG_INVALID_SOURCE_DATA;
 
 @Component
 public class SourceDaoImpl implements SourceDao {
@@ -62,7 +63,7 @@ public class SourceDaoImpl implements SourceDao {
                 return createSource(fromSource);
             }
         } else {
-            throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), "Invalid source data."));
+            throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), ERR_MSG_INVALID_SOURCE_DATA));
         }
     }
 

@@ -31,6 +31,7 @@ import fi.vm.yti.comments.api.exception.YtiCommentsException;
 import fi.vm.yti.comments.api.jpa.CommentRoundRepository;
 import fi.vm.yti.comments.api.security.AuthorizationManager;
 import static fi.vm.yti.comments.api.constants.ApiConstants.*;
+import static fi.vm.yti.comments.api.exception.ErrorConstants.ERR_MSG_NO_RESOURCES_TO_COMMENT_STATUS_CHANGE_NOT_ALLOWED;
 
 @Component
 public class CommentRoundDaoImpl implements CommentRoundDao {
@@ -235,7 +236,7 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
         final String currentStatus = commentRound.getStatus();
         if (STATUS_INPROGRESS.equalsIgnoreCase(currentStatus)) {
             if (commentRound.getCommentThreads().size() == 0) {
-                throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), "There are no resources to comment, status change not allowed."));
+                throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), ERR_MSG_NO_RESOURCES_TO_COMMENT_STATUS_CHANGE_NOT_ALLOWED));
             }
             final LocalDate now = LocalDate.now();
             final LocalDate startDate = commentRound.getStartDate();

@@ -21,6 +21,7 @@ import fi.vm.yti.comments.api.error.ErrorModel;
 import fi.vm.yti.comments.api.exception.YtiCommentsException;
 import fi.vm.yti.comments.api.jpa.CommentRepository;
 import fi.vm.yti.comments.api.security.AuthorizationManager;
+import static fi.vm.yti.comments.api.exception.ErrorConstants.*;
 
 @Component
 public class CommentDaoImpl implements CommentDao {
@@ -92,7 +93,7 @@ public class CommentDaoImpl implements CommentDao {
     private void validateCommentThread(final CommentThread commentThread,
                                        final CommentDTO fromComment) {
         if (!commentThread.getId().equals(fromComment.getCommentThread().getId())) {
-            throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), "Comment DTO data has invalid comment thread id."));
+            throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), ERR_MSG_COMMENT_HAS_INVALID_COMMENTTHREAD_ID));
         }
     }
 
@@ -108,7 +109,7 @@ public class CommentDaoImpl implements CommentDao {
         final Comment comment;
         if (existingComment != null) {
             if (!existingComment.getUserId().equals(authorizationManager.getUserId())) {
-                throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), "User is not allowed to modify existing content from another user."));
+                throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), ERR_MSG_USER_NOT_ALLOWED_TO_MODIFY_CONTENT_FROM_ANOTHER_USER));
             }
             comment = updateComment(existingComment, fromComment);
         } else {
@@ -121,7 +122,7 @@ public class CommentDaoImpl implements CommentDao {
                                           final CommentDTO fromComment) {
         final CommentThread commentThread = commentThreadDao.findByCommentRoundAndId(commentRound, fromComment.getCommentThread().getId());
         if (commentThread == null) {
-            throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), "Comment DTO data has invalid comment thread id."));
+            throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), ERR_MSG_COMMENT_DOES_NOT_HAVE_COMMENT_THREAD));
         }
         validateCommentThread(commentThread, fromComment);
         final Comment existingComment;
@@ -132,7 +133,10 @@ public class CommentDaoImpl implements CommentDao {
         }
         final Comment comment;
         if (existingComment != null) {
-            comment = updateComment(existingComment, fromComment);
+            if (!fromComment.getProposedStatus().equals(existingComment.getProposedStatus()) || !fromComment.getContent().equals(existingComment.getContent())) {
+                throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), ERR_MSG_USER_CANNOT_MODIFY_EXISTING_COMMENT));
+            }
+            return existingComment;
         } else {
             comment = createComment(commentThread, fromComment);
         }
@@ -169,7 +173,7 @@ public class CommentDaoImpl implements CommentDao {
             if (parentComment != null) {
                 comment.setParentComment(parentComment);
             } else {
-                throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), "Invalid parentComment in DTO data."));
+                throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), ERR_MSG_USER_INVALID_PARENTCOMMENT));
             }
         }
     }

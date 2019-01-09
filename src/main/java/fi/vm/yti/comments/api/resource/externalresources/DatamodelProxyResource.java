@@ -40,6 +40,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import static fi.vm.yti.comments.api.constants.ApiConstants.*;
 import static fi.vm.yti.comments.api.exception.ErrorConstants.ERR_MSG_USER_401;
+import static fi.vm.yti.comments.api.exception.ErrorConstants.ERR_MSG_USER_406;
 
 @Component
 @Path("/v1/datamodel")
@@ -109,7 +110,7 @@ public class DatamodelProxyResource implements AbstractBaseResource {
         if (container != null && !container.isEmpty()) {
             requestUrl = createDatamodelResourcesApiUrl() + "/?container=" + container;
         } else {
-            throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), "Invalid request to datamodel resources integration API."));
+            throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), ERR_MSG_USER_406));
         }
         final ResponseEntity response = restTemplate.exchange(requestUrl, HttpMethod.GET, null, String.class);
         if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {

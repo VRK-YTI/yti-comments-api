@@ -20,6 +20,8 @@ import fi.vm.yti.comments.api.error.ErrorModel;
 import fi.vm.yti.comments.api.exception.YtiCommentsException;
 import fi.vm.yti.comments.api.jpa.CommentThreadRepository;
 import fi.vm.yti.comments.api.security.AuthorizationManager;
+import static fi.vm.yti.comments.api.exception.ErrorConstants.ERR_MSG_USER_CANNOT_MODIFY_EXISTING_COMMENTTHREAD;
+import static fi.vm.yti.comments.api.exception.ErrorConstants.ERR_MSG_USER_COMMENTTHREAD_HAS_INVALID_COMMENTROUND_ID;
 
 @Component
 public class CommentThreadDaoImpl implements CommentThreadDao {
@@ -49,7 +51,6 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
     public CommentThread findById(final UUID commentThreadId) {
         return commentThreadRepository.findById(commentThreadId);
     }
-
 
     @Transactional
     public CommentThread findByCommentRoundAndId(final CommentRound commentRound,
@@ -84,7 +85,7 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
     private void validateCommentRound(final CommentRound commentRound,
                                       final CommentThreadDTO fromCommentThread) {
         if (fromCommentThread.getCommentRound() != null && !commentRound.getId().equals(fromCommentThread.getCommentRound().getId())) {
-            throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), "Comment thread data has invalid comment round id."));
+            throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), ERR_MSG_USER_COMMENTTHREAD_HAS_INVALID_COMMENTROUND_ID));
         }
     }
 
@@ -101,7 +102,10 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
         }
         final CommentThread commentThread;
         if (existingCommentThread != null) {
-            commentThread = updateCommentThread(existingCommentThread, fromCommentThread);
+            if (!fromCommentThread.getProposedStatus().equals(existingCommentThread.getProposedStatus()) || !fromCommentThread.getProposedText().equals(existingCommentThread.getProposedText())) {
+                throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), ERR_MSG_USER_CANNOT_MODIFY_EXISTING_COMMENTTHREAD));
+            }
+            return existingCommentThread;
         } else {
             commentThread = createCommentThread(commentRound, fromCommentThread);
         }
