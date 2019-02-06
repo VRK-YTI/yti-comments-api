@@ -133,7 +133,9 @@ public class CommentDaoImpl implements CommentDao {
         }
         final Comment comment;
         if (existingComment != null) {
-            if (!fromComment.getProposedStatus().equals(existingComment.getProposedStatus()) || !fromComment.getContent().equals(existingComment.getContent())) {
+            final String existingProposedStatus = existingComment.getProposedStatus();
+            final String newProposedStatus = fromComment.getProposedStatus();
+            if ((newProposedStatus.equalsIgnoreCase("NOSTATUS") && existingProposedStatus != null) || (!newProposedStatus.equalsIgnoreCase("NOSTATUS") && !newProposedStatus.equals(existingProposedStatus)) || !fromComment.getContent().equals(existingComment.getContent())) {
                 throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), ERR_MSG_USER_CANNOT_MODIFY_EXISTING_COMMENT));
             }
             return existingComment;
