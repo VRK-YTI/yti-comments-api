@@ -123,7 +123,7 @@ public class CommentRound extends AbstractTimeStampedIdentifyableEntity implemen
         this.openThreads = openThreads;
     }
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.DETACH)
     @JoinTable(name = "commentround_organization",
         joinColumns = {
             @JoinColumn(name = "commentround_id", referencedColumnName = "id") },
