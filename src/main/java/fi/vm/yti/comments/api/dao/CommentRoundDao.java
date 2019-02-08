@@ -20,9 +20,11 @@ public interface CommentRoundDao {
 
     Set<CommentRound> findByStatus(final String status);
 
-    Set<CommentRound> findByStatusAndEndDateBefore(final String status, final LocalDate now);
+    Set<CommentRound> findByStatusAndEndDateBefore(final String status,
+                                                   final LocalDate now);
 
-    Set<CommentRound> findByStatusAndStartDateAfter(final String status, final LocalDate now);
+    Set<CommentRound> findByStatusAndStartDateAfter(final String status,
+                                                    final LocalDate now);
 
     Set<CommentRound> findBySourceContainerType(final String containerType);
 
@@ -41,4 +43,6 @@ public interface CommentRoundDao {
     CommentRound addOrUpdateCommentRoundFromDto(final CommentRoundDTO commentRoundDto);
 
     Set<CommentRound> addOrUpdateCommentRoundsFromDtos(final Set<CommentRoundDTO> commentRoundDtos);
+
+    void deleteCommentRound(final CommentRound commentRound);
 }

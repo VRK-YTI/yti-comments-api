@@ -2,9 +2,6 @@ package fi.vm.yti.comments.api.exception;
 
 public abstract class ErrorConstants {
 
-    private ErrorConstants() {
-    }
-
     public static final String ERR_MSG_USER_401 = "ERR_MSG_USER_401";
     public static final String ERR_MSG_USER_404 = "ERR_MSG_USER_404";
     public static final String ERR_MSG_USER_406 = "ERR_MSG_USER_406";
@@ -19,4 +16,8 @@ public abstract class ErrorConstants {
     public static final String ERR_MSG_NO_RESOURCES_TO_COMMENT_STATUS_CHANGE_NOT_ALLOWED = "ERR_MSG_NO_RESOURCES_TO_COMMENT_STATUS_CHANGE_NOT_ALLOWED";
     public static final String ERR_MSG_USER_COMMENTTHREAD_HAS_INVALID_COMMENTROUND_ID = "ERR_MSG_USER_COMMENTTHREAD_HAS_INVALID_COMMENTROUND_ID";
     public static final String ERR_MSG_INVALID_SOURCE_DATA = "ERR_MSG_INVALID_SOURCE_DATA";
+    public static final String ERR_MSG_INVALID_ID = "ERR_MSG_INVALID_ID";
+
+    private ErrorConstants() {
+    }
 }

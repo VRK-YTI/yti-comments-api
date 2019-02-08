@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import fi.vm.yti.comments.api.dao.CommentRoundDao;
 import fi.vm.yti.comments.api.dto.CommentRoundDTO;
 import fi.vm.yti.comments.api.dto.DtoMapper;
+import fi.vm.yti.comments.api.entity.CommentRound;
 import fi.vm.yti.comments.api.service.CommentRoundService;
 
 @Component
@@ -82,5 +83,10 @@ public class CommentRoundServiceImpl implements CommentRoundService {
     @Transactional
     public Set<CommentRoundDTO> addOrUpdateCommentRoundsFromDtos(final Set<CommentRoundDTO> fromCommentRounds) {
         return dtoMapper.mapDeepCommentRounds(commentRoundDao.addOrUpdateCommentRoundsFromDtos(fromCommentRounds));
+    }
+
+    @Transactional
+    public void deleteCommentRound(final CommentRound commentRound) {
+        commentRoundDao.deleteCommentRound(commentRound);
     }
 }

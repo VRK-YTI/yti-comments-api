@@ -2,13 +2,14 @@ package fi.vm.yti.comments.api.resource;
 
 import java.util.Comparator;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -43,6 +44,7 @@ import fi.vm.yti.comments.api.security.AuthorizationManager;
 import fi.vm.yti.comments.api.service.CommentRoundService;
 import fi.vm.yti.comments.api.service.CommentService;
 import fi.vm.yti.comments.api.service.CommentThreadService;
+import fi.vm.yti.comments.api.utils.StringUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -468,5 +470,32 @@ public class CommentRoundResource implements AbstractBaseResource {
         } else {
             throw new NotFoundException();
         }
+    }
+
+    @DELETE
+    @Path("{commentRoundId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @ApiOperation(value = "Deletes a single existing CommentRound.")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "CommentRound deleted."),
+        @ApiResponse(code = 404, message = "CommentRound not found.")
+    })
+    public Response deleteCommentRound(@ApiParam(value = "CommentRound UUID", required = true) @PathParam("commentRoundId") final String commentRoundId) {
+
+        if (!authorizationManager.isSuperUser()) {
+            throw new UnauthorizedException(new ErrorModel(HttpStatus.UNAUTHORIZED.value(), ERR_MSG_USER_401));
+        }
+        final UUID commentRoundUuid = StringUtils.parseUUIDFromString(commentRoundId);
+        final CommentRound existingCommentRound = commentRoundDao.findById(commentRoundUuid);
+        if (existingCommentRound != null) {
+            commentRoundService.deleteCommentRound(existingCommentRound);
+        } else {
+            return Response.status(404).build();
+        }
+        final Meta meta = new Meta();
+        meta.setCode(200);
+        final ResponseWrapper responseWrapper = new ResponseWrapper(meta);
+        return Response.ok(responseWrapper).build();
     }
 }

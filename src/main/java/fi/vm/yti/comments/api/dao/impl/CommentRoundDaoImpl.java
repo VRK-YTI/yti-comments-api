@@ -139,6 +139,11 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
         return commentRounds;
     }
 
+    @Transactional
+    public void deleteCommentRound(final CommentRound commentRound) {
+        commentRoundRepository.delete(commentRound);
+    }
+
     private CommentRound createOrUpdateCommentRound(final CommentRoundDTO fromCommentRound) {
         final CommentRound existingCommentRound;
         if (fromCommentRound.getId() != null) {

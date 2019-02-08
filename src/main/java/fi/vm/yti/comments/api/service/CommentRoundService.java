@@ -4,13 +4,14 @@ import java.util.Set;
 import java.util.UUID;
 
 import fi.vm.yti.comments.api.dto.CommentRoundDTO;
+import fi.vm.yti.comments.api.entity.CommentRound;
 
 public interface CommentRoundService {
 
     Set<CommentRoundDTO> findAll();
 
     Set<CommentRoundDTO> findByOrganizationsIdAndStatus(final UUID organizationId,
-                                                       final String status);
+                                                        final String status);
 
     Set<CommentRoundDTO> findByOrganizationsId(final UUID organizationId);
 
@@ -33,4 +34,6 @@ public interface CommentRoundService {
     CommentRoundDTO addOrUpdateCommentRoundFromDto(final CommentRoundDTO fromCommentRound);
 
     Set<CommentRoundDTO> addOrUpdateCommentRoundsFromDtos(final Set<CommentRoundDTO> fromCommentRounds);
+
+    void deleteCommentRound(final CommentRound commentRound);
 }
