@@ -482,13 +482,12 @@ public class CommentRoundResource implements AbstractBaseResource {
         @ApiResponse(code = 404, message = "CommentRound not found.")
     })
     public Response deleteCommentRound(@ApiParam(value = "CommentRound UUID", required = true) @PathParam("commentRoundId") final String commentRoundId) {
-
-        if (!authorizationManager.isSuperUser()) {
-            throw new UnauthorizedException(new ErrorModel(HttpStatus.UNAUTHORIZED.value(), ERR_MSG_USER_401));
-        }
         final UUID commentRoundUuid = StringUtils.parseUUIDFromString(commentRoundId);
         final CommentRound existingCommentRound = commentRoundDao.findById(commentRoundUuid);
         if (existingCommentRound != null) {
+            if (!authorizationManager.canUserDeleteCommentRound(existingCommentRound)) {
+                throw new UnauthorizedException(new ErrorModel(HttpStatus.UNAUTHORIZED.value(), ERR_MSG_USER_401));
+            }
             commentRoundService.deleteCommentRound(existingCommentRound);
         } else {
             return Response.status(404).build();

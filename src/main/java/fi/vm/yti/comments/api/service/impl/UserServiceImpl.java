@@ -57,4 +57,8 @@ public class UserServiceImpl implements UserService {
     public UserDTO getUserById(final UUID id) {
         return users.get(id);
     }
+
+    public String getUserEmailById(final UUID id) {
+        return users.get(id).getEmail();
+    }
 }

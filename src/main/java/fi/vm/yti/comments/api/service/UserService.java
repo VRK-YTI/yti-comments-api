@@ -9,4 +9,6 @@ public interface UserService {
     void updateUsers();
 
     UserDTO getUserById(final UUID id);
+
+    String getUserEmailById(final UUID id);
 }

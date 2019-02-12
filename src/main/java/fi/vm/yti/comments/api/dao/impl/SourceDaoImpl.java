@@ -81,7 +81,6 @@ public class SourceDaoImpl implements SourceDao {
             source = createSource(fromSource);
         }
         return source;
-
     }
 
     private Source createSource(final SourceDTO fromSource) {

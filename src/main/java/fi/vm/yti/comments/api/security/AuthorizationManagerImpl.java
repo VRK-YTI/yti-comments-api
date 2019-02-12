@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import fi.vm.yti.comments.api.entity.AbstractIdentifyableEntity;
 import fi.vm.yti.comments.api.entity.Comment;
 import fi.vm.yti.comments.api.entity.CommentRound;
+import fi.vm.yti.comments.api.service.UserService;
 import fi.vm.yti.security.AuthenticatedUserProvider;
 import fi.vm.yti.security.YtiUser;
 import static fi.vm.yti.security.Role.*;
@@ -20,10 +21,13 @@ import static fi.vm.yti.security.Role.*;
 public class AuthorizationManagerImpl implements AuthorizationManager {
 
     private final AuthenticatedUserProvider userProvider;
+    private final UserService userService;
 
     @Inject
-    AuthorizationManagerImpl(final AuthenticatedUserProvider userProvider) {
+    AuthorizationManagerImpl(final AuthenticatedUserProvider userProvider,
+                             final UserService userService) {
         this.userProvider = userProvider;
+        this.userService = userService;
     }
 
     public boolean isSuperUser() {
@@ -42,6 +46,11 @@ public class AuthorizationManagerImpl implements AuthorizationManager {
     public boolean canUserAddCommentRound() {
         final YtiUser user = userProvider.getUser();
         return user.isSuperuser() || (user.isInRoleInAnyOrganization(ADMIN) || user.isInRoleInAnyOrganization(CODE_LIST_EDITOR) || user.isInRoleInAnyOrganization(TERMINOLOGY_EDITOR) || user.isInRoleInAnyOrganization(DATA_MODEL_EDITOR));
+    }
+
+    public boolean canUserDeleteCommentRound(final CommentRound commentRound) {
+        final YtiUser user = userProvider.getUser();
+        return user.isSuperuser() || (userService.getUserEmailById(commentRound.getUserId()).equalsIgnoreCase(user.getEmail()));
     }
 
     public boolean canUserModifyCommentRound(final CommentRound commentRound) {
