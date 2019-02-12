@@ -86,7 +86,7 @@ public class CommentRound extends AbstractTimeStampedIdentifyableEntity implemen
         this.description = description;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.DETACH)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.MERGE })
     @JoinColumn(name = "source_id", nullable = false)
     public Source getSource() {
         return source;
