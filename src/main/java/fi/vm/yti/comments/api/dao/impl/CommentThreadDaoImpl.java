@@ -2,6 +2,7 @@ package fi.vm.yti.comments.api.dao.impl;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -102,7 +103,8 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
         }
         final CommentThread commentThread;
         if (existingCommentThread != null) {
-            if (!fromCommentThread.getProposedStatus().equals(existingCommentThread.getProposedStatus()) || !fromCommentThread.getProposedText().equals(existingCommentThread.getProposedText())) {
+            if (!fromCommentThread.getProposedStatus().equals(existingCommentThread.getProposedStatus()) ||
+                !Objects.equals(fromCommentThread.getProposedText(), existingCommentThread.getProposedText())) {
                 throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), ERR_MSG_USER_CANNOT_MODIFY_EXISTING_COMMENTTHREAD));
             }
             return existingCommentThread;
