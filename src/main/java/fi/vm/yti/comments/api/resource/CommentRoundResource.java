@@ -165,10 +165,10 @@ public class CommentRoundResource implements AbstractBaseResource {
             }
         } else {
             final CommentRoundDTO commentRound = commentRoundService.findById(commentRoundId);
-            if (commentRound.getCommentThreads() != null) {
-                commentRound.setCommentThreads(commentRound.getCommentThreads().stream().sorted(Comparator.comparing(CommentThreadDTO::getResourceUri, Comparator.nullsLast(Comparator.reverseOrder()))).collect(Collectors.toCollection(LinkedHashSet::new)));
-            }
             if (commentRound != null) {
+                if (commentRound.getCommentThreads() != null) {
+                    commentRound.setCommentThreads(commentRound.getCommentThreads().stream().sorted(Comparator.comparing(CommentThreadDTO::getResourceUri, Comparator.nullsLast(Comparator.reverseOrder()))).collect(Collectors.toCollection(LinkedHashSet::new)));
+                }
                 return Response.ok(commentRound).build();
             } else {
                 throw new NotFoundException();
