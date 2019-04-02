@@ -18,7 +18,7 @@ import org.springframework.web.client.RestTemplate;
 import fi.vm.yti.comments.api.configuration.GroupManagementProperties;
 import fi.vm.yti.comments.api.dto.UserDTO;
 import fi.vm.yti.comments.api.service.UserService;
-import static fi.vm.yti.comments.api.constants.ApiConstants.GROUPMANAGEMENT_API_CONTEXT_PATH;
+import static fi.vm.yti.comments.api.constants.ApiConstants.GROUPMANAGEMENT_API_PRIVATE_CONTEXT_PATH;
 import static fi.vm.yti.comments.api.constants.ApiConstants.GROUPMANAGEMENT_API_USERS;
 import static org.springframework.http.HttpMethod.GET;
 
@@ -45,7 +45,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public void updateUsers() {
-        String url = groupManagementProperties.getUrl() + "/" + GROUPMANAGEMENT_API_CONTEXT_PATH + "/" + GROUPMANAGEMENT_API_USERS;
+        String url = groupManagementProperties.getUrl() + "/" + GROUPMANAGEMENT_API_PRIVATE_CONTEXT_PATH + "/" + GROUPMANAGEMENT_API_USERS;
         final Set<UserDTO> fetchedUsers = restTemplate.exchange(url, GET, null, new ParameterizedTypeReference<Set<UserDTO>>() {
         }).getBody();
         if (fetchedUsers != null) {
