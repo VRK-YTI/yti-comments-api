@@ -24,7 +24,7 @@ public abstract class ApiConstants {
     public static final String API_RESOURCES = "resources";
 
     public static final String GROUPMANAGEMENT_API_CONTEXT_PATH = "public-api";
-    public static final String GROUPMANAGEMENT_API_PRIVATE_CONTEXT_PATH = "private";
+    public static final String GROUPMANAGEMENT_API_PRIVATE_CONTEXT_PATH = "private-api";
     public static final String GROUPMANAGEMENT_API_USERS = "users";
     public static final String GROUPMANAGEMENT_API_REQUEST = "request";
     public static final String GROUPMANAGEMENT_API_REQUESTS = "requests";
