@@ -1,0 +1,7 @@
+spring:
+  cloud:
+    config:
+      failFast: false
+      uri: ${config_server_uri:file:../yti-config/yti-comments-api.yml}
+  application:
+    name: yti-comments-api
