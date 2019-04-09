@@ -1,6 +1,7 @@
 package fi.vm.yti.comments.api.resource;
 
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -30,6 +31,7 @@ import fi.vm.yti.comments.api.dao.CommentRoundDao;
 import fi.vm.yti.comments.api.dto.CommentDTO;
 import fi.vm.yti.comments.api.dto.CommentRoundDTO;
 import fi.vm.yti.comments.api.dto.CommentThreadDTO;
+import fi.vm.yti.comments.api.dto.OrganizationDTO;
 import fi.vm.yti.comments.api.entity.Comment;
 import fi.vm.yti.comments.api.entity.CommentRound;
 import fi.vm.yti.comments.api.error.ErrorModel;
@@ -103,7 +105,8 @@ public class CommentRoundResource implements AbstractBaseResource {
                                      @ApiParam(value = "Filter option for status filtering.") @QueryParam("status") final String status,
                                      @ApiParam(value = "Filter option for integration source type filtering.") @QueryParam("containerType") final String containerType,
                                      @ApiParam(value = "Filter option for incomplete filtering for round creator only") @QueryParam("filterIncomplete") @DefaultValue("false") final Boolean filterIncomplete,
-                                     @ApiParam(value = "Filter string (csl) for expanding specific child recommentRounds.") @QueryParam("expand") final String expand) {
+                                     @ApiParam(value = "Filter string (csl) for expanding specific child recommentRounds.") @QueryParam("expand") final String expand,
+                                     @ApiParam(value = "Filter by user organizations or user id.") @QueryParam("filterContent") final Boolean filterContent) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTROUND, expand)));
         Set<CommentRoundDTO> commentRoundDtos;
         if (organizationId != null && status != null && containerType != null) {
@@ -123,10 +126,10 @@ public class CommentRoundResource implements AbstractBaseResource {
         } else {
             commentRoundDtos = commentRoundService.findAll();
         }
-        if (filterIncomplete) {
+        if (filterIncomplete && commentRoundDtos != null) {
             final UUID userUuid = authorizationManager.getUserId();
             commentRoundDtos = commentRoundDtos.stream().filter(commentRound -> {
-                if (STATUS_INCOMPLETE.equalsIgnoreCase(commentRound.getStatus()) && userUuid != null && userUuid.equals(commentRound.getUser().getId())) {
+                if (STATUS_INCOMPLETE.equalsIgnoreCase(commentRound.getStatus()) && userUuid != null && userUuid.equals(commentRound.getUser().getId()) || authorizationManager.isSuperUser()) {
                     return true;
                 } else if (!STATUS_INCOMPLETE.equalsIgnoreCase(commentRound.getStatus())) {
                     return true;
@@ -135,11 +138,28 @@ public class CommentRoundResource implements AbstractBaseResource {
                 }
             }).collect(Collectors.toSet());
         }
+        final Set<CommentRoundDTO> commentRoundDtosToReturn = new HashSet<>();
+        if (filterContent && commentRoundDtos != null) {
+            for (final CommentRoundDTO commentRoundDto : commentRoundDtos) {
+                if (commentRoundDto.getUser().getId().equals(authorizationManager.getUserId()) || authorizationManager.isSuperUser()) {
+                    commentRoundDtosToReturn.add(commentRoundDto);
+                } else {
+                    for (final OrganizationDTO organization : commentRoundDto.getOrganizations()) {
+                        final Set<UUID> userOrganizationIds = authorizationManager.getUserOrganizations();
+                        if (userOrganizationIds.contains(organization.getId())) {
+                            commentRoundDtosToReturn.add(commentRoundDto);
+                        }
+                    }
+                }
+            }
+        } else {
+            commentRoundDtosToReturn.addAll(commentRoundDtos);
+        }
         final Meta meta = new Meta();
         final ResponseWrapper<CommentRoundDTO> responseWrapper = new ResponseWrapper<>(meta);
-        meta.setMessage("CommentRounds found: " + commentRoundDtos.size());
+        meta.setMessage("CommentRounds found: " + commentRoundDtosToReturn.size());
         meta.setCode(200);
-        responseWrapper.setResults(commentRoundDtos);
+        responseWrapper.setResults(commentRoundDtosToReturn);
         return Response.ok(responseWrapper).build();
     }
 

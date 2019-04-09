@@ -1,15 +1,21 @@
 package fi.vm.yti.comments.api.security;
 
+import java.util.Set;
 import java.util.UUID;
 
 import fi.vm.yti.comments.api.entity.Comment;
 import fi.vm.yti.comments.api.entity.CommentRound;
+import fi.vm.yti.comments.api.entity.Organization;
 
 public interface AuthorizationManager {
 
     boolean isSuperUser();
 
     UUID getUserId();
+
+    String getUserEmail();
+
+    Set<UUID> getUserOrganizations();
 
     boolean canUserModifyComment(final Comment comment);
 

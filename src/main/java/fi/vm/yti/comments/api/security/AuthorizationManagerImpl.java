@@ -2,6 +2,7 @@ package fi.vm.yti.comments.api.security;
 
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -36,6 +37,14 @@ public class AuthorizationManagerImpl implements AuthorizationManager {
 
     public UUID getUserId() {
         return userProvider.getUser().getId();
+    }
+
+    public String getUserEmail() {
+        return userProvider.getUser().getEmail();
+    }
+
+    public Set<UUID> getUserOrganizations() {
+        return userProvider.getUser().getOrganizations();
     }
 
     public boolean canUserModifyComment(final Comment comment) {
