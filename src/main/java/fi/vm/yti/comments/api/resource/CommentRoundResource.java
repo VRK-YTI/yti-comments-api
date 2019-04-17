@@ -143,7 +143,7 @@ public class CommentRoundResource implements AbstractBaseResource {
             for (final CommentRoundDTO commentRoundDto : commentRoundDtos) {
                 if (commentRoundDto.getUser().getId().equals(authorizationManager.getUserId()) || authorizationManager.isSuperUser()) {
                     commentRoundDtosToReturn.add(commentRoundDto);
-                } else {
+                } else if (!"INCOMPLETE".equalsIgnoreCase(commentRoundDto.getStatus())) {
                     for (final OrganizationDTO organization : commentRoundDto.getOrganizations()) {
                         final Set<UUID> userOrganizationIds = authorizationManager.getUserOrganizations();
                         if (userOrganizationIds.contains(organization.getId())) {

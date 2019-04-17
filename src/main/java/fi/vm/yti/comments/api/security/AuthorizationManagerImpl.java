@@ -2,6 +2,7 @@ package fi.vm.yti.comments.api.security;
 
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -15,6 +16,7 @@ import fi.vm.yti.comments.api.entity.Comment;
 import fi.vm.yti.comments.api.entity.CommentRound;
 import fi.vm.yti.comments.api.service.UserService;
 import fi.vm.yti.security.AuthenticatedUserProvider;
+import fi.vm.yti.security.Role;
 import fi.vm.yti.security.YtiUser;
 import static fi.vm.yti.security.Role.*;
 
@@ -44,7 +46,12 @@ public class AuthorizationManagerImpl implements AuthorizationManager {
     }
 
     public Set<UUID> getUserOrganizations() {
-        return userProvider.getUser().getOrganizations();
+        final Set<Role> roles = new HashSet<>();
+        roles.add(ADMIN);
+        roles.add(DATA_MODEL_EDITOR);
+        roles.add(TERMINOLOGY_EDITOR);
+        roles.add(CODE_LIST_EDITOR);
+        return userProvider.getUser().getOrganizations(roles);
     }
 
     public boolean canUserModifyComment(final Comment comment) {
