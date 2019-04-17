@@ -16,8 +16,8 @@ public interface CommentRepository extends PagingAndSortingRepository<Comment, S
 
     Comment findById(final UUID commentId);
 
-    Set<Comment> findByCommentThreadCommentRoundIdAndUserId(final UUID commentRoundId,
-                                                            final UUID userId);
+    Set<Comment> findByCommentThreadCommentRoundIdAndUserIdAndParentCommentIsNull(final UUID commentRoundId,
+                                                                                  final UUID userId);
 
     Comment findByCommentThreadIdAndUserIdAndParentCommentIsNull(final UUID commentRoundId,
                                                                  final UUID userId);

@@ -52,7 +52,7 @@ public class CommentDaoImpl implements CommentDao {
     @Transactional
     public Set<Comment> findCommentRoundMainLevelCommentsForUserId(final UUID commentRoundId,
                                                                    final UUID userId) {
-        return commentRepository.findByCommentThreadCommentRoundIdAndUserId(commentRoundId, userId);
+        return commentRepository.findByCommentThreadCommentRoundIdAndUserIdAndParentCommentIsNull(commentRoundId, userId);
     }
 
     @Transactional
@@ -133,9 +133,7 @@ public class CommentDaoImpl implements CommentDao {
         }
         final Comment comment;
         if (existingComment != null) {
-            final String existingProposedStatus = existingComment.getProposedStatus();
-            final String newProposedStatus = fromComment.getProposedStatus();
-            if ((newProposedStatus.equalsIgnoreCase("NOSTATUS") && existingProposedStatus != null) || (!newProposedStatus.equalsIgnoreCase("NOSTATUS") && !newProposedStatus.equals(existingProposedStatus)) || !fromComment.getContent().equals(existingComment.getContent())) {
+            if (!fromComment.getContent().equals(existingComment.getContent())) {
                 throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), ERR_MSG_USER_CANNOT_MODIFY_EXISTING_COMMENT));
             }
             return existingComment;
@@ -150,10 +148,19 @@ public class CommentDaoImpl implements CommentDao {
         final Comment comment = new Comment();
         comment.setId(fromComment.getId() != null ? fromComment.getId() : UUID.randomUUID());
         comment.setUserId(authorizationManager.getUserId());
-        comment.setContent(fromComment.getContent());
-        comment.setProposedStatus(fromComment.getProposedStatus() != null && !"NOSTATUS".equalsIgnoreCase(fromComment.getProposedStatus()) ? fromComment.getProposedStatus() : null);
-        comment.setCommentThread(commentThread);
+        final String content = fromComment.getContent();
+        if (content != null && content.trim().length() > 0) {
+            comment.setContent(fromComment.getContent());
+        } else {
+            throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), ERR_MSG_USER_CANNOT_CREATE_EMPTY_COMMENT));
+        }
         resolveParentComment(comment, fromComment);
+        if (comment.getParentComment() == null && fromComment.getProposedStatus() != null && !fromComment.getProposedStatus().equalsIgnoreCase("NOSTATUS")) {
+            comment.setProposedStatus(fromComment.getProposedStatus() != null && !"NOSTATUS".equalsIgnoreCase(fromComment.getProposedStatus()) ? fromComment.getProposedStatus() : null);
+        } else if (comment.getParentComment() == null) {
+            throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), ERR_MSG_USER_PROPOSED_STATUS_REQUIRED));
+        }
+        comment.setCommentThread(commentThread);
         final LocalDateTime timeStamp = LocalDateTime.now();
         comment.setCreated(timeStamp);
         return comment;
@@ -162,8 +169,10 @@ public class CommentDaoImpl implements CommentDao {
     private Comment updateComment(final Comment existingComment,
                                   final CommentDTO fromComment) {
         existingComment.setContent(fromComment.getContent());
-        existingComment.setProposedStatus(fromComment.getProposedStatus() != null && !"NOSTATUS".equalsIgnoreCase(fromComment.getProposedStatus()) ? fromComment.getProposedStatus() : null);
         resolveParentComment(existingComment, fromComment);
+        if (existingComment.getParentComment() == null) {
+            existingComment.setProposedStatus(fromComment.getProposedStatus() != null && !"NOSTATUS".equalsIgnoreCase(fromComment.getProposedStatus()) ? fromComment.getProposedStatus() : null);
+        }
         return existingComment;
     }
 

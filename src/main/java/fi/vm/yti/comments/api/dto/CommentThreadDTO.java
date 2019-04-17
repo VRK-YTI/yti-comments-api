@@ -20,7 +20,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 @JsonFilter("commentThread")
 @XmlRootElement
-@XmlType(propOrder = { "id", "url", "created", "user", "resourceUri", "label", "description", "proposedText", "currentStatus", "proposedStatus", "comments", "commentRound", "results" })
+@XmlType(propOrder = { "id", "url", "created", "user", "resourceUri", "label", "description", "proposedText", "currentStatus", "proposedStatus", "comments", "commentRound", "results", "commentCount" })
 @ApiModel(value = "Source", description = "Source DTO that represents data for one single source.")
 public class CommentThreadDTO extends AbstractIdentifyableDTO implements Serializable {
 
@@ -38,6 +38,7 @@ public class CommentThreadDTO extends AbstractIdentifyableDTO implements Seriali
     private Set<CommentDTO> comments;
     private CommentRoundDTO commentRound;
     private Set<CommentThreadResultDTO> results;
+    private Integer commentCount;
 
     public String getUrl() {
         return url;
@@ -137,5 +138,13 @@ public class CommentThreadDTO extends AbstractIdentifyableDTO implements Seriali
 
     public void setResults(final Set<CommentThreadResultDTO> results) {
         this.results = results;
+    }
+
+    public Integer getCommentCount() {
+        return commentCount;
+    }
+
+    public void setCommentCount(final Integer commentCount) {
+        this.commentCount = commentCount;
     }
 }
