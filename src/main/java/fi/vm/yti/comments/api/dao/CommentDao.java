@@ -19,6 +19,8 @@ public interface CommentDao {
 
     Set<Comment> findByCommentThreadId(final UUID commentRoundId);
 
+    Set<Comment> findByCommentThreadIdAndParentCommentIsNull(final UUID commentRoundId);
+
     Comment addOrUpdateCommentFromDto(final CommentThread commentThread,
                                       final CommentDTO commentDto);
 

@@ -37,7 +37,7 @@ public class ResultServiceImpl implements ResultService {
         final Map<String, Integer> commentThreadResultsMap = new HashMap<>();
         final CommentThread commentThread = commentThreadDao.findById(commentThreadId);
         if (commentThread != null) {
-            final Set<Comment> comments = commentDao.findByCommentThreadId(commentThreadId);
+            final Set<Comment> comments = commentDao.findByCommentThreadIdAndParentCommentIsNull(commentThreadId);
             comments.forEach(comment -> {
                 final String proposedStatus = comment.getProposedStatus();
                 if (proposedStatus != null && !proposedStatus.isEmpty() && !"NOSTATUS".equalsIgnoreCase(proposedStatus)) {

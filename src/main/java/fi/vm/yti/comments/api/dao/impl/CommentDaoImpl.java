@@ -61,6 +61,11 @@ public class CommentDaoImpl implements CommentDao {
     }
 
     @Transactional
+    public Set<Comment> findByCommentThreadIdAndParentCommentIsNull(final UUID commentThreadId) {
+        return commentRepository.findByCommentThreadIdAndParentCommentIsNullOrderByCreatedAsc(commentThreadId);
+    }
+
+    @Transactional
     public Comment addOrUpdateCommentFromDto(final CommentThread commentThread,
                                              final CommentDTO fromComment) {
         final Comment comment = createOrUpdateComment(commentThread, fromComment);
@@ -136,7 +141,7 @@ public class CommentDaoImpl implements CommentDao {
             if (!fromComment.getContent().equals(existingComment.getContent())) {
                 throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), ERR_MSG_USER_CANNOT_MODIFY_EXISTING_COMMENT));
             }
-            return existingComment;
+            comment = updateComment(existingComment, fromComment);
         } else {
             comment = createComment(commentThread, fromComment);
         }
