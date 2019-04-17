@@ -77,6 +77,7 @@ public class DtoMapper {
         commentDto.setContent(comment.getContent());
         commentDto.setUser(userService.getUserById(comment.getUserId()));
         commentDto.setProposedStatus(comment.getProposedStatus());
+        commentDto.setEndStatus(comment.getEndStatus());
         if (deep) {
             commentDto.setParentComment(mapComment(comment.getParentComment(), false, false));
         }

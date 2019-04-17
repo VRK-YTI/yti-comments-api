@@ -24,6 +24,7 @@ public class Comment extends AbstractIdentifyableEntity implements Serializable 
     private CommentThread commentThread;
     private String content;
     private String proposedStatus;
+    private String endStatus;
     private LocalDateTime created;
 
     @Column(name = "user_id")
@@ -71,6 +72,15 @@ public class Comment extends AbstractIdentifyableEntity implements Serializable 
 
     public void setProposedStatus(final String proposedStatus) {
         this.proposedStatus = proposedStatus;
+    }
+
+    @Column(name = "endstatus")
+    public String getEndStatus() {
+        return endStatus;
+    }
+
+    public void setEndStatus(final String endStatus) {
+        this.endStatus = endStatus;
     }
 
     @Column(name = "created")

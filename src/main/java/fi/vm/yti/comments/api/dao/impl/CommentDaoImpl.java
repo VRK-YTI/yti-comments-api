@@ -160,8 +160,10 @@ public class CommentDaoImpl implements CommentDao {
             throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), ERR_MSG_USER_CANNOT_CREATE_EMPTY_COMMENT));
         }
         resolveParentComment(comment, fromComment);
-        if (comment.getParentComment() == null && fromComment.getProposedStatus() != null && !fromComment.getProposedStatus().equalsIgnoreCase("NOSTATUS")) {
-            comment.setProposedStatus(fromComment.getProposedStatus() != null && !"NOSTATUS".equalsIgnoreCase(fromComment.getProposedStatus()) ? fromComment.getProposedStatus() : null);
+        final String endStatus = fromComment.getEndStatus();
+        if (comment.getParentComment() == null && endStatus != null && !"NOSTATUS".equalsIgnoreCase(endStatus)) {
+            comment.setProposedStatus(endStatus);
+            comment.setEndStatus(endStatus);
         } else if (comment.getParentComment() == null) {
             throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), ERR_MSG_USER_PROPOSED_STATUS_REQUIRED));
         }
@@ -175,8 +177,11 @@ public class CommentDaoImpl implements CommentDao {
                                   final CommentDTO fromComment) {
         existingComment.setContent(fromComment.getContent());
         resolveParentComment(existingComment, fromComment);
-        if (existingComment.getParentComment() == null) {
-            existingComment.setProposedStatus(fromComment.getProposedStatus() != null && !"NOSTATUS".equalsIgnoreCase(fromComment.getProposedStatus()) ? fromComment.getProposedStatus() : null);
+        final String endStatus = fromComment.getEndStatus();
+        if (existingComment.getParentComment() == null && endStatus != null && !"NOSTATUS".equalsIgnoreCase(endStatus)) {
+            existingComment.setEndStatus(endStatus);
+        } else if (existingComment.getParentComment() == null) {
+            throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), ERR_MSG_USER_PROPOSED_STATUS_REQUIRED));
         }
         return existingComment;
     }

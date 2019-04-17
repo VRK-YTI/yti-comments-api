@@ -39,12 +39,12 @@ public class ResultServiceImpl implements ResultService {
         if (commentThread != null) {
             final Set<Comment> comments = commentDao.findByCommentThreadIdAndParentCommentIsNull(commentThreadId);
             comments.forEach(comment -> {
-                final String proposedStatus = comment.getProposedStatus();
-                if (proposedStatus != null && !proposedStatus.isEmpty() && !"NOSTATUS".equalsIgnoreCase(proposedStatus)) {
-                    if (commentThreadResultsMap.get(proposedStatus) != null) {
-                        commentThreadResultsMap.put(proposedStatus, commentThreadResultsMap.get(proposedStatus) + 1);
+                final String endStatus = comment.getEndStatus();
+                if (endStatus != null && !endStatus.isEmpty() && !"NOSTATUS".equalsIgnoreCase(endStatus)) {
+                    if (commentThreadResultsMap.get(endStatus) != null) {
+                        commentThreadResultsMap.put(endStatus, commentThreadResultsMap.get(endStatus) + 1);
                     } else {
-                        commentThreadResultsMap.put(proposedStatus, 1);
+                        commentThreadResultsMap.put(endStatus, 1);
                     }
                 }
             });
