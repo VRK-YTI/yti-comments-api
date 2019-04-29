@@ -16,7 +16,7 @@ public class CommentThreadResultDTO implements Serializable {
 
     private String status;
     private Integer count;
-    private Integer percentage;
+    private String percentage;
 
     public String getStatus() {
         return status;
@@ -34,11 +34,11 @@ public class CommentThreadResultDTO implements Serializable {
         this.count = count;
     }
 
-    public Integer getPercentage() {
+    public String getPercentage() {
         return percentage;
     }
 
-    public void setPercentage(final Integer percentage) {
+    public void setPercentage(final String percentage) {
         this.percentage = percentage;
     }
 }

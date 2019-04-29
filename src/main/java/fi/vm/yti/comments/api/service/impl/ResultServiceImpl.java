@@ -55,8 +55,8 @@ public class ResultServiceImpl implements ResultService {
             final CommentThreadResultDTO commentThreadResult = new CommentThreadResultDTO();
             commentThreadResult.setStatus(status);
             commentThreadResult.setCount(count);
-            final Integer percentage = (int) (count * 100f / totalCount);
-            commentThreadResult.setPercentage(percentage);
+            final Float percentage = count * 100f / totalCount;
+            commentThreadResult.setPercentage(String.format("%.02f", percentage));
             commentThreadResults.add(commentThreadResult);
         });
         return commentThreadResults;
