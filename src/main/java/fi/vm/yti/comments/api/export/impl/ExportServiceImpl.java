@@ -13,6 +13,8 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import fi.vm.yti.comments.api.entity.Comment;
@@ -25,6 +27,8 @@ import static fi.vm.yti.comments.api.constants.ApiConstants.*;
 
 @Component
 public class ExportServiceImpl implements ExportService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ExportServiceImpl.class);
 
     private static final String DATEFORMAT = "yyyy-MM-dd";
     private static final String DATEFORMAT_WITH_SECONDS = "yyyy-MM-dd HH:mm:ss";
@@ -208,7 +212,11 @@ public class ExportServiceImpl implements ExportService {
     private void autoSizeColumns(final Sheet sheet,
                                  final int columnCount) {
         for (int i = 0; i <= columnCount; i++) {
-            sheet.autoSizeColumn(i);
+            try {
+                sheet.autoSizeColumn(i);
+            } catch (NullPointerException e) {
+                LOG.warn("Auto sizing Excel columns failed due to issue for column " + i + ", with column count: " + columnCount, e);
+            }
         }
     }
 }
