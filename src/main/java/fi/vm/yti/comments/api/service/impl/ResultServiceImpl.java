@@ -61,4 +61,20 @@ public class ResultServiceImpl implements ResultService {
         });
         return commentThreadResults;
     }
+
+
+    @Transactional
+    public String getResultsForCommentThreadAsText(final UUID commentThreadId) {
+        final StringBuilder results = new StringBuilder();
+        final Set<CommentThreadResultDTO> commentThreadResults = getResultsForCommentThread(commentThreadId);
+        for (final CommentThreadResultDTO result : commentThreadResults) {
+            results.append(result.getStatus());
+            results.append(": ");
+            results.append(result.getCount());
+            results.append(" (");
+            results.append(result.getPercentage());
+            results.append(" %)\n");
+        }
+        return results.toString();
+    }
 }

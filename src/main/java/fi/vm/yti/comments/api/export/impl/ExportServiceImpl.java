@@ -6,8 +6,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Component;
@@ -16,6 +19,7 @@ import fi.vm.yti.comments.api.entity.Comment;
 import fi.vm.yti.comments.api.entity.CommentRound;
 import fi.vm.yti.comments.api.entity.CommentThread;
 import fi.vm.yti.comments.api.export.ExportService;
+import fi.vm.yti.comments.api.service.ResultService;
 import fi.vm.yti.comments.api.service.UserService;
 import static fi.vm.yti.comments.api.constants.ApiConstants.*;
 
@@ -26,16 +30,22 @@ public class ExportServiceImpl implements ExportService {
     private static final String DATEFORMAT_WITH_SECONDS = "yyyy-MM-dd HH:mm:ss";
 
     private final UserService userService;
+    private final ResultService resultService;
 
-    public ExportServiceImpl(final UserService userService) {
+    public ExportServiceImpl(final UserService userService,
+                             final ResultService resultService) {
         this.userService = userService;
+        this.resultService = resultService;
     }
 
     public Workbook exportCommentRoundToExcel(final CommentRound commentRound) {
         final Workbook workbook = new XSSFWorkbook();
         addCommentRoundSheet(workbook, commentRound);
-        addCommentThreadsSheet(workbook, commentRound.getCommentThreads());
-        addCommentsSheet(workbook, commentRound.getCommentThreads());
+        final Set<CommentThread> commentThreads = commentRound.getCommentThreads();
+        addCommentThreadsSheet(workbook, commentThreads);
+        for (final CommentThread commentThread : commentThreads) {
+            addCommentsSheetForCommentThread(workbook, commentThread);
+        }
         return workbook;
     }
 
@@ -44,26 +54,31 @@ public class ExportServiceImpl implements ExportService {
         final Sheet sheet = workbook.createSheet(EXCEL_SHEET_COMMENTROUND);
         final Row rowhead = sheet.createRow((short) 0);
         int j = 0;
-        rowhead.createCell(j++).setCellValue(CONTENT_HEADER_ID);
-        rowhead.createCell(j++).setCellValue(CONTENT_HEADER_USER_ID);
-        rowhead.createCell(j++).setCellValue(CONTENT_HEADER_USER);
-        rowhead.createCell(j++).setCellValue(CONTENT_HEADER_LABEL);
-        rowhead.createCell(j++).setCellValue(CONTENT_HEADER_DESCRIPTION);
-        rowhead.createCell(j++).setCellValue(CONTENT_HEADER_STARTDATE);
-        rowhead.createCell(j++).setCellValue(CONTENT_HEADER_ENDDATE);
-        rowhead.createCell(j++).setCellValue(CONTENT_HEADER_CREATED);
-        rowhead.createCell(j).setCellValue(CONTENT_HEADER_MODIFIED);
+        final CellStyle style = createCellStyle(workbook);
+        addCellToRow(rowhead, style, j++, CONTENT_HEADER_URI);
+        addCellToRow(rowhead, style, j++, CONTENT_HEADER_SOURCE);
+        addCellToRow(rowhead, style, j++, CONTENT_HEADER_ID);
+        addCellToRow(rowhead, style, j++, CONTENT_HEADER_USER_ID);
+        addCellToRow(rowhead, style, j++, CONTENT_HEADER_USER);
+        addCellToRow(rowhead, style, j++, CONTENT_HEADER_LABEL);
+        addCellToRow(rowhead, style, j++, CONTENT_HEADER_DESCRIPTION);
+        addCellToRow(rowhead, style, j++, CONTENT_HEADER_STARTDATE);
+        addCellToRow(rowhead, style, j++, CONTENT_HEADER_ENDDATE);
+        addCellToRow(rowhead, style, j++, CONTENT_HEADER_CREATED);
+        addCellToRow(rowhead, style, j, CONTENT_HEADER_MODIFIED);
         final Row row = sheet.createRow(1);
         int k = 0;
-        row.createCell(k++).setCellValue(checkEmptyValue(commentRound.getId().toString()));
-        row.createCell(k++).setCellValue(checkEmptyValue(commentRound.getUserId().toString()));
-        row.createCell(k++).setCellValue(checkEmptyValue(userService.getUserById(commentRound.getUserId()).getDisplayNameWithEmail()));
-        row.createCell(k++).setCellValue(checkEmptyValue(commentRound.getLabel()));
-        row.createCell(k++).setCellValue(checkEmptyValue(commentRound.getDescription()));
-        row.createCell(k++).setCellValue(commentRound.getStartDate() != null ? formatDateWithISO8601(commentRound.getStartDate()) : "");
-        row.createCell(k++).setCellValue(commentRound.getEndDate() != null ? formatDateWithISO8601(commentRound.getEndDate()) : "");
-        row.createCell(k++).setCellValue(commentRound.getCreated() != null ? formatDateWithSeconds(commentRound.getCreated()) : "");
-        row.createCell(k).setCellValue(commentRound.getModified() != null ? formatDateWithSeconds(commentRound.getModified()) : "");
+        addCellToRow(row, style, k++, checkEmptyValue(commentRound.getSource().getContainerUri()));
+        addCellToRow(row, style, k++, checkEmptyValue(commentRound.getSource().getContainerType()));
+        addCellToRow(row, style, k++, checkEmptyValue(commentRound.getId().toString()));
+        addCellToRow(row, style, k++, checkEmptyValue(commentRound.getUserId().toString()));
+        addCellToRow(row, style, k++, checkEmptyValue(userService.getUserById(commentRound.getUserId()).getDisplayNameWithEmail()));
+        addCellToRow(row, style, k++, checkEmptyValue(commentRound.getLabel()));
+        addCellToRow(row, style, k++, checkEmptyValue(commentRound.getDescription()));
+        addCellToRow(row, style, k++, commentRound.getStartDate() != null ? formatDateWithISO8601(commentRound.getStartDate()) : "");
+        addCellToRow(row, style, k++, commentRound.getEndDate() != null ? formatDateWithISO8601(commentRound.getEndDate()) : "");
+        addCellToRow(row, style, k++, commentRound.getCreated() != null ? formatDateWithSeconds(commentRound.getCreated()) : "");
+        addCellToRow(row, style, k, commentRound.getModified() != null ? formatDateWithSeconds(commentRound.getModified()) : "");
         autoSizeColumns(sheet, j);
     }
 
@@ -74,67 +89,91 @@ public class ExportServiceImpl implements ExportService {
         int j = 0;
         final Set<String> labelLanguages = resolveCommentThreadLabelLanguages(commentThreads);
         final Set<String> descriptionLanguages = resolveCommentThreadDescriptionLanguages(commentThreads);
-        rowhead.createCell(j++).setCellValue(CONTENT_HEADER_ID);
-        rowhead.createCell(j++).setCellValue(CONTENT_HEADER_USER_ID);
-        rowhead.createCell(j++).setCellValue(CONTENT_HEADER_USER);
+        final CellStyle style = createCellStyle(workbook);
+        addCellToRow(rowhead, style, j++, CONTENT_HEADER_URI);
+        addCellToRow(rowhead, style, j++, CONTENT_HEADER_RESULT);
+        addCellToRow(rowhead, style, j++, CONTENT_HEADER_COMMENTS_SHEET);
+        addCellToRow(rowhead, style, j++, CONTENT_HEADER_ID);
+        addCellToRow(rowhead, style, j++, CONTENT_HEADER_USER_ID);
+        addCellToRow(rowhead, style, j++, CONTENT_HEADER_USER);
         for (final String language : labelLanguages) {
-            rowhead.createCell(j++).setCellValue(CONTENT_HEADER_LABEL_PREFIX + language.toUpperCase());
+            addCellToRow(rowhead, style, j++, CONTENT_HEADER_LABEL_PREFIX + language.toUpperCase());
         }
         for (final String language : descriptionLanguages) {
-            rowhead.createCell(j++).setCellValue(CONTENT_HEADER_DESCRIPTION_PREFIX + language.toUpperCase());
+            addCellToRow(rowhead, style, j++, CONTENT_HEADER_DESCRIPTION_PREFIX + language.toUpperCase());
         }
-        rowhead.createCell(j++).setCellValue(CONTENT_HEADER_PROPOSEDSTATUS);
-        rowhead.createCell(j++).setCellValue(CONTENT_HEADER_PROPOSEDTEXT);
-        rowhead.createCell(j).setCellValue(CONTENT_HEADER_CREATED);
+        addCellToRow(rowhead, style, j++, CONTENT_HEADER_PROPOSEDSTATUS);
+        addCellToRow(rowhead, style, j++, CONTENT_HEADER_PROPOSEDTEXT);
+        addCellToRow(rowhead, style, j, CONTENT_HEADER_CREATED);
         int i = 1;
         for (final CommentThread commentThread : commentThreads) {
             final Row row = sheet.createRow(i++);
             int k = 0;
-            row.createCell(k++).setCellValue(checkEmptyValue(commentThread.getId().toString()));
-            row.createCell(k++).setCellValue(checkEmptyValue(commentThread.getUserId().toString()));
-            row.createCell(k++).setCellValue(checkEmptyValue(userService.getUserById(commentThread.getUserId()).getDisplayNameWithEmail()));
+            addCellToRow(row, style, k++, checkEmptyValue(commentThread.getResourceUri()));
+            addCellToRow(row, style, k++, checkEmptyValue(resultService.getResultsForCommentThreadAsText(commentThread.getId())));
+            addCellToRow(row, style, k++, checkEmptyValue(EXCEL_SHEET_COMMENTS + "_" + commentThread.getId().toString()));
+            addCellToRow(row, style, k++, checkEmptyValue(commentThread.getId().toString()));
+            addCellToRow(row, style, k++, checkEmptyValue(commentThread.getUserId().toString()));
+            addCellToRow(row, style, k++, checkEmptyValue(userService.getUserById(commentThread.getUserId()).getDisplayNameWithEmail()));
             for (final String language : labelLanguages) {
-                row.createCell(k++).setCellValue(commentThread.getDescription().get(language));
+                addCellToRow(row, style, k++, checkEmptyValue(commentThread.getDescription().get(language)));
             }
             for (final String language : descriptionLanguages) {
-                row.createCell(k++).setCellValue(commentThread.getDescription().get(language));
+                addCellToRow(row, style, k++, checkEmptyValue(commentThread.getDescription().get(language)));
             }
-            row.createCell(k++).setCellValue(checkEmptyValue(commentThread.getProposedStatus()));
-            row.createCell(k++).setCellValue(checkEmptyValue(commentThread.getProposedText()));
-            row.createCell(k).setCellValue(commentThread.getCreated() != null ? formatDateWithSeconds(commentThread.getCreated()) : "");
+            addCellToRow(row, style, k++, checkEmptyValue(commentThread.getProposedStatus()));
+            addCellToRow(row, style, k++, checkEmptyValue(commentThread.getProposedText()));
+            addCellToRow(row, style, k, checkEmptyValue(commentThread.getCreated() != null ? formatDateWithSeconds(commentThread.getCreated()) : ""));
         }
         autoSizeColumns(sheet, j);
     }
 
-    private void addCommentsSheet(final Workbook workbook,
-                                  final Set<CommentThread> commentThreads) {
-        final Sheet sheet = workbook.createSheet(EXCEL_SHEET_COMMENTS);
+    private void addCommentsSheetForCommentThread(final Workbook workbook,
+                                                  final CommentThread commentThread) {
+        final Sheet sheet = workbook.createSheet(EXCEL_SHEET_COMMENTS + "_" + commentThread.getId().toString());
         final Row rowhead = sheet.createRow((short) 0);
         int j = 0;
-        rowhead.createCell(j++).setCellValue(CONTENT_HEADER_ID);
-        rowhead.createCell(j++).setCellValue(CONTENT_HEADER_COMMENTTHREAD_ID);
-        rowhead.createCell(j++).setCellValue(CONTENT_HEADER_USER_ID);
-        rowhead.createCell(j++).setCellValue(CONTENT_HEADER_USER);
-        rowhead.createCell(j++).setCellValue(CONTENT_HEADER_CONTENT);
-        rowhead.createCell(j++).setCellValue(CONTENT_HEADER_PROPOSEDSTATUS);
-        rowhead.createCell(j++).setCellValue(CONTENT_HEADER_PARENTCOMMENT);
-        rowhead.createCell(j).setCellValue(CONTENT_HEADER_CREATED);
+        final CellStyle style = createCellStyle(workbook);
+        addCellToRow(rowhead, style, j++, CONTENT_HEADER_ID);
+        addCellToRow(rowhead, style, j++, CONTENT_HEADER_COMMENTTHREAD_ID);
+        addCellToRow(rowhead, style, j++, CONTENT_HEADER_USER_ID);
+        addCellToRow(rowhead, style, j++, CONTENT_HEADER_USER);
+        addCellToRow(rowhead, style, j++, CONTENT_HEADER_CONTENT);
+        addCellToRow(rowhead, style, j++, CONTENT_HEADER_PROPOSEDSTATUS);
+        addCellToRow(rowhead, style, j++, CONTENT_HEADER_ENDSTATUS);
+        addCellToRow(rowhead, style, j++, CONTENT_HEADER_PARENTCOMMENT);
+        addCellToRow(rowhead, style, j, CONTENT_HEADER_CREATED);
         int i = 1;
-        for (final CommentThread commentThread : commentThreads) {
-            for (final Comment comment : commentThread.getComments()) {
-                final Row row = sheet.createRow(i++);
-                int k = 0;
-                row.createCell(k++).setCellValue(checkEmptyValue(comment.getId().toString()));
-                row.createCell(k++).setCellValue(checkEmptyValue(commentThread.getId().toString()));
-                row.createCell(k++).setCellValue(checkEmptyValue(comment.getUserId().toString()));
-                row.createCell(k++).setCellValue(checkEmptyValue(userService.getUserById(comment.getUserId()).getDisplayNameWithEmail()));
-                row.createCell(k++).setCellValue(checkEmptyValue(comment.getContent()));
-                row.createCell(k++).setCellValue(checkEmptyValue(comment.getProposedStatus()));
-                row.createCell(k++).setCellValue(comment.getParentComment() != null ? comment.getParentComment().getId().toString() : "");
-                row.createCell(k).setCellValue(comment.getCreated() != null ? formatDateWithSeconds(comment.getCreated()) : "");
-            }
+        for (final Comment comment : commentThread.getComments()) {
+            final Row row = sheet.createRow(i++);
+            int k = 0;
+            addCellToRow(row, style, k++, checkEmptyValue(comment.getId().toString()));
+            addCellToRow(row, style, k++, checkEmptyValue(commentThread.getId().toString()));
+            addCellToRow(row, style, k++, checkEmptyValue(comment.getUserId().toString()));
+            addCellToRow(row, style, k++, checkEmptyValue(userService.getUserById(comment.getUserId()).getDisplayNameWithEmail()));
+            addCellToRow(row, style, k++, checkEmptyValue(comment.getContent()));
+            addCellToRow(row, style, k++, checkEmptyValue(comment.getProposedStatus()));
+            addCellToRow(row, style, k++, checkEmptyValue(comment.getEndStatus()));
+            addCellToRow(row, style, k++, comment.getParentComment() != null ? comment.getParentComment().getId().toString() : "");
+            addCellToRow(row, style, k, comment.getCreated() != null ? formatDateWithSeconds(comment.getCreated()) : "");
         }
         autoSizeColumns(sheet, j);
+    }
+
+    private CellStyle createCellStyle(final Workbook workbook) {
+        final CellStyle style = workbook.createCellStyle();
+        style.setWrapText(true);
+        style.setVerticalAlignment(VerticalAlignment.TOP);
+        return style;
+    }
+
+    private void addCellToRow(final Row row,
+                              final CellStyle style,
+                              final int index,
+                              final String value) {
+        final Cell cell = row.createCell(index);
+        cell.setCellStyle(style);
+        cell.setCellValue(value);
     }
 
     private Set<String> resolveCommentThreadLabelLanguages(final Set<CommentThread> commentThreads) {

@@ -58,6 +58,8 @@ public abstract class ApiConstants {
 
     public static final String HEADER_CONTENT_DISPOSITION = "content-disposition";
 
+    public static final String CONTENT_HEADER_URI = "URI";
+    public static final String CONTENT_HEADER_SOURCE = "SOURCE";
     public static final String CONTENT_HEADER_ID = "ID";
     public static final String CONTENT_HEADER_COMMENTTHREAD_ID = "COMMENTTHREADID";
     public static final String CONTENT_HEADER_USER_ID = "USER_ID";
@@ -73,5 +75,8 @@ public abstract class ApiConstants {
     public static final String CONTENT_HEADER_LABEL_PREFIX = "LABEL_";
     public static final String CONTENT_HEADER_DESCRIPTION_PREFIX = "DESCRIPTION_";
     public static final String CONTENT_HEADER_PROPOSEDSTATUS = "PROPOSEDSTATUS";
+    public static final String CONTENT_HEADER_ENDSTATUS = "ENDSTATUS";
     public static final String CONTENT_HEADER_PROPOSEDTEXT = "PROPOSEDTEXT";
+    public static final String CONTENT_HEADER_RESULT = "RESULT";
+    public static final String CONTENT_HEADER_COMMENTS_SHEET = "COMMENTS_SHEET";
 }
