@@ -142,4 +142,9 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
         existingCommentThread.setProposedText(fromCommentThread.getProposedText());
         return existingCommentThread;
     }
+
+    @Transactional
+    public void deleteCommentThread(final CommentThread commentThread) {
+        commentThreadRepository.delete(commentThread);
+    }
 }

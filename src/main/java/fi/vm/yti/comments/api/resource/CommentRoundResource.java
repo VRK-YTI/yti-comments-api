@@ -28,12 +28,14 @@ import org.springframework.stereotype.Component;
 import fi.vm.yti.comments.api.api.ResponseWrapper;
 import fi.vm.yti.comments.api.dao.CommentDao;
 import fi.vm.yti.comments.api.dao.CommentRoundDao;
+import fi.vm.yti.comments.api.dao.CommentThreadDao;
 import fi.vm.yti.comments.api.dto.CommentDTO;
 import fi.vm.yti.comments.api.dto.CommentRoundDTO;
 import fi.vm.yti.comments.api.dto.CommentThreadDTO;
 import fi.vm.yti.comments.api.dto.OrganizationDTO;
 import fi.vm.yti.comments.api.entity.Comment;
 import fi.vm.yti.comments.api.entity.CommentRound;
+import fi.vm.yti.comments.api.entity.CommentThread;
 import fi.vm.yti.comments.api.error.ErrorModel;
 import fi.vm.yti.comments.api.error.Meta;
 import fi.vm.yti.comments.api.exception.NotFoundException;
@@ -62,6 +64,7 @@ public class CommentRoundResource implements AbstractBaseResource {
 
     private final CommentRoundService commentRoundService;
     private final CommentRoundDao commentRoundDao;
+    private final CommentThreadDao commentThreadDao;
     private final CommentDao commentDao;
     private final CommentThreadService commentThreadService;
     private final CommentService commentService;
@@ -74,6 +77,7 @@ public class CommentRoundResource implements AbstractBaseResource {
     @Inject
     public CommentRoundResource(final CommentRoundService commentRoundService,
                                 final CommentRoundDao commentRoundDao,
+                                final CommentThreadDao commentThreadDao,
                                 final CommentDao commentDao,
                                 final CommentThreadService commentThreadService,
                                 final CommentService commentService,
@@ -84,6 +88,7 @@ public class CommentRoundResource implements AbstractBaseResource {
                                 final ExportService exportService) {
         this.commentRoundService = commentRoundService;
         this.commentRoundDao = commentRoundDao;
+        this.commentThreadDao = commentThreadDao;
         this.commentDao = commentDao;
         this.commentThreadService = commentThreadService;
         this.commentService = commentService;
@@ -509,6 +514,39 @@ public class CommentRoundResource implements AbstractBaseResource {
                 throw new UnauthorizedException(new ErrorModel(HttpStatus.UNAUTHORIZED.value(), ERR_MSG_USER_401));
             }
             commentRoundService.deleteCommentRound(existingCommentRound);
+        } else {
+            return Response.status(404).build();
+        }
+        final Meta meta = new Meta();
+        meta.setCode(200);
+        final ResponseWrapper responseWrapper = new ResponseWrapper(meta);
+        return Response.ok(responseWrapper).build();
+    }
+
+    @DELETE
+    @Path("{commentRoundId}/commentThreads/{commentThreadId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @ApiOperation(value = "Deletes a single existing CommentThread.")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "CommentThread deleted."),
+        @ApiResponse(code = 404, message = "CommentThread not found.")
+    })
+    public Response deleteCommentRoundCommentThread(@ApiParam(value = "CommentRound UUID", required = true) @PathParam("commentRoundId") final String commentRoundId,
+                                                    @ApiParam(value = "CommentThread UUID", required = true) @PathParam("commentThreadId") final String commentThreadId) {
+        final UUID commentRoundUuid = StringUtils.parseUUIDFromString(commentRoundId);
+        final CommentRound existingCommentRound = commentRoundDao.findById(commentRoundUuid);
+        if (existingCommentRound != null) {
+            final UUID commentThreadUuid = StringUtils.parseUUIDFromString(commentRoundId);
+            final CommentThread existingCommentThread = commentThreadDao.findByCommentRoundAndId(existingCommentRound, commentThreadUuid);
+            if (existingCommentThread != null) {
+                if (!authorizationManager.canUserDeleteCommentThread(existingCommentRound)) {
+                    throw new UnauthorizedException(new ErrorModel(HttpStatus.UNAUTHORIZED.value(), ERR_MSG_USER_401));
+                }
+                commentThreadService.deleteCommentThread(existingCommentThread);
+            } else {
+                return Response.status(404).build();
+            }
         } else {
             return Response.status(404).build();
         }

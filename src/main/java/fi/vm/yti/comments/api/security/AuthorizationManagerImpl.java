@@ -14,10 +14,12 @@ import org.springframework.stereotype.Service;
 import fi.vm.yti.comments.api.entity.AbstractIdentifyableEntity;
 import fi.vm.yti.comments.api.entity.Comment;
 import fi.vm.yti.comments.api.entity.CommentRound;
+import fi.vm.yti.comments.api.entity.CommentThread;
 import fi.vm.yti.comments.api.service.UserService;
 import fi.vm.yti.security.AuthenticatedUserProvider;
 import fi.vm.yti.security.Role;
 import fi.vm.yti.security.YtiUser;
+import static fi.vm.yti.comments.api.constants.ApiConstants.STATUS_INPROGRESS;
 import static fi.vm.yti.security.Role.*;
 
 @Service
@@ -67,6 +69,11 @@ public class AuthorizationManagerImpl implements AuthorizationManager {
     public boolean canUserDeleteCommentRound(final CommentRound commentRound) {
         final YtiUser user = userProvider.getUser();
         return user.isSuperuser() || (userService.getUserEmailById(commentRound.getUserId()).equalsIgnoreCase(user.getEmail()));
+    }
+
+    public boolean canUserDeleteCommentThread(final CommentRound commentRound) {
+        final YtiUser user = userProvider.getUser();
+        return (user.isSuperuser() || (userService.getUserEmailById(commentRound.getUserId()).equalsIgnoreCase(user.getEmail()))) && commentRound.getStatus().equalsIgnoreCase(STATUS_INPROGRESS);
     }
 
     public boolean canUserModifyCommentRound(final CommentRound commentRound) {

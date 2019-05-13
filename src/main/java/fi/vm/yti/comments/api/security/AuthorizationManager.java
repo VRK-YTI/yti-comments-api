@@ -23,6 +23,8 @@ public interface AuthorizationManager {
 
     boolean canUserDeleteCommentRound(final CommentRound commentRound);
 
+    boolean canUserDeleteCommentThread(final CommentRound commentRound);
+
     boolean canUserModifyCommentRound(final CommentRound commentRound);
 
     boolean canUserAddCommentsToCommentRound(final CommentRound commentRound);

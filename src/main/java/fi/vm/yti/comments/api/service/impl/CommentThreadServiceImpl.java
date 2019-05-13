@@ -12,6 +12,7 @@ import fi.vm.yti.comments.api.dao.CommentThreadDao;
 import fi.vm.yti.comments.api.dto.CommentThreadDTO;
 import fi.vm.yti.comments.api.dto.DtoMapper;
 import fi.vm.yti.comments.api.entity.CommentRound;
+import fi.vm.yti.comments.api.entity.CommentThread;
 import fi.vm.yti.comments.api.exception.NotFoundException;
 import fi.vm.yti.comments.api.service.CommentThreadService;
 
@@ -65,5 +66,10 @@ public class CommentThreadServiceImpl implements CommentThreadService {
         } else {
             throw new NotFoundException();
         }
+    }
+
+    @Transactional
+    public void deleteCommentThread(final CommentThread commentThread) {
+        commentThreadDao.deleteCommentThread(commentThread);
     }
 }
