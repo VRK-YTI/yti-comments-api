@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import fi.vm.yti.comments.api.entity.AbstractIdentifyableEntity;
 import fi.vm.yti.comments.api.entity.Comment;
 import fi.vm.yti.comments.api.entity.CommentRound;
-import fi.vm.yti.comments.api.entity.CommentThread;
 import fi.vm.yti.comments.api.service.UserService;
 import fi.vm.yti.security.AuthenticatedUserProvider;
 import fi.vm.yti.security.Role;
@@ -94,6 +93,6 @@ public class AuthorizationManagerImpl implements AuthorizationManager {
         return user.isSuperuser() ||
             (user.getId().equals(commentRound.getUserId()) && STATUS_INCOMPLETE.equalsIgnoreCase(commentRound.getStatus())) ||
             ((user.getId().equals(commentRound.getUserId()) || user.isInAnyRole(EnumSet.of(ADMIN, CODE_LIST_EDITOR, TERMINOLOGY_EDITOR, DATA_MODEL_EDITOR), organizationIds)) &&
-            (STATUS_INPROGRESS.equalsIgnoreCase(commentRound.getStatus()) && !commentRound.getFixedThreads()));
+                (STATUS_INPROGRESS.equalsIgnoreCase(commentRound.getStatus()) && !commentRound.getFixedThreads()));
     }
 }

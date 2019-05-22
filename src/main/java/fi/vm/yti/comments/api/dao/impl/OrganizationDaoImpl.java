@@ -14,7 +14,7 @@ import fi.vm.yti.comments.api.jpa.OrganizationRepository;
 @Component
 public class OrganizationDaoImpl implements OrganizationDao {
 
-    private OrganizationRepository organizationRepository;
+    private final OrganizationRepository organizationRepository;
 
     @Inject
     public OrganizationDaoImpl(final OrganizationRepository organizationRepository) {

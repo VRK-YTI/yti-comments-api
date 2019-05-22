@@ -43,8 +43,6 @@ public abstract class ApiConstants {
 
     public static final String FORMAT_JSON = "json";
     public static final String FORMAT_EXCEL = "excel";
-    public static final String FORMAT_EXCEL_XLS = "xls";
-    public static final String FORMAT_EXCEL_XLSX = "xlsx";
 
     public static final String STATUS_INCOMPLETE = "INCOMPLETE";
     public static final String STATUS_AWAIT = "AWAIT";

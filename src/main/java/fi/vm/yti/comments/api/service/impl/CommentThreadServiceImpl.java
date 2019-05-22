@@ -19,9 +19,9 @@ import fi.vm.yti.comments.api.service.CommentThreadService;
 @Component
 public class CommentThreadServiceImpl implements CommentThreadService {
 
-    private DtoMapper dtoMapper;
-    private CommentThreadDao commentThreadDao;
-    private CommentRoundDao commentRoundDao;
+    private final DtoMapper dtoMapper;
+    private final CommentThreadDao commentThreadDao;
+    private final CommentRoundDao commentRoundDao;
 
     public CommentThreadServiceImpl(final DtoMapper dtoMapper,
                                     final CommentThreadDao commentThreadDao,

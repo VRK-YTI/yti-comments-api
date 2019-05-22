@@ -136,10 +136,8 @@ public class CommentRoundResource implements AbstractBaseResource {
             commentRoundDtos = commentRoundDtos.stream().filter(commentRound -> {
                 if (STATUS_INCOMPLETE.equalsIgnoreCase(commentRound.getStatus()) && userUuid != null && userUuid.equals(commentRound.getUser().getId()) || authorizationManager.isSuperUser()) {
                     return true;
-                } else if (!STATUS_INCOMPLETE.equalsIgnoreCase(commentRound.getStatus())) {
-                    return true;
                 } else {
-                    return false;
+                    return !STATUS_INCOMPLETE.equalsIgnoreCase(commentRound.getStatus());
                 }
             }).collect(Collectors.toSet());
         }

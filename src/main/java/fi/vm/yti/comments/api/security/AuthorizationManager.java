@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import fi.vm.yti.comments.api.entity.Comment;
 import fi.vm.yti.comments.api.entity.CommentRound;
-import fi.vm.yti.comments.api.entity.Organization;
 
 public interface AuthorizationManager {
 

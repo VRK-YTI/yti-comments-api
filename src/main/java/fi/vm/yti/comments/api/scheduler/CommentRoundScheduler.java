@@ -19,7 +19,7 @@ import static fi.vm.yti.comments.api.constants.ApiConstants.STATUS_INPROGRESS;
 @Component
 public class CommentRoundScheduler {
 
-    private CommentRoundDao commentRoundDao;
+    private final CommentRoundDao commentRoundDao;
 
     @Inject
     public CommentRoundScheduler(final CommentRoundDao commentRoundDao) {
