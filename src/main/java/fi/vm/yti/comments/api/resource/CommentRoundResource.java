@@ -144,7 +144,7 @@ public class CommentRoundResource implements AbstractBaseResource {
         final Set<CommentRoundDTO> commentRoundDtosToReturn = new HashSet<>();
         if (filterContent && commentRoundDtos != null && !commentRoundDtos.isEmpty()) {
             for (final CommentRoundDTO commentRoundDto : commentRoundDtos) {
-                if (commentRoundDto.getUser().getId().equals(userUuid) || authorizationManager.isSuperUser()) {
+                if ((commentRoundDto.getUser() != null && commentRoundDto.getUser().getId().equals(userUuid)) || authorizationManager.isSuperUser()) {
                     commentRoundDtosToReturn.add(commentRoundDto);
                 } else if (!STATUS_INCOMPLETE.equalsIgnoreCase(commentRoundDto.getStatus())) {
                     for (final OrganizationDTO organization : commentRoundDto.getOrganizations()) {
