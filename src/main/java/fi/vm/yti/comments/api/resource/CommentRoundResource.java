@@ -131,8 +131,8 @@ public class CommentRoundResource implements AbstractBaseResource {
         } else {
             commentRoundDtos = commentRoundService.findAll();
         }
+        final UUID userUuid = authorizationManager.getUserId();
         if (filterIncomplete && commentRoundDtos != null) {
-            final UUID userUuid = authorizationManager.getUserId();
             commentRoundDtos = commentRoundDtos.stream().filter(commentRound -> {
                 if (STATUS_INCOMPLETE.equalsIgnoreCase(commentRound.getStatus()) && userUuid != null && userUuid.equals(commentRound.getUser().getId()) || authorizationManager.isSuperUser()) {
                     return true;
@@ -144,9 +144,9 @@ public class CommentRoundResource implements AbstractBaseResource {
             }).collect(Collectors.toSet());
         }
         final Set<CommentRoundDTO> commentRoundDtosToReturn = new HashSet<>();
-        if (filterContent && commentRoundDtos != null) {
+        if (filterContent && commentRoundDtos != null && !commentRoundDtos.isEmpty()) {
             for (final CommentRoundDTO commentRoundDto : commentRoundDtos) {
-                if (commentRoundDto.getUser().getId().equals(authorizationManager.getUserId()) || authorizationManager.isSuperUser()) {
+                if (commentRoundDto.getUser().getId().equals(userUuid) || authorizationManager.isSuperUser()) {
                     commentRoundDtosToReturn.add(commentRoundDto);
                 } else if (!"INCOMPLETE".equalsIgnoreCase(commentRoundDto.getStatus())) {
                     for (final OrganizationDTO organization : commentRoundDto.getOrganizations()) {
@@ -157,7 +157,7 @@ public class CommentRoundResource implements AbstractBaseResource {
                     }
                 }
             }
-        } else {
+        } else if (commentRoundDtos != null) {
             commentRoundDtosToReturn.addAll(commentRoundDtos);
         }
         final Meta meta = new Meta();
