@@ -45,7 +45,8 @@ public class UserServiceImpl implements UserService {
     }
 
     public void updateUsers() {
-        String url = groupManagementProperties.getUrl() + "/" + GROUPMANAGEMENT_API_PRIVATE_CONTEXT_PATH + "/" + GROUPMANAGEMENT_API_USERS;
+        final String url = groupManagementProperties.getUrl() + "/" + GROUPMANAGEMENT_API_PRIVATE_CONTEXT_PATH + "/" + GROUPMANAGEMENT_API_USERS;
+        LOG.debug("Updating users from Groupmanagement URL: " + url);
         final Set<UserDTO> fetchedUsers = restTemplate.exchange(url, GET, null, new ParameterizedTypeReference<Set<UserDTO>>() {
         }).getBody();
         if (fetchedUsers != null) {
