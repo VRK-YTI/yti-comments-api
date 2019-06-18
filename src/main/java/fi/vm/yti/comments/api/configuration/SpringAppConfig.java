@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -24,6 +25,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 @Component
 @Configuration
+@EnableScheduling
 @PropertySource(value = "classpath", ignoreResourceNotFound = true)
 public class SpringAppConfig {
 

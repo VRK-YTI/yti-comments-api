@@ -27,7 +27,7 @@ public class CommentRoundScheduler {
     }
 
     @Scheduled(cron = "1 0 * * * *")
-    private void updateCommentRoundStatuses() {
+    public void updateCommentRoundStatuses() {
         updateStatuses();
     }
 
