@@ -67,7 +67,7 @@ public class SpringAppConfig {
         final HikariDataSource hikariDataSource = new HikariDataSource();
         final String password = environment.getProperty(SPRING_HIKARI_PASSWORD);
         if (password != null) {
-            hikariDataSource.getHikariConfigMXBean().setPassword(password);
+            hikariDataSource.setPassword(password);
         }
         return hikariDataSource;
     }
