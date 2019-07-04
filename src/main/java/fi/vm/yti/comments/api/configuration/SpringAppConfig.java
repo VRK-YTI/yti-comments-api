@@ -2,7 +2,6 @@ package fi.vm.yti.comments.api.configuration;
 
 import java.nio.charset.Charset;
 
-import javax.inject.Inject;
 import javax.sql.DataSource;
 
 import org.apache.catalina.connector.Connector;
@@ -14,7 +13,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
@@ -32,10 +30,6 @@ import com.zaxxer.hikari.HikariDataSource;
 public class SpringAppConfig {
 
     private static final int CONNECTION_TIMEOUT = 30000;
-    private static final String SPRING_HIKARI_PASSWORD = "SPRING_HIKARI_PASSWORD";
-
-    @Inject
-    private Environment environment;
 
     @Value(value = "${application.contextPath}")
     private String contextPath;
@@ -64,12 +58,7 @@ public class SpringAppConfig {
     @ConfigurationProperties(prefix = "hikari")
     @Bean
     public DataSource dataSource() {
-        final HikariDataSource hikariDataSource = new HikariDataSource();
-        final String password = environment.getProperty(SPRING_HIKARI_PASSWORD);
-        if (password != null) {
-            hikariDataSource.setPassword(password);
-        }
-        return hikariDataSource;
+        return new HikariDataSource();
     }
 
     @Bean
