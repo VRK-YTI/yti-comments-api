@@ -30,6 +30,7 @@ public class CommentThread extends AbstractIdentifyableEntity implements Seriali
     private String resourceUri;
     private Map<String, String> label;
     private Map<String, String> description;
+    private String localName;
     private String proposedText;
     private String currentStatus;
     private String proposedStatus;
@@ -71,6 +72,15 @@ public class CommentThread extends AbstractIdentifyableEntity implements Seriali
 
     public void setDescription(final Map<String, String> description) {
         this.description = description;
+    }
+
+    @Column(name = "localname")
+    public String getLocalName() {
+        return localName;
+    }
+
+    public void setLocalName(final String localName) {
+        this.localName = localName;
     }
 
     @Column(name = "proposedtext")

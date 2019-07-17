@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 
 import fi.vm.yti.comments.api.dao.CommentThreadDao;
 import fi.vm.yti.comments.api.dto.CommentThreadDTO;
-import fi.vm.yti.comments.api.dto.DtoMapper;
 import fi.vm.yti.comments.api.entity.CommentRound;
 import fi.vm.yti.comments.api.entity.CommentThread;
 import fi.vm.yti.comments.api.error.ErrorModel;
@@ -32,7 +31,6 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
 
     @Inject
     public CommentThreadDaoImpl(final CommentThreadRepository commentThreadRepository,
-                                final DtoMapper dtoMapper,
                                 final AuthorizationManager authorizationManager) {
         this.commentThreadRepository = commentThreadRepository;
         this.authorizationManager = authorizationManager;
@@ -122,6 +120,7 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
         commentThread.setUserId(authorizationManager.getUserId());
         commentThread.setLabel(fromCommentThread.getLabel());
         commentThread.setDescription(fromCommentThread.getDescription());
+        commentThread.setLocalName(fromCommentThread.getLocalName());
         commentThread.setResourceUri(fromCommentThread.getResourceUri());
         commentThread.setCurrentStatus(fromCommentThread.getCurrentStatus());
         commentThread.setProposedStatus(fromCommentThread.getProposedStatus());
@@ -136,6 +135,7 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
                                               final CommentThreadDTO fromCommentThread) {
         existingCommentThread.setLabel(fromCommentThread.getLabel());
         existingCommentThread.setDescription(fromCommentThread.getDescription());
+        existingCommentThread.setLocalName(fromCommentThread.getLocalName());
         existingCommentThread.setResourceUri(fromCommentThread.getResourceUri());
         existingCommentThread.setCurrentStatus(fromCommentThread.getCurrentStatus());
         existingCommentThread.setProposedStatus(fromCommentThread.getProposedStatus());

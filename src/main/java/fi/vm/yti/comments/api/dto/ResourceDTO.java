@@ -15,7 +15,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 @XmlRootElement
-@XmlType(propOrder = { "uri", "prefLabel", "description", "status", "modified" })
+@XmlType(propOrder = { "uri", "prefLabel", "description", "localName", "status", "modified" })
 @ApiModel(value = "Resource", description = "Resource DTO that represents data for one single container or resource for integration use.")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResourceDTO implements Serializable {
@@ -24,6 +24,7 @@ public class ResourceDTO implements Serializable {
 
     private Map<String, String> prefLabel;
     private Map<String, String> description;
+    private String localName;
     private String uri;
     private String status;
     private Date modified;
@@ -55,6 +56,14 @@ public class ResourceDTO implements Serializable {
 
     public void setDescription(final Map<String, String> description) {
         this.description = description;
+    }
+
+    public String getLocalName() {
+        return localName;
+    }
+
+    public void setLocalName(final String localName) {
+        this.localName = localName;
     }
 
     public String getStatus() {

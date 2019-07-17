@@ -183,6 +183,7 @@ public class DtoMapper {
         commentThreadDto.setCreated(commentThread.getCreated());
         commentThreadDto.setLabel(commentThread.getLabel());
         commentThreadDto.setDescription(commentThread.getDescription());
+        commentThreadDto.setLocalName(commentThread.getLocalName());
         commentThreadDto.setUser(userService.getUserById(commentThread.getUserId()));
         commentThreadDto.setResults(resultService.getResultsForCommentThread(commentThread.getId()));
         if (commentThread.getComments() != null) {
