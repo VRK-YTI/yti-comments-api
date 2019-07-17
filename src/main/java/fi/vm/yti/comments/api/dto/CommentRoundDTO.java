@@ -20,7 +20,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 @JsonFilter("commentRound")
 @XmlRootElement
-@XmlType(propOrder = { "id", "url", "created", "modified", "user", "startDate", "endDate", "status", "sourceLabel", "fixedThreads", "openThreads", "organizations", "commentThreads" })
+@XmlType(propOrder = { "id", "url", "created", "modified", "user", "startDate", "endDate", "status", "sourceLocalName", "sourceLabel", "fixedThreads", "openThreads", "organizations", "commentThreads" })
 @ApiModel(value = "CommentRound", description = "CommentRound DTO that represents data for one single comment round.")
 public class CommentRoundDTO extends AbstractTimeStampedIdentifyableDTO implements Serializable {
 
@@ -34,6 +34,7 @@ public class CommentRoundDTO extends AbstractTimeStampedIdentifyableDTO implemen
     private String description;
     private String status;
     private SourceDTO source;
+    private String sourceLocalName;
     private Map<String, String> sourceLabel;
     private boolean fixedThreads;
     private boolean openThreads;
@@ -110,6 +111,14 @@ public class CommentRoundDTO extends AbstractTimeStampedIdentifyableDTO implemen
 
     public void setSource(final SourceDTO source) {
         this.source = source;
+    }
+
+    public String getSourceLocalName() {
+        return sourceLocalName;
+    }
+
+    public void setSourceLocalName(final String sourceLocalName) {
+        this.sourceLocalName = sourceLocalName;
     }
 
     public Map<String, String> getSourceLabel() {

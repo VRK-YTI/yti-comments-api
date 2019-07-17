@@ -128,6 +128,7 @@ public class DtoMapper {
         commentRoundDto.setDescription(commentRound.getDescription());
         commentRoundDto.setOpenThreads(commentRound.getOpenThreads());
         commentRoundDto.setFixedThreads(commentRound.getFixedThreads());
+        commentRoundDto.setSourceLocalName(commentRound.getSourceLocalName());
         commentRoundDto.setSourceLabel(commentRound.getSourceLabel());
         commentRoundDto.setLabel(commentRound.getLabel());
         commentRoundDto.setUser(userService.getUserById(commentRound.getUserId()));

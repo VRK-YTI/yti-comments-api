@@ -33,6 +33,7 @@ public class CommentRound extends AbstractTimeStampedIdentifyableEntity implemen
     private UUID userId;
     private String label;
     private String description;
+    private String sourceLocalName;
     private String status;
     private Source source;
     private boolean fixedThreads;
@@ -94,6 +95,15 @@ public class CommentRound extends AbstractTimeStampedIdentifyableEntity implemen
 
     public void setSource(final Source source) {
         this.source = source;
+    }
+
+    @Column(name = "sourcelocalname")
+    public String getSourceLocalName() {
+        return sourceLocalName;
+    }
+
+    public void setSourceLocalName(final String sourceLocalName) {
+        this.sourceLocalName = sourceLocalName;
     }
 
     @Column(name = "status")

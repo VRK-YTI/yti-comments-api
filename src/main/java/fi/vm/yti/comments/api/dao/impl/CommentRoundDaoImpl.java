@@ -172,6 +172,7 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
         commentRound.setFixedThreads(fromCommentRound.getFixedThreads());
         commentRound.setStartDate(fromCommentRound.getStartDate());
         commentRound.setEndDate(fromCommentRound.getEndDate());
+        commentRound.setSourceLocalName(fromCommentRound.getSourceLocalName());
         commentRound.setSourceLabel(fromCommentRound.getSourceLabel());
         final LocalDateTime timeStamp = LocalDateTime.now();
         commentRound.setCreated(timeStamp);
@@ -191,6 +192,7 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
         existingCommentRound.setStartDate(fromCommentRound.getStartDate());
         existingCommentRound.setEndDate(fromCommentRound.getEndDate());
         existingCommentRound.setModified(LocalDateTime.now());
+        existingCommentRound.setSourceLocalName(fromCommentRound.getSourceLocalName());
         existingCommentRound.setSourceLabel(fromCommentRound.getSourceLabel());
         resolveAndSetSource(existingCommentRound, fromCommentRound);
         resolveAndSetOrganizations(existingCommentRound, fromCommentRound);
