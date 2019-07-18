@@ -10,18 +10,14 @@ import javax.ws.rs.core.Response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import fi.vm.yti.comments.api.configuration.TerminologyProperties;
 import fi.vm.yti.comments.api.error.ErrorModel;
-import fi.vm.yti.comments.api.exception.NotFoundException;
 import fi.vm.yti.comments.api.exception.UnauthorizedException;
 import fi.vm.yti.comments.api.exception.YtiCommentsException;
-import fi.vm.yti.comments.api.resource.AbstractBaseResource;
 import fi.vm.yti.security.AuthenticatedUserProvider;
 import fi.vm.yti.security.YtiUser;
 import io.swagger.annotations.Api;

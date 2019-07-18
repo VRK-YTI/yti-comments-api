@@ -59,14 +59,16 @@ public class CommentThreadServiceImpl implements CommentThreadService {
 
     @Transactional
     public Set<CommentThreadDTO> addOrUpdateCommentThreadsFromDtos(final UUID commentRoundId,
-                                                                   final Set<CommentThreadDTO> fromCommentThreads) {
+                                                                   final Set<CommentThreadDTO> fromCommentThreads,
+                                                                   final boolean removeOrphans) {
         final CommentRound commentRound = commentRoundDao.findById(commentRoundId);
         if (commentRound != null) {
-            return dtoMapper.mapDeepCommentThreads(commentThreadDao.addOrUpdateCommentThreadsFromDtos(commentRound, fromCommentThreads));
+            return dtoMapper.mapDeepCommentThreads(commentThreadDao.addOrUpdateCommentThreadsFromDtos(commentRound, fromCommentThreads, removeOrphans));
         } else {
             throw new NotFoundException();
         }
     }
+
 
     @Transactional
     public void deleteCommentThread(final CommentThread commentThread) {

@@ -9,6 +9,8 @@ import fi.vm.yti.comments.api.entity.CommentRound;
 
 public interface CommentRoundDao {
 
+    void save(final CommentRound commentRound);
+
     void saveAll(final Set<CommentRound> commentRounds);
 
     Set<CommentRound> findAll();

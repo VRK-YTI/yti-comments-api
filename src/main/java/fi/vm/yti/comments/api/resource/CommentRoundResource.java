@@ -366,11 +366,12 @@ public class CommentRoundResource implements AbstractBaseResource {
     @Transactional
     @Path("{commentRoundId}/commentthreads")
     public Response createOrUpdateCommentRoundCommentThreads(@ApiParam(value = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
+                                                             @ApiParam(value = "Remove orphans") @QueryParam("removeOrphans") final boolean removeOrphans,
                                                              @ApiParam(value = "JSON playload for commentRound commentThread data.", required = true) final String jsonPayload) {
         final CommentRound commentRound = commentRoundDao.findById(commentRoundId);
         if (authorizationManager.canUserAddCommentThreadsToCommentRound(commentRound)) {
             ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTTHREAD, FILTER_NAME_COMMENT)));
-            final Set<CommentThreadDTO> commentThreadDtos = commentThreadService.addOrUpdateCommentThreadsFromDtos(commentRoundId, commentThreadParser.parseCommentThreadsFromJson(jsonPayload));
+            final Set<CommentThreadDTO> commentThreadDtos = commentThreadService.addOrUpdateCommentThreadsFromDtos(commentRoundId, commentThreadParser.parseCommentThreadsFromJson(jsonPayload), removeOrphans);
             final Set<CommentThreadDTO> sortedThreads = commentThreadDtos.stream().sorted(Comparator.comparing(CommentThreadDTO::getResourceUri, Comparator.nullsLast(Comparator.reverseOrder()))).collect(Collectors.toCollection(LinkedHashSet::new));
             return createResponse("CommentThreads", MESSAGE_TYPE_ADDED_OR_MODIFIED, sortedThreads);
         } else {
@@ -417,6 +418,7 @@ public class CommentRoundResource implements AbstractBaseResource {
     @Path("{commentRoundId}/commentthreads/{commentThreadId}/comments")
     public Response createOrUpdateCommentRoundCommentThreadsComments(@ApiParam(value = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
                                                                      @ApiParam(value = "CommentThread UUID.", required = true) @PathParam("commentThreadId") final UUID commentThreadId,
+                                                                     @ApiParam(value = "Remove orphans") @QueryParam("removeOrphans") final boolean removeOrphans,
                                                                      @ApiParam(value = "JSON playload for commentRound commentThread data.", required = true) final String jsonPayload) {
         final CommentRound commentRound = commentRoundDao.findById(commentRoundId);
         if (authorizationManager.canUserAddCommentsToCommentRound(commentRound)) {

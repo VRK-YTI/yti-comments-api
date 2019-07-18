@@ -26,5 +26,9 @@ public interface CommentThreadDao {
     Set<CommentThread> addOrUpdateCommentThreadsFromDtos(final CommentRound commentRound,
                                                          final Set<CommentThreadDTO> commentThreadDtos);
 
+    Set<CommentThread> addOrUpdateCommentThreadsFromDtos(final CommentRound commentRound,
+                                                         final Set<CommentThreadDTO> commentThreadDtos,
+                                                         final boolean removeOrphans);
+
     void deleteCommentThread(final CommentThread commentThread);
 }

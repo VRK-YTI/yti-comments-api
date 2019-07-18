@@ -18,7 +18,8 @@ public interface CommentThreadService {
                                                      final CommentThreadDTO fromCommentThread);
 
     Set<CommentThreadDTO> addOrUpdateCommentThreadsFromDtos(final UUID commentRoundId,
-                                                            final Set<CommentThreadDTO> fromCommentThreads);
+                                                            final Set<CommentThreadDTO> fromCommentThreads,
+                                                            final boolean removeOrphans);
 
     void deleteCommentThread(final CommentThread commentThread);
 }

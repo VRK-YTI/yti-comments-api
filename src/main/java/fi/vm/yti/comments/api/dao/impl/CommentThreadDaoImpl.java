@@ -9,9 +9,12 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import fi.vm.yti.comments.api.constants.ApiConstants;
+import fi.vm.yti.comments.api.dao.CommentRoundDao;
 import fi.vm.yti.comments.api.dao.CommentThreadDao;
 import fi.vm.yti.comments.api.dto.CommentThreadDTO;
 import fi.vm.yti.comments.api.entity.CommentRound;
@@ -28,12 +31,15 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
 
     private final CommentThreadRepository commentThreadRepository;
     private final AuthorizationManager authorizationManager;
+    private final CommentRoundDao commentRoundDao;
 
     @Inject
     public CommentThreadDaoImpl(final CommentThreadRepository commentThreadRepository,
-                                final AuthorizationManager authorizationManager) {
+                                final AuthorizationManager authorizationManager,
+                                @Lazy final CommentRoundDao commentRoundDao) {
         this.commentThreadRepository = commentThreadRepository;
         this.authorizationManager = authorizationManager;
+        this.commentRoundDao = commentRoundDao;
     }
 
     @Transactional
@@ -73,11 +79,29 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
     @Transactional
     public Set<CommentThread> addOrUpdateCommentThreadsFromDtos(final CommentRound commentRound,
                                                                 final Set<CommentThreadDTO> fromCommentThreads) {
+        return this.addOrUpdateCommentThreadsFromDtos(commentRound, fromCommentThreads, false);
+    }
+
+    @Transactional
+    public Set<CommentThread> addOrUpdateCommentThreadsFromDtos(final CommentRound commentRound,
+                                                                final Set<CommentThreadDTO> fromCommentThreads,
+                                                                final boolean removeOrphans) {
         final Set<CommentThread> commentThreads = new HashSet<>();
         for (final CommentThreadDTO fromCommentThread : fromCommentThreads) {
             commentThreads.add(createOrUpdateCommentThread(commentRound, fromCommentThread));
         }
-        commentThreadRepository.saveAll(commentThreads);
+        if (removeOrphans && ApiConstants.STATUS_INCOMPLETE.equalsIgnoreCase(commentRound.getStatus())) {
+            if (commentRound.getCommentThreads() != null) {
+                commentRound.getCommentThreads().clear();
+                commentRound.getCommentThreads().addAll(commentThreads);
+                commentRoundDao.save(commentRound);
+            } else {
+                commentRound.setCommentThreads(commentThreads);
+                commentRoundDao.save(commentRound);
+            }
+        } else {
+            commentThreadRepository.saveAll(commentThreads);
+        }
         return commentThreads;
     }
 

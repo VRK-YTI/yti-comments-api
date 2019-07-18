@@ -160,7 +160,7 @@ public class CommentRound extends AbstractTimeStampedIdentifyableEntity implemen
         this.sourceLabel = sourceLabel;
     }
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "commentRound", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "commentRound", cascade = CascadeType.ALL, orphanRemoval = true)
     public Set<CommentThread> getCommentThreads() {
         return commentThreads;
     }

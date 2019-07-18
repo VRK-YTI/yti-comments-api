@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -20,7 +19,6 @@ import fi.vm.yti.comments.api.dao.SourceDao;
 import fi.vm.yti.comments.api.dto.CommentRoundDTO;
 import fi.vm.yti.comments.api.dto.OrganizationDTO;
 import fi.vm.yti.comments.api.dto.SourceDTO;
-import fi.vm.yti.comments.api.entity.AbstractIdentifyableEntity;
 import fi.vm.yti.comments.api.entity.CommentRound;
 import fi.vm.yti.comments.api.entity.CommentThread;
 import fi.vm.yti.comments.api.entity.Organization;
@@ -53,6 +51,11 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
         this.organizationDao = organizationDao;
         this.authorizationManager = authorizationManager;
         this.commentThreadDao = commentThreadDao;
+    }
+
+    @Transactional
+    public void save(final CommentRound commentRound) {
+        commentRoundRepository.save(commentRound);
     }
 
     @Transactional
@@ -197,18 +200,13 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
         resolveAndSetSource(existingCommentRound, fromCommentRound);
         resolveAndSetOrganizations(existingCommentRound, fromCommentRound);
         final Set<CommentThread> commentThreads = commentThreadDao.addOrUpdateCommentThreadsFromDtos(existingCommentRound, fromCommentRound.getCommentThreads());
-        final Set<CommentThread> existingCommentThreads = existingCommentRound.getCommentThreads();
-        //
-        if (commentThreads != null) {
-            final Set<UUID> newCommentThreadIds = commentThreads.stream().map(AbstractIdentifyableEntity::getId).collect(Collectors.toSet());
-            existingCommentThreads.forEach(commentThread -> {
-                if (!newCommentThreadIds.contains(commentThread.getId())) {
-                    commentThread.setCommentRound(null);
-                    commentThreadDao.delete(commentThread);
-                }
-            });
+        if (existingCommentRound.getCommentThreads() != null) {
+            if (commentThreads != null) {
+                existingCommentRound.getCommentThreads().addAll(commentThreads);
+            }
+        } else {
+            existingCommentRound.setCommentThreads(commentThreads);
         }
-        existingCommentRound.setCommentThreads(commentThreads);
         ensureProperStatus(existingCommentRound);
         return existingCommentRound;
     }
