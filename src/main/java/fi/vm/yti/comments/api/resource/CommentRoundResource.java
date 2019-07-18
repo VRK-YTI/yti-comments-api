@@ -293,12 +293,13 @@ public class CommentRoundResource implements AbstractBaseResource {
     })
     @Transactional
     public Response createOrUpdateCommentRounds(@ApiParam(value = "JSON playload for commentRound data.", required = true) final String jsonPayload) {
-        if (!authorizationManager.canUserAddCommentRound()) {
+        if (authorizationManager.canUserAddCommentRound()) {
+            ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTROUND, FILTER_NAME_COMMENTTHREAD)));
+            final Set<CommentRoundDTO> commentRoundDtos = commentRoundService.addOrUpdateCommentRoundsFromDtos(commentRoundParser.parseCommentRoundsFromJson(jsonPayload));
+            return createResponse("CommentRounds", MESSAGE_TYPE_ADDED_OR_MODIFIED, commentRoundDtos);
+        } else {
             throw new UnauthorizedException();
         }
-        ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTROUND, FILTER_NAME_COMMENTTHREAD)));
-        final Set<CommentRoundDTO> commentRoundDtos = commentRoundService.addOrUpdateCommentRoundsFromDtos(commentRoundParser.parseCommentRoundsFromJson(jsonPayload));
-        return createResponse("CommentRounds", MESSAGE_TYPE_ADDED_OR_MODIFIED, commentRoundDtos);
     }
 
     @POST
@@ -367,7 +368,7 @@ public class CommentRoundResource implements AbstractBaseResource {
     public Response createOrUpdateCommentRoundCommentThreads(@ApiParam(value = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
                                                              @ApiParam(value = "JSON playload for commentRound commentThread data.", required = true) final String jsonPayload) {
         final CommentRound commentRound = commentRoundDao.findById(commentRoundId);
-        if (!authorizationManager.canUserAddCommentThreadsToCommentRound(commentRound)) {
+        if (authorizationManager.canUserAddCommentThreadsToCommentRound(commentRound)) {
             ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTTHREAD, FILTER_NAME_COMMENT)));
             final Set<CommentThreadDTO> commentThreadDtos = commentThreadService.addOrUpdateCommentThreadsFromDtos(commentRoundId, commentThreadParser.parseCommentThreadsFromJson(jsonPayload));
             final Set<CommentThreadDTO> sortedThreads = commentThreadDtos.stream().sorted(Comparator.comparing(CommentThreadDTO::getResourceUri, Comparator.nullsLast(Comparator.reverseOrder()))).collect(Collectors.toCollection(LinkedHashSet::new));
