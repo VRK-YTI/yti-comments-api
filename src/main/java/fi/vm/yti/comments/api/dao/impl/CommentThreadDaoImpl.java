@@ -131,18 +131,6 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
         return commentThread;
     }
 
-    private CommentThread updateCommentThread(final CommentThread existingCommentThread,
-                                              final CommentThreadDTO fromCommentThread) {
-        existingCommentThread.setLabel(fromCommentThread.getLabel());
-        existingCommentThread.setDescription(fromCommentThread.getDescription());
-        existingCommentThread.setLocalName(fromCommentThread.getLocalName());
-        existingCommentThread.setResourceUri(fromCommentThread.getResourceUri());
-        existingCommentThread.setCurrentStatus(fromCommentThread.getCurrentStatus());
-        existingCommentThread.setProposedStatus(fromCommentThread.getProposedStatus());
-        existingCommentThread.setProposedText(fromCommentThread.getProposedText());
-        return existingCommentThread;
-    }
-
     @Transactional
     public void deleteCommentThread(final CommentThread commentThread) {
         commentThreadRepository.delete(commentThread);

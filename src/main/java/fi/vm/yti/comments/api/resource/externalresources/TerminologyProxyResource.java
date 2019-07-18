@@ -1,8 +1,5 @@
 package fi.vm.yti.comments.api.resource.externalresources;
 
-import java.io.IOException;
-import java.util.Set;
-
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -19,15 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-
-import fi.vm.yti.comments.api.api.ResponseWrapper;
 import fi.vm.yti.comments.api.configuration.TerminologyProperties;
-import fi.vm.yti.comments.api.dto.ResourceDTO;
 import fi.vm.yti.comments.api.error.ErrorModel;
-import fi.vm.yti.comments.api.error.Meta;
 import fi.vm.yti.comments.api.exception.NotFoundException;
 import fi.vm.yti.comments.api.exception.UnauthorizedException;
 import fi.vm.yti.comments.api.exception.YtiCommentsException;
@@ -39,13 +29,12 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import static fi.vm.yti.comments.api.constants.ApiConstants.*;
-import static fi.vm.yti.comments.api.exception.ErrorConstants.ERR_MSG_USER_401;
 import static fi.vm.yti.comments.api.exception.ErrorConstants.ERR_MSG_USER_406;
 
 @Component
 @Path("/v1/terminology")
 @Api(value = "terminology")
-public class TerminologyProxyResource implements AbstractBaseResource {
+public class TerminologyProxyResource implements AbstractIntegrationResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(TerminologyProxyResource.class);
     private final AuthenticatedUserProvider authenticatedUserProvider;
@@ -64,75 +53,31 @@ public class TerminologyProxyResource implements AbstractBaseResource {
     @GET
     @Path("/containers")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @ApiOperation(value = "Get containers from terminology API.")
+    @ApiOperation(value = "Get Containers from the Terminology API.")
     @ApiResponse(code = 200, message = "Returns success.")
     public Response getContainers() {
         final YtiUser user = authenticatedUserProvider.getUser();
         if (user.isAnonymous()) {
-            throw new UnauthorizedException(new ErrorModel(HttpStatus.UNAUTHORIZED.value(), ERR_MSG_USER_401));
+            throw new UnauthorizedException();
         }
         final String requestUrl = createTerminologyContainerApiUrl();
-        final ResponseEntity response = restTemplate.exchange(requestUrl, HttpMethod.GET, null, String.class);
-        if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-            try {
-                final ObjectMapper mapper = new ObjectMapper();
-                mapper.setFilterProvider(new SimpleFilterProvider().setFailOnUnknownId(false));
-                final Meta meta = new Meta();
-                final ResponseWrapper<ResourceDTO> wrapper = new ResponseWrapper<>(meta);
-                final Set<ResourceDTO> containers;
-                final String data = response.getBody().toString();
-                containers = mapper.readValue(data, new TypeReference<Set<ResourceDTO>>() {
-                });
-                meta.setCode(200);
-                meta.setResultCount(containers.size());
-                wrapper.setResults(containers);
-                return Response.ok(wrapper).build();
-            } catch (final IOException e) {
-                LOG.error("Error parsing containers from terminology response! ", e);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-            }
-        } else {
-            throw new NotFoundException();
-        }
+        return fetchIntegrationResources(requestUrl, "Containers", restTemplate);
     }
 
     @GET
     @Path("/resources")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @ApiOperation(value = "Get resources from terminology API.")
+    @ApiOperation(value = "Get Resources from the Terminology API.")
     @ApiResponse(code = 200, message = "Returns success.")
-    public Response getResources(@ApiParam(value = "Container URI.", required = true) @QueryParam("container") final String container) {
+    public Response getResources(@ApiParam(value = "Container URI for Resources.", required = true) @QueryParam("container") final String container) {
         final YtiUser user = authenticatedUserProvider.getUser();
         if (user.isAnonymous()) {
-            throw new UnauthorizedException(new ErrorModel(HttpStatus.UNAUTHORIZED.value(), ERR_MSG_USER_401));
+            throw new UnauthorizedException();
         }
-        final String requestUrl;
         if (container != null && !container.isEmpty()) {
-            requestUrl = createTerminologyResourcesApiUrl() + "/?container=" + container;
+            return fetchIntegrationResources(createTerminologyResourcesApiUrl(container), "Containers", restTemplate);
         } else {
             throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), ERR_MSG_USER_406));
-        }
-        final ResponseEntity response = restTemplate.exchange(requestUrl, HttpMethod.GET, null, String.class);
-        if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-            try {
-                final ObjectMapper mapper = new ObjectMapper();
-                mapper.setFilterProvider(new SimpleFilterProvider().setFailOnUnknownId(false));
-                final Meta meta = new Meta();
-                final ResponseWrapper<ResourceDTO> wrapper = new ResponseWrapper<>(meta);
-                final Set<ResourceDTO> containers;
-                final String data = response.getBody().toString();
-                containers = mapper.readValue(data, new TypeReference<Set<ResourceDTO>>() {
-                });
-                meta.setCode(200);
-                meta.setResultCount(containers.size());
-                wrapper.setResults(containers);
-                return Response.ok(wrapper).build();
-            } catch (final IOException e) {
-                LOG.error("Error parsing containers from terminology API response! ", e);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-            }
-        } else {
-            throw new NotFoundException();
         }
     }
 
@@ -140,7 +85,7 @@ public class TerminologyProxyResource implements AbstractBaseResource {
         return terminologyProperties.getUrl() + "/" + API_INTEGRATION + "/" + API_CONTAINERS;
     }
 
-    private String createTerminologyResourcesApiUrl() {
-        return terminologyProperties.getUrl() + "/" + API_INTEGRATION + "/" + API_RESOURCES;
+    private String createTerminologyResourcesApiUrl(final String container) {
+        return terminologyProperties.getUrl() + "/" + API_INTEGRATION + "/" + API_RESOURCES + "/?container=" + container;
     }
 }

@@ -19,7 +19,7 @@ import io.swagger.annotations.ApiModelProperty;
 @JsonFilter("comment")
 @XmlRootElement
 @XmlType(propOrder = { "id", "url", "created", "user", "content", "proposedStatus", "endStatus", "parentComment", "commentThread" })
-@ApiModel(value = "Comment", description = "Comment DTO that represents data for one single comment in a commmentThread.")
+@ApiModel(value = "Comment", description = "Comment DTO that represents data for one single Comment in a CommentThread.")
 public class CommentDTO extends AbstractIdentifyableDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -27,7 +27,7 @@ public class CommentDTO extends AbstractIdentifyableDTO implements Serializable 
     private String url;
     private UserDTO user;
     private CommentDTO parentComment;
-    private CommentThreadDTO commmentThread;
+    private CommentThreadDTO commentThread;
     private String content;
     private String proposedStatus;
     private String endStatus;
@@ -50,11 +50,11 @@ public class CommentDTO extends AbstractIdentifyableDTO implements Serializable 
     }
 
     public CommentThreadDTO getCommentThread() {
-        return commmentThread;
+        return commentThread;
     }
 
     public void setCommentThread(final CommentThreadDTO commentThread) {
-        this.commmentThread = commentThread;
+        this.commentThread = commentThread;
     }
 
     public String getContent() {

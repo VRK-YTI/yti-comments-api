@@ -4,11 +4,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import fi.vm.yti.comments.api.error.ErrorModel;
+import static fi.vm.yti.comments.api.exception.ErrorConstants.ERR_MSG_USER_401;
 
 @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
 public class UnauthorizedException extends YtiCommentsException {
 
-    public UnauthorizedException(final ErrorModel errorModel) {
-        super(errorModel);
+    public UnauthorizedException() {
+        super(new ErrorModel(HttpStatus.UNAUTHORIZED.value(), ERR_MSG_USER_401));
     }
 }

@@ -21,7 +21,7 @@ import io.swagger.annotations.ApiModelProperty;
 @JsonFilter("commentRound")
 @XmlRootElement
 @XmlType(propOrder = { "id", "url", "created", "modified", "user", "startDate", "endDate", "status", "sourceLocalName", "sourceLabel", "fixedThreads", "openThreads", "organizations", "commentThreads" })
-@ApiModel(value = "CommentRound", description = "CommentRound DTO that represents data for one single comment round.")
+@ApiModel(value = "CommentRound", description = "CommentRound DTO that represents data for one single CommentRound.")
 public class CommentRoundDTO extends AbstractTimeStampedIdentifyableDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;

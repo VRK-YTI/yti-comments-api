@@ -1,8 +1,5 @@
 package fi.vm.yti.comments.api.resource.externalresources;
 
-import java.io.IOException;
-import java.util.Set;
-
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -19,15 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-
-import fi.vm.yti.comments.api.api.ResponseWrapper;
 import fi.vm.yti.comments.api.configuration.DatamodelProperties;
-import fi.vm.yti.comments.api.dto.ResourceDTO;
 import fi.vm.yti.comments.api.error.ErrorModel;
-import fi.vm.yti.comments.api.error.Meta;
 import fi.vm.yti.comments.api.exception.NotFoundException;
 import fi.vm.yti.comments.api.exception.UnauthorizedException;
 import fi.vm.yti.comments.api.exception.YtiCommentsException;
@@ -39,13 +29,12 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import static fi.vm.yti.comments.api.constants.ApiConstants.*;
-import static fi.vm.yti.comments.api.exception.ErrorConstants.ERR_MSG_USER_401;
 import static fi.vm.yti.comments.api.exception.ErrorConstants.ERR_MSG_USER_406;
 
 @Component
 @Path("/v1/datamodel")
 @Api(value = "datamodel")
-public class DatamodelProxyResource implements AbstractBaseResource {
+public class DatamodelProxyResource implements AbstractIntegrationResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(DatamodelProxyResource.class);
     private final AuthenticatedUserProvider authenticatedUserProvider;
@@ -64,75 +53,30 @@ public class DatamodelProxyResource implements AbstractBaseResource {
     @GET
     @Path("/containers")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @ApiOperation(value = "Get containers from datamodel API.")
+    @ApiOperation(value = "Get Containers from the Datamodel API.")
     @ApiResponse(code = 200, message = "Returns success.")
     public Response getContainers() {
         final YtiUser user = authenticatedUserProvider.getUser();
         if (user.isAnonymous()) {
-            throw new UnauthorizedException(new ErrorModel(HttpStatus.UNAUTHORIZED.value(), ERR_MSG_USER_401));
+            throw new UnauthorizedException();
         }
-        final String requestUrl = createDatamodelContainerApiUrl();
-        final ResponseEntity response = restTemplate.exchange(requestUrl, HttpMethod.GET, null, String.class);
-        if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-            try {
-                final ObjectMapper mapper = new ObjectMapper();
-                mapper.setFilterProvider(new SimpleFilterProvider().setFailOnUnknownId(false));
-                final Meta meta = new Meta();
-                final ResponseWrapper<ResourceDTO> wrapper = new ResponseWrapper<>(meta);
-                final Set<ResourceDTO> containers;
-                final String data = response.getBody().toString();
-                containers = mapper.readValue(data, new TypeReference<Set<ResourceDTO>>() {
-                });
-                meta.setCode(200);
-                meta.setResultCount(containers.size());
-                wrapper.setResults(containers);
-                return Response.ok(wrapper).build();
-            } catch (final IOException e) {
-                LOG.error("Error parsing containers from datamodel response! ", e);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-            }
-        } else {
-            throw new NotFoundException();
-        }
+        return fetchIntegrationContainerData(createDatamodelContainerApiUrl(), restTemplate);
     }
 
     @GET
     @Path("/resources")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @ApiOperation(value = "Get resources from datamodel API.")
+    @ApiOperation(value = "Get Resources from the Datamodel API.")
     @ApiResponse(code = 200, message = "Returns success.")
-    public Response getResources(@ApiParam(value = "Container URI.", required = true) @QueryParam("container") final String container) {
+    public Response getResources(@ApiParam(value = "Container URI for Resources.", required = true) @QueryParam("container") final String container) {
         final YtiUser user = authenticatedUserProvider.getUser();
         if (user.isAnonymous()) {
-            throw new UnauthorizedException(new ErrorModel(HttpStatus.UNAUTHORIZED.value(), ERR_MSG_USER_401));
+            throw new UnauthorizedException();
         }
-        final String requestUrl;
         if (container != null && !container.isEmpty()) {
-            requestUrl = createDatamodelResourcesApiUrl() + "/?container=" + container;
+            return fetchIntegrationResourceData(createDatamodelResourcesApiUrl(container), restTemplate);
         } else {
             throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), ERR_MSG_USER_406));
-        }
-        final ResponseEntity response = restTemplate.exchange(requestUrl, HttpMethod.GET, null, String.class);
-        if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-            try {
-                final ObjectMapper mapper = new ObjectMapper();
-                mapper.setFilterProvider(new SimpleFilterProvider().setFailOnUnknownId(false));
-                final Meta meta = new Meta();
-                final ResponseWrapper<ResourceDTO> wrapper = new ResponseWrapper<>(meta);
-                final Set<ResourceDTO> containers;
-                final String data = response.getBody().toString();
-                containers = mapper.readValue(data, new TypeReference<Set<ResourceDTO>>() {
-                });
-                meta.setCode(200);
-                meta.setResultCount(containers.size());
-                wrapper.setResults(containers);
-                return Response.ok(wrapper).build();
-            } catch (final IOException e) {
-                LOG.error("Error parsing containers from datamodel API response! ", e);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-            }
-        } else {
-            throw new NotFoundException();
         }
     }
 
@@ -140,7 +84,7 @@ public class DatamodelProxyResource implements AbstractBaseResource {
         return datamodelProperties.getUrl() + "/" + API_BASE_PATH + "/" + API_REST + "/" + API_INTEGRATION + "/" + API_CONTAINERS;
     }
 
-    private String createDatamodelResourcesApiUrl() {
-        return datamodelProperties.getUrl() + "/" + API_BASE_PATH + "/" + API_REST + "/" + API_INTEGRATION + "/" + API_RESOURCES;
+    private String createDatamodelResourcesApiUrl(final String container) {
+        return datamodelProperties.getUrl() + "/" + API_BASE_PATH + "/" + API_REST + "/" + API_INTEGRATION + "/" + API_RESOURCES + "/?container=" + container;
     }
 }

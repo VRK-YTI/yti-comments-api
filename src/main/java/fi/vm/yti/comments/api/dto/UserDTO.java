@@ -15,7 +15,7 @@ import io.swagger.annotations.ApiModel;
 @XmlRootElement
 @XmlType(propOrder = { "id", "email", "firstName", "lastName" })
 @JsonIgnoreProperties({ "displayName" })
-@ApiModel(value = "User", description = "User DTO for a single groupmanagement user.")
+@ApiModel(value = "User", description = "User DTO for a single Groupmanagement User.")
 public class UserDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;

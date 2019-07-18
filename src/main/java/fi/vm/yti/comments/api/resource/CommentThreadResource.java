@@ -15,10 +15,8 @@ import javax.ws.rs.core.Response;
 import org.glassfish.jersey.jackson.internal.jackson.jaxrs.cfg.ObjectWriterInjector;
 import org.springframework.stereotype.Component;
 
-import fi.vm.yti.comments.api.api.ResponseWrapper;
 import fi.vm.yti.comments.api.dto.CommentDTO;
 import fi.vm.yti.comments.api.dto.CommentThreadDTO;
-import fi.vm.yti.comments.api.error.Meta;
 import fi.vm.yti.comments.api.exception.NotFoundException;
 import fi.vm.yti.comments.api.service.CommentService;
 import fi.vm.yti.comments.api.service.CommentThreadService;
@@ -46,34 +44,28 @@ public class CommentThreadResource implements AbstractBaseResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @ApiOperation(value = "CommentThread API for requesting all commentThreads.")
+    @ApiOperation(value = "CommentThread API for requesting all CommentThreads.")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Returns list of comments for this commentThread."),
-        @ApiResponse(code = 404, message = "No commmentThread found with given UUID.")
+        @ApiResponse(code = 200, message = "Returns all CommentThreads.")
     })
     @Transactional
-    public Response getCommentThreads(@ApiParam(value = "Filter string (csl) for expanding specific child recommentRounds.") @QueryParam("expand") final String expand) {
+    public Response getCommentThreads(@ApiParam(value = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTTHREAD, expand)));
         final Set<CommentThreadDTO> commentThreadDtos = commentThreadService.findAll();
-        final Meta meta = new Meta();
-        final ResponseWrapper<CommentThreadDTO> responseWrapper = new ResponseWrapper<>(meta);
-        meta.setMessage("CommentThread comments found: " + commentThreadDtos.size());
-        meta.setCode(200);
-        responseWrapper.setResults(commentThreadDtos);
-        return Response.ok(responseWrapper).build();
+        return createResponse("CommentThreads", MESSAGE_TYPE_GET_RESOURCES, commentThreadDtos);
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @ApiOperation(value = "CommentThread API for requesting single existing commentThread.")
+    @ApiOperation(value = "CommentThread API for requesting single existing CommentThread.")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Returns one commentThread matching UUID."),
-        @ApiResponse(code = 404, message = "No commmentThread found with given UUID.")
+        @ApiResponse(code = 200, message = "Returns one CommentThread matching UUID."),
+        @ApiResponse(code = 404, message = "No CommentThread found with given UUID.")
     })
     @Transactional
     @Path("{commentThreadId}")
     public Response getCommentThread(@ApiParam(value = "CommentThread UUID.", required = true) @PathParam("commentThreadId") final UUID commentThreadId,
-                                     @ApiParam(value = "Filter string (csl) for expanding specific child recommentRounds.") @QueryParam("expand") final String expand) {
+                                     @ApiParam(value = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTTHREAD, expand)));
         final CommentThreadDTO commentThread = commentThreadService.findById(commentThreadId);
         if (commentThread != null) {
@@ -85,22 +77,22 @@ public class CommentThreadResource implements AbstractBaseResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @ApiOperation(value = "CommentThread API for requesting comments for commentThread.")
+    @ApiOperation(value = "CommentThread API for requesting Comments for CommentThread.")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Returns list of comments for this commentThread."),
-        @ApiResponse(code = 404, message = "No commmentThread found with given UUID.")
+        @ApiResponse(code = 200, message = "Returns list of Comments for this CommentThread."),
+        @ApiResponse(code = 404, message = "No CommentThread found with given UUID.")
     })
     @Transactional
     @Path("{commentThreadId}/comments")
     public Response getCommentThreadComments(@ApiParam(value = "CommentRound UUID.", required = true) @PathParam("commentThreadId") final UUID commentThreadId,
-                                             @ApiParam(value = "Filter string (csl) for expanding specific child recommentRounds.") @QueryParam("expand") final String expand) {
+                                             @ApiParam(value = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENT, expand)));
-        final Set<CommentDTO> commentDtos = commentService.findByCommentThreadId(commentThreadId);
-        final Meta meta = new Meta();
-        final ResponseWrapper<CommentDTO> responseWrapper = new ResponseWrapper<>(meta);
-        meta.setMessage("CommentThread comments found: " + commentDtos.size());
-        meta.setCode(200);
-        responseWrapper.setResults(commentDtos);
-        return Response.ok(responseWrapper).build();
+        final CommentThreadDTO commentThread = commentThreadService.findById(commentThreadId);
+        if (commentThread != null) {
+            final Set<CommentDTO> commentDtos = commentService.findByCommentThreadId(commentThreadId);
+            return createResponse("CommentThread Comments", MESSAGE_TYPE_GET_RESOURCES, commentDtos);
+        } else {
+            throw new NotFoundException();
+        }
     }
 }

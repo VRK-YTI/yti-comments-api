@@ -12,7 +12,7 @@ import io.swagger.annotations.ApiModel;
 @JsonFilter("source")
 @XmlRootElement
 @XmlType(propOrder = { "id", "url", "containerType", "containerUri" })
-@ApiModel(value = "Source", description = "Source DTO that represents data for one single source.")
+@ApiModel(value = "Source", description = "Source DTO that represents data for one single Source.")
 public class SourceDTO extends AbstractIdentifyableDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;

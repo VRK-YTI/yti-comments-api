@@ -16,7 +16,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 @XmlRootElement
 @XmlType(propOrder = { "uri", "prefLabel", "description", "localName", "status", "modified" })
-@ApiModel(value = "Resource", description = "Resource DTO that represents data for one single container or resource for integration use.")
+@ApiModel(value = "Resource", description = "Resource DTO that represents data for one single Container or Resource for integration use.")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResourceDTO implements Serializable {
 

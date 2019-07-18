@@ -17,9 +17,7 @@ import javax.ws.rs.core.Response;
 import org.glassfish.jersey.jackson.internal.jackson.jaxrs.cfg.ObjectWriterInjector;
 import org.springframework.stereotype.Component;
 
-import fi.vm.yti.comments.api.api.ResponseWrapper;
 import fi.vm.yti.comments.api.dto.OrganizationDTO;
-import fi.vm.yti.comments.api.error.Meta;
 import fi.vm.yti.comments.api.service.OrganizationService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -43,29 +41,23 @@ public class OrganizationResource implements AbstractBaseResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @ApiOperation(value = "Organizations API.")
-    @ApiResponse(code = 200, message = "Returns organizations.")
+    @ApiResponse(code = 200, message = "Returns Organizations.")
     @Transactional
-    public Response getOrganizations(@ApiParam(value = "Filter string (csl) for expanding specific child resources.") @QueryParam("expand") final String expand,
-                                     @ApiParam(value = "A boolean value for only returning organizations with comment rounds.") @QueryParam("hasCommentRounds") final boolean hasCommentRounds) {
+    public Response getOrganizations(@ApiParam(value = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
+                                     @ApiParam(value = "A boolean value for only returning Organizations with CommentRounds.") @QueryParam("hasCommentRounds") final boolean hasCommentRounds) {
         ObjectWriterInjector.set(new AbstractBaseResource.FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_ORGANIZATION, expand)));
-        final Meta meta = new Meta();
-        final ResponseWrapper<OrganizationDTO> wrapper = new ResponseWrapper<>();
-        wrapper.setMeta(meta);
         final Set<OrganizationDTO> organizations = organizationService.findByRemovedIsFalse(hasCommentRounds);
-        meta.setCode(200);
-        meta.setResultCount(organizations.size());
-        wrapper.setResults(organizations);
-        return Response.ok(wrapper).build();
+        return createResponse("Organizations", MESSAGE_TYPE_GET_RESOURCES, organizations);
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @ApiOperation(value = "Organizations fetching API for single organization.")
-    @ApiResponse(code = 200, message = "Returns one single organization.")
+    @ApiOperation(value = "Organizations fetching API for single Organization.")
+    @ApiResponse(code = 200, message = "Returns one single Organization.")
     @Transactional
     @Path("{organizationId}")
     public Response getOrganization(@ApiParam(value = "Organization UUID.", required = true) @PathParam("organizationId") final UUID organizationId,
-                                    @ApiParam(value = "Filter string (csl) for expanding specific child resources.") @QueryParam("expand") final String expand) {
+                                    @ApiParam(value = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new AbstractBaseResource.FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_ORGANIZATION, expand)));
         final OrganizationDTO organization = organizationService.findById(organizationId);
         if (organization != null) {

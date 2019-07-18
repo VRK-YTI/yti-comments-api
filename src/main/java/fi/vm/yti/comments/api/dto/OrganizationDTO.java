@@ -14,7 +14,7 @@ import static fi.vm.yti.comments.api.constants.ApiConstants.LANGUAGE_CODE_EN;
 
 @JsonFilter("organization")
 @XmlType(propOrder = { "id", "url", "prefLabel", "description", "removed", "commentRounds" })
-@ApiModel(value = "Organization", description = "Organization DTO that represents data for one single organization.")
+@ApiModel(value = "Organization", description = "Organization DTO that represents data for one single Organization.")
 public class OrganizationDTO extends AbstractIdentifyableDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;

@@ -32,6 +32,7 @@ import fi.vm.yti.comments.api.configuration.GroupManagementProperties;
 import fi.vm.yti.comments.api.error.ErrorModel;
 import fi.vm.yti.comments.api.error.Meta;
 import fi.vm.yti.comments.api.exception.UnauthorizedException;
+import fi.vm.yti.comments.api.exception.YtiCommentsException;
 import fi.vm.yti.comments.api.groupmanagement.GroupManagementUserRequest;
 import fi.vm.yti.comments.api.resource.AbstractBaseResource;
 import fi.vm.yti.security.AuthenticatedUserProvider;
@@ -41,10 +42,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
-import static fi.vm.yti.comments.api.constants.ApiConstants.GROUPMANAGEMENT_API_CONTEXT_PATH;
-import static fi.vm.yti.comments.api.constants.ApiConstants.GROUPMANAGEMENT_API_REQUEST;
-import static fi.vm.yti.comments.api.constants.ApiConstants.GROUPMANAGEMENT_API_REQUESTS;
-import static fi.vm.yti.comments.api.exception.ErrorConstants.ERR_MSG_USER_401;
+import static fi.vm.yti.comments.api.constants.ApiConstants.*;
 
 @Component
 @Path("/v1/groupmanagement")
@@ -73,27 +71,22 @@ public class GroupManagementProxyResource implements AbstractBaseResource {
     public Response getUserRequests() {
         final YtiUser user = authenticatedUserProvider.getUser();
         if (user.isAnonymous()) {
-            throw new UnauthorizedException(new ErrorModel(HttpStatus.UNAUTHORIZED.value(), ERR_MSG_USER_401));
+            throw new UnauthorizedException();
         }
-
         final String response = restTemplate.getForObject(createGroupManagementRequestsApiUrl(user.getEmail()), String.class);
         final ObjectMapper mapper = new ObjectMapper();
         mapper.setFilterProvider(new SimpleFilterProvider().setFailOnUnknownId(false));
-        final Meta meta = new Meta();
-        final ResponseWrapper<GroupManagementUserRequest> wrapper = new ResponseWrapper<>(meta);
-        final Set<GroupManagementUserRequest> userRequests;
         try {
-            userRequests = mapper.readValue(response, new TypeReference<Set<GroupManagementUserRequest>>() {
+            final Set<GroupManagementUserRequest> userRequests = mapper.readValue(response, new TypeReference<Set<GroupManagementUserRequest>>() {
             });
+            final Meta meta = new Meta();
+            final ResponseWrapper<GroupManagementUserRequest> wrapper = new ResponseWrapper<>(meta);
             meta.setCode(200);
             meta.setResultCount(userRequests.size());
             wrapper.setResults(userRequests);
             return Response.ok(wrapper).build();
         } catch (final IOException e) {
-            LOG.error("Error parsing userRequests from groupmanagement response! ", e);
-            meta.setMessage("Error parsing userRequests from groupmanagement!");
-            meta.setCode(500);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(wrapper).build();
+            throw new YtiCommentsException(new ErrorModel(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Error parsing userRequests from groupmanagement!"));
         }
     }
 
@@ -104,11 +97,9 @@ public class GroupManagementProxyResource implements AbstractBaseResource {
     public Response sendUserRequest(@ApiParam(value = "UUID for the requested organization.", required = true) @QueryParam("organizationId") final String organizationId) {
         final YtiUser user = authenticatedUserProvider.getUser();
         if (user.isAnonymous()) {
-            throw new UnauthorizedException(new ErrorModel(HttpStatus.UNAUTHORIZED.value(), ERR_MSG_USER_401));
+            throw new UnauthorizedException();
         }
-
         final String requestUrl = createGroupManagementRequestApiUrl();
-
         final LinkedMultiValueMap<String, Object> parameters = new LinkedMultiValueMap<>();
         parameters.add("email", user.getEmail());
         parameters.add("organizationId", organizationId);
@@ -116,12 +107,11 @@ public class GroupManagementProxyResource implements AbstractBaseResource {
         final HttpHeaders headers = new HttpHeaders();
         headers.setContentType(org.springframework.http.MediaType.MULTIPART_FORM_DATA);
         final HttpEntity<LinkedMultiValueMap<String, Object>> entity = new HttpEntity<>(parameters, headers);
-
         final ResponseEntity response = restTemplate.exchange(requestUrl, HttpMethod.POST, entity, String.class);
         if (response.getStatusCode() == HttpStatus.OK) {
             return Response.status(200).build();
         } else {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            throw new YtiCommentsException(new ErrorModel(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Error sending user request to groupmanagement!"));
         }
     }
 
