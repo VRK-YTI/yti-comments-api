@@ -31,9 +31,11 @@ public interface CommentRoundService {
 
     CommentRoundDTO findById(final UUID commentRoundId);
 
-    CommentRoundDTO addOrUpdateCommentRoundFromDto(final CommentRoundDTO fromCommentRound);
+    CommentRoundDTO addOrUpdateCommentRoundFromDto(final CommentRoundDTO fromCommentRound,
+                                                   final boolean removeCommentThreadOrphans);
 
-    Set<CommentRoundDTO> addOrUpdateCommentRoundsFromDtos(final Set<CommentRoundDTO> fromCommentRounds);
+    Set<CommentRoundDTO> addOrUpdateCommentRoundsFromDtos(final Set<CommentRoundDTO> fromCommentRounds,
+                                                          final boolean removeCommentThreadOrphans);
 
     void deleteCommentRound(final CommentRound commentRound);
 }

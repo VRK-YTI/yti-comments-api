@@ -42,9 +42,11 @@ public interface CommentRoundDao {
 
     CommentRound findById(final UUID commentRoundId);
 
-    CommentRound addOrUpdateCommentRoundFromDto(final CommentRoundDTO commentRoundDto);
+    CommentRound addOrUpdateCommentRoundFromDto(final CommentRoundDTO commentRoundDto,
+                                                final boolean removeCommentThreadOrphans);
 
-    Set<CommentRound> addOrUpdateCommentRoundsFromDtos(final Set<CommentRoundDTO> commentRoundDtos);
+    Set<CommentRound> addOrUpdateCommentRoundsFromDtos(final Set<CommentRoundDTO> commentRoundDtos,
+                                                       final boolean removeCommentThreadOrphans);
 
     void deleteCommentRound(final CommentRound commentRound);
 }

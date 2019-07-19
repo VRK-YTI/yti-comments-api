@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -12,6 +13,7 @@ import javax.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import fi.vm.yti.comments.api.constants.ApiConstants;
 import fi.vm.yti.comments.api.dao.CommentRoundDao;
 import fi.vm.yti.comments.api.dao.CommentThreadDao;
 import fi.vm.yti.comments.api.dao.OrganizationDao;
@@ -19,6 +21,7 @@ import fi.vm.yti.comments.api.dao.SourceDao;
 import fi.vm.yti.comments.api.dto.CommentRoundDTO;
 import fi.vm.yti.comments.api.dto.OrganizationDTO;
 import fi.vm.yti.comments.api.dto.SourceDTO;
+import fi.vm.yti.comments.api.entity.AbstractIdentifyableEntity;
 import fi.vm.yti.comments.api.entity.CommentRound;
 import fi.vm.yti.comments.api.entity.CommentThread;
 import fi.vm.yti.comments.api.entity.Organization;
@@ -126,17 +129,19 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
     }
 
     @Transactional
-    public CommentRound addOrUpdateCommentRoundFromDto(final CommentRoundDTO fromCommentRound) {
-        final CommentRound commentRound = createOrUpdateCommentRound(fromCommentRound);
+    public CommentRound addOrUpdateCommentRoundFromDto(final CommentRoundDTO fromCommentRound,
+                                                       final boolean removeCommentThreadOrphans) {
+        final CommentRound commentRound = createOrUpdateCommentRound(fromCommentRound, removeCommentThreadOrphans);
         commentRoundRepository.save(commentRound);
         return commentRound;
     }
 
     @Transactional
-    public Set<CommentRound> addOrUpdateCommentRoundsFromDtos(final Set<CommentRoundDTO> fromCommentRounds) {
+    public Set<CommentRound> addOrUpdateCommentRoundsFromDtos(final Set<CommentRoundDTO> fromCommentRounds,
+                                                              final boolean removeCommentThreadOrphans) {
         final Set<CommentRound> commentRounds = new HashSet<>();
         for (final CommentRoundDTO fromCommentRound : fromCommentRounds) {
-            commentRounds.add(createOrUpdateCommentRound(fromCommentRound));
+            commentRounds.add(createOrUpdateCommentRound(fromCommentRound, removeCommentThreadOrphans));
         }
         commentRoundRepository.saveAll(commentRounds);
         return commentRounds;
@@ -147,7 +152,8 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
         commentRoundRepository.delete(commentRound);
     }
 
-    private CommentRound createOrUpdateCommentRound(final CommentRoundDTO fromCommentRound) {
+    private CommentRound createOrUpdateCommentRound(final CommentRoundDTO fromCommentRound,
+                                                    final boolean removeCommentThreadOrphans) {
         final CommentRound existingCommentRound;
         if (fromCommentRound.getId() != null) {
             existingCommentRound = commentRoundRepository.findById(fromCommentRound.getId());
@@ -156,7 +162,7 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
         }
         final CommentRound commentRound;
         if (existingCommentRound != null) {
-            commentRound = updateCommentRound(existingCommentRound, fromCommentRound);
+            commentRound = updateCommentRound(existingCommentRound, fromCommentRound, removeCommentThreadOrphans);
         } else {
             commentRound = createCommentRound(fromCommentRound);
         }
@@ -186,7 +192,8 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
     }
 
     private CommentRound updateCommentRound(final CommentRound existingCommentRound,
-                                            final CommentRoundDTO fromCommentRound) {
+                                            final CommentRoundDTO fromCommentRound,
+                                            final boolean removeOrphans) {
         existingCommentRound.setLabel(fromCommentRound.getLabel());
         existingCommentRound.setDescription(fromCommentRound.getDescription());
         existingCommentRound.setStatus(fromCommentRound.getStatus());
@@ -200,12 +207,28 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
         resolveAndSetSource(existingCommentRound, fromCommentRound);
         resolveAndSetOrganizations(existingCommentRound, fromCommentRound);
         final Set<CommentThread> commentThreads = commentThreadDao.addOrUpdateCommentThreadsFromDtos(existingCommentRound, fromCommentRound.getCommentThreads());
-        if (existingCommentRound.getCommentThreads() != null) {
-            if (commentThreads != null) {
-                existingCommentRound.getCommentThreads().addAll(commentThreads);
+        if (removeOrphans && ApiConstants.STATUS_INCOMPLETE.equalsIgnoreCase(existingCommentRound.getStatus())) {
+            final Set<UUID> newCommentThreadIds = commentThreads.stream().map(AbstractIdentifyableEntity::getId).collect(Collectors.toSet());
+            final Set<CommentThread> existingCommentThreads = existingCommentRound.getCommentThreads();
+            if (existingCommentThreads != null) {
+                existingCommentThreads.forEach(existingCommentThread -> {
+                    if (!newCommentThreadIds.contains(existingCommentThread.getId())) {
+                        existingCommentThread.setCommentRound(null);
+                        commentThreadDao.delete(existingCommentThread);
+                    }
+                });
+                existingCommentRound.setCommentThreads(commentThreads);
+                save(existingCommentRound);
+            } else {
+                existingCommentRound.setCommentThreads(commentThreads);
+                save(existingCommentRound);
             }
         } else {
-            existingCommentRound.setCommentThreads(commentThreads);
+            if (existingCommentRound.getCommentThreads() != null) {
+                existingCommentRound.getCommentThreads().addAll(commentThreads);
+            } else {
+                existingCommentRound.setCommentThreads(commentThreads);
+            }
         }
         ensureProperStatus(existingCommentRound);
         return existingCommentRound;

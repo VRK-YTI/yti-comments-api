@@ -76,13 +76,15 @@ public class CommentRoundServiceImpl implements CommentRoundService {
     }
 
     @Transactional
-    public CommentRoundDTO addOrUpdateCommentRoundFromDto(final CommentRoundDTO fromCommentRound) {
-        return dtoMapper.mapDeepCommentRound(commentRoundDao.addOrUpdateCommentRoundFromDto(fromCommentRound));
+    public CommentRoundDTO addOrUpdateCommentRoundFromDto(final CommentRoundDTO fromCommentRound,
+                                                          final boolean removeCommentThreadOrphans) {
+        return dtoMapper.mapDeepCommentRound(commentRoundDao.addOrUpdateCommentRoundFromDto(fromCommentRound, removeCommentThreadOrphans));
     }
 
     @Transactional
-    public Set<CommentRoundDTO> addOrUpdateCommentRoundsFromDtos(final Set<CommentRoundDTO> fromCommentRounds) {
-        return dtoMapper.mapDeepCommentRounds(commentRoundDao.addOrUpdateCommentRoundsFromDtos(fromCommentRounds));
+    public Set<CommentRoundDTO> addOrUpdateCommentRoundsFromDtos(final Set<CommentRoundDTO> fromCommentRounds,
+                                                                 final boolean removeCommentThreadOrphans) {
+        return dtoMapper.mapDeepCommentRounds(commentRoundDao.addOrUpdateCommentRoundsFromDtos(fromCommentRounds, removeCommentThreadOrphans));
     }
 
     @Transactional

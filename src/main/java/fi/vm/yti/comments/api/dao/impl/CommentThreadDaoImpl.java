@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -17,6 +18,7 @@ import fi.vm.yti.comments.api.constants.ApiConstants;
 import fi.vm.yti.comments.api.dao.CommentRoundDao;
 import fi.vm.yti.comments.api.dao.CommentThreadDao;
 import fi.vm.yti.comments.api.dto.CommentThreadDTO;
+import fi.vm.yti.comments.api.entity.AbstractIdentifyableEntity;
 import fi.vm.yti.comments.api.entity.CommentRound;
 import fi.vm.yti.comments.api.entity.CommentThread;
 import fi.vm.yti.comments.api.error.ErrorModel;
@@ -40,6 +42,11 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
         this.commentThreadRepository = commentThreadRepository;
         this.authorizationManager = authorizationManager;
         this.commentRoundDao = commentRoundDao;
+    }
+
+    @Transactional
+    public void saveAll(final Set<CommentThread> commentThreads) {
+        commentThreadRepository.saveAll(commentThreads);
     }
 
     @Transactional
@@ -87,13 +94,20 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
                                                                 final Set<CommentThreadDTO> fromCommentThreads,
                                                                 final boolean removeOrphans) {
         final Set<CommentThread> commentThreads = new HashSet<>();
-        for (final CommentThreadDTO fromCommentThread : fromCommentThreads) {
-            commentThreads.add(createOrUpdateCommentThread(commentRound, fromCommentThread));
+        if (fromCommentThreads != null) {
+            fromCommentThreads.forEach(fromCommentThread -> commentThreads.add(createCommentThread(commentRound, fromCommentThread)));
         }
         if (removeOrphans && ApiConstants.STATUS_INCOMPLETE.equalsIgnoreCase(commentRound.getStatus())) {
-            if (commentRound.getCommentThreads() != null) {
-                commentRound.getCommentThreads().clear();
-                commentRound.getCommentThreads().addAll(commentThreads);
+            final Set<CommentThread> existingCommentThreads = commentRound.getCommentThreads();
+            if (existingCommentThreads != null) {
+                final Set<UUID> newCommentThreadIds = commentThreads.stream().map(AbstractIdentifyableEntity::getId).collect(Collectors.toSet());
+                existingCommentThreads.forEach(existingCommentThread -> {
+                    if (!newCommentThreadIds.contains(existingCommentThread.getId())) {
+                        existingCommentThread.setCommentRound(null);
+                        delete(existingCommentThread);
+                    }
+                });
+                commentRound.setCommentThreads(commentThreads);
                 commentRoundDao.save(commentRound);
             } else {
                 commentRound.setCommentThreads(commentThreads);

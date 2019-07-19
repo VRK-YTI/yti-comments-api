@@ -9,6 +9,8 @@ import fi.vm.yti.comments.api.entity.CommentThread;
 
 public interface CommentThreadDao {
 
+    void saveAll(final Set<CommentThread> commentThreads);
+
     void delete(final CommentThread commentThread);
 
     Set<CommentThread> findAll();
