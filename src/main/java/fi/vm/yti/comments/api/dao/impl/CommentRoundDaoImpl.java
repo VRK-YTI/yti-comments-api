@@ -193,7 +193,7 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
 
     private CommentRound updateCommentRound(final CommentRound existingCommentRound,
                                             final CommentRoundDTO fromCommentRound,
-                                            final boolean removeOrphans) {
+                                            final boolean removeCommentThreadOrphans) {
         existingCommentRound.setLabel(fromCommentRound.getLabel());
         existingCommentRound.setDescription(fromCommentRound.getDescription());
         existingCommentRound.setStatus(fromCommentRound.getStatus());
@@ -207,7 +207,7 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
         resolveAndSetSource(existingCommentRound, fromCommentRound);
         resolveAndSetOrganizations(existingCommentRound, fromCommentRound);
         final Set<CommentThread> commentThreads = commentThreadDao.addOrUpdateCommentThreadsFromDtos(existingCommentRound, fromCommentRound.getCommentThreads());
-        if (removeOrphans && ApiConstants.STATUS_INCOMPLETE.equalsIgnoreCase(existingCommentRound.getStatus())) {
+        if (removeCommentThreadOrphans && ApiConstants.STATUS_INCOMPLETE.equalsIgnoreCase(existingCommentRound.getStatus())) {
             final Set<UUID> newCommentThreadIds = commentThreads.stream().map(AbstractIdentifyableEntity::getId).collect(Collectors.toSet());
             final Set<CommentThread> existingCommentThreads = existingCommentRound.getCommentThreads();
             if (existingCommentThreads != null) {
@@ -217,18 +217,24 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
                         commentThreadDao.delete(existingCommentThread);
                     }
                 });
+                commentThreadDao.saveAll(commentThreads);
                 existingCommentRound.setCommentThreads(commentThreads);
-                save(existingCommentRound);
             } else {
+                commentThreadDao.saveAll(commentThreads);
                 existingCommentRound.setCommentThreads(commentThreads);
-                save(existingCommentRound);
             }
         } else {
             if (existingCommentRound.getCommentThreads() != null) {
-                existingCommentRound.getCommentThreads().addAll(commentThreads);
-            } else {
-                existingCommentRound.setCommentThreads(commentThreads);
+                final Set<UUID> newCommentThreadIds = commentThreads.stream().map(AbstractIdentifyableEntity::getId).collect(Collectors.toSet());
+                final Set<CommentThread> existingCommentThreads = existingCommentRound.getCommentThreads();
+                existingCommentThreads.forEach(existingCommentThread -> {
+                   if (!newCommentThreadIds.contains(existingCommentRound.getId())) {
+                       commentThreads.add(existingCommentThread);
+                   }
+                });
             }
+            commentThreadDao.saveAll(commentThreads);
+            existingCommentRound.setCommentThreads(commentThreads);
         }
         ensureProperStatus(existingCommentRound);
         return existingCommentRound;

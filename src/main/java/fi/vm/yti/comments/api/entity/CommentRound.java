@@ -22,6 +22,9 @@ import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
 @Entity
 @Table(name = "commentround")
 @XmlRootElement
@@ -160,7 +163,7 @@ public class CommentRound extends AbstractTimeStampedIdentifyableEntity implemen
         this.sourceLabel = sourceLabel;
     }
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "commentRound", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "commentRound", cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
     public Set<CommentThread> getCommentThreads() {
         return commentThreads;
     }
