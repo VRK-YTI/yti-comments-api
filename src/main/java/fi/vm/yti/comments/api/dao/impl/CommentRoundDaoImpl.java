@@ -208,11 +208,12 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
         resolveAndSetOrganizations(existingCommentRound, fromCommentRound);
         final Set<CommentThread> commentThreads = commentThreadDao.addOrUpdateCommentThreadsFromDtos(existingCommentRound, fromCommentRound.getCommentThreads());
         if (removeCommentThreadOrphans && ApiConstants.STATUS_INCOMPLETE.equalsIgnoreCase(existingCommentRound.getStatus())) {
-            final Set<UUID> newCommentThreadIds = commentThreads.stream().map(AbstractIdentifyableEntity::getId).collect(Collectors.toSet());
+            final Set<String> newCommentThreadUris = commentThreads.stream().map(CommentThread::getResourceUri).collect(Collectors.toSet());
+            final Set<UUID> newCommentThreadIds = commentThreads.stream().map(CommentThread::getId).collect(Collectors.toSet());
             final Set<CommentThread> existingCommentThreads = existingCommentRound.getCommentThreads();
             if (existingCommentThreads != null) {
                 existingCommentThreads.forEach(existingCommentThread -> {
-                    if (!newCommentThreadIds.contains(existingCommentThread.getId())) {
+                    if (!newCommentThreadUris.contains(existingCommentThread.getResourceUri()) || !newCommentThreadIds.contains(existingCommentThread.getId())) {
                         existingCommentThread.setCommentRound(null);
                         commentThreadDao.delete(existingCommentThread);
                     }

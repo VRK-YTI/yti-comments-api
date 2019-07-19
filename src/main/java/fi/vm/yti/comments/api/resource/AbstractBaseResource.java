@@ -113,13 +113,18 @@ public interface AbstractBaseResource {
     }
 
     default Set<ResourceDTO> parseResourcesFromResponse(final ResponseEntity response) {
-        try {
-            final ObjectMapper mapper = new ObjectMapper();
-            mapper.setFilterProvider(new SimpleFilterProvider().setFailOnUnknownId(false));
-            final String data = response.getBody().toString();
-            return mapper.readValue(data, new TypeReference<Set<ResourceDTO>>() {
-            });
-        } catch (final IOException e) {
+        final Object responseBody = response.getBody();
+        if (responseBody != null) {
+            try {
+                final ObjectMapper mapper = new ObjectMapper();
+                mapper.setFilterProvider(new SimpleFilterProvider().setFailOnUnknownId(false));
+                final String data = responseBody.toString();
+                return mapper.readValue(data, new TypeReference<Set<ResourceDTO>>() {
+                });
+            } catch (final IOException e) {
+                throw new YtiCommentsException(new ErrorModel(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to parse integration resources!"));
+            }
+        } else {
             throw new YtiCommentsException(new ErrorModel(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to parse integration resources!"));
         }
     }

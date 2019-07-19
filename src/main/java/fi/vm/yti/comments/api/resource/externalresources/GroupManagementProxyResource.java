@@ -12,8 +12,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -49,7 +47,6 @@ import static fi.vm.yti.comments.api.constants.ApiConstants.*;
 @Api(value = "groupmanagement")
 public class GroupManagementProxyResource implements AbstractBaseResource {
 
-    private static final Logger LOG = LoggerFactory.getLogger(GroupManagementProxyResource.class);
     private final AuthenticatedUserProvider authenticatedUserProvider;
     private final GroupManagementProperties groupManagementProperties;
     private final RestTemplate restTemplate;

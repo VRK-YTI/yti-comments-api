@@ -100,9 +100,10 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
         if (removeOrphans && ApiConstants.STATUS_INCOMPLETE.equalsIgnoreCase(commentRound.getStatus())) {
             final Set<CommentThread> existingCommentThreads = commentRound.getCommentThreads();
             if (existingCommentThreads != null) {
-                final Set<UUID> newCommentThreadIds = commentThreads.stream().map(AbstractIdentifyableEntity::getId).collect(Collectors.toSet());
+                final Set<String> newCommentThreadUris = commentThreads.stream().map(CommentThread::getResourceUri).collect(Collectors.toSet());
+                final Set<UUID> newCommentThreadIds = commentThreads.stream().map(CommentThread::getId).collect(Collectors.toSet());
                 existingCommentThreads.forEach(existingCommentThread -> {
-                    if (!newCommentThreadIds.contains(existingCommentThread.getId())) {
+                    if (!newCommentThreadUris.contains(existingCommentThread.getResourceUri()) || !newCommentThreadIds.contains(existingCommentThread.getId())) {
                         existingCommentThread.setCommentRound(null);
                         delete(existingCommentThread);
                     }

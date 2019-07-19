@@ -8,8 +8,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -32,7 +30,6 @@ import static fi.vm.yti.comments.api.exception.ErrorConstants.ERR_MSG_USER_406;
 @Api(value = "datamodel")
 public class DatamodelProxyResource implements AbstractIntegrationResource {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DatamodelProxyResource.class);
     private final AuthenticatedUserProvider authenticatedUserProvider;
     private final DatamodelProperties datamodelProperties;
     private final RestTemplate restTemplate;
