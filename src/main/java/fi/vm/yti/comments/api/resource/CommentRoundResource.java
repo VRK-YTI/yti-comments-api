@@ -514,4 +514,30 @@ public class CommentRoundResource implements AbstractBaseResource {
         }
         return createDeleteResponse("CommentThread");
     }
+
+    @DELETE
+    @Path("{commentRoundId}/commentthreads/{commentThreadId}/comments/{commentId}/delete")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @ApiOperation(value = "Deletes a single existing Comment.")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Comment deleted."),
+        @ApiResponse(code = 404, message = "Comment not found.")
+    })
+    public Response deleteCommentRoundCommentThreadComment(@ApiParam(value = "CommentRound UUID", required = true) @PathParam("commentRoundId") final String commentRoundId,
+                                                           @ApiParam(value = "CommentThread UUID", required = true) @PathParam("commentThreadId") final String commentThreadId,
+                                                           @ApiParam(value = "Comment UUID.", required = true) @PathParam("commentId") final UUID commentId) {
+        final Comment existingComment = commentDao.findById(commentId);
+        if (existingComment != null) {
+            if (authorizationManager.canUserDeleteComment(existingComment)) {
+                commentService.deleteComment(existingComment);
+            } else {
+                throw new UnauthorizedException();
+            }
+
+        } else {
+            throw new NotFoundException();
+        }
+        return createDeleteResponse("Comment");
+    }
 }

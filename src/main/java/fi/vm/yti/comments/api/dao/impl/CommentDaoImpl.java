@@ -20,6 +20,7 @@ import fi.vm.yti.comments.api.entity.CommentThread;
 import fi.vm.yti.comments.api.error.ErrorModel;
 import fi.vm.yti.comments.api.exception.YtiCommentsException;
 import fi.vm.yti.comments.api.jpa.CommentRepository;
+import fi.vm.yti.comments.api.jpa.CommentThreadRepository;
 import fi.vm.yti.comments.api.security.AuthorizationManager;
 import static fi.vm.yti.comments.api.exception.ErrorConstants.*;
 
@@ -27,16 +28,19 @@ import static fi.vm.yti.comments.api.exception.ErrorConstants.*;
 public class CommentDaoImpl implements CommentDao {
 
     private final CommentRepository commentRepository;
+    private final CommentThreadRepository commentThreadRepository;
     private final CommentThreadDao commentThreadDao;
     private final AuthorizationManager authorizationManager;
 
     @Inject
     public CommentDaoImpl(final CommentRepository commentRepository,
+                          CommentThreadRepository commentThreadRepository,
                           final CommentThreadDao commentThreadDao,
                           final AuthorizationManager authorizationManager) {
         this.commentRepository = commentRepository;
         this.commentThreadDao = commentThreadDao;
         this.authorizationManager = authorizationManager;
+        this.commentThreadRepository = commentThreadRepository;
     }
 
     @Transactional
@@ -197,5 +201,14 @@ public class CommentDaoImpl implements CommentDao {
                 throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), ERR_MSG_USER_INVALID_PARENTCOMMENT));
             }
         }
+    }
+
+    @Transactional
+    public void deleteComment(final Comment comment) {
+        Comment theComment = commentRepository.findById(comment.getId());
+        CommentThread commentThread = commentThreadRepository.findById(theComment.getCommentThread().getId());
+        commentThread.getComments().remove(theComment);
+        commentThreadRepository.save(commentThread);
+        commentRepository.delete(theComment);
     }
 }

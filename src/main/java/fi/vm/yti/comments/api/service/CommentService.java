@@ -4,6 +4,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import fi.vm.yti.comments.api.dto.CommentDTO;
+import fi.vm.yti.comments.api.entity.Comment;
 
 public interface CommentService {
 
@@ -26,4 +27,6 @@ public interface CommentService {
     Set<CommentDTO> addOrUpdateCommentsFromDtos(final UUID commentRoundId,
                                                 final UUID commentThreadId,
                                                 final Set<CommentDTO> fromComments);
+
+    void deleteComment(Comment comment);
 }

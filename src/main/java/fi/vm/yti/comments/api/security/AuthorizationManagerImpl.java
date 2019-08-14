@@ -61,6 +61,11 @@ public class AuthorizationManagerImpl implements AuthorizationManager {
         return user.getId().equals(comment.getUserId());
     }
 
+    public boolean canUserDeleteComment(final Comment comment) {
+        final YtiUser user = userProvider.getUser();
+        return user.getId().equals(comment.getUserId());
+    }
+
     public boolean canUserAddCommentRound() {
         final YtiUser user = userProvider.getUser();
         return user.isSuperuser() || (user.isInRoleInAnyOrganization(ADMIN) || user.isInRoleInAnyOrganization(CODE_LIST_EDITOR) || user.isInRoleInAnyOrganization(TERMINOLOGY_EDITOR) || user.isInRoleInAnyOrganization(DATA_MODEL_EDITOR));

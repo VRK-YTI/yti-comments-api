@@ -29,4 +29,6 @@ public interface CommentDao {
 
     Set<Comment> addOrUpdateCommentsFromDtos(final CommentRound commentRound,
                                              final Set<CommentDTO> commentDtos);
+
+    void deleteComment(final Comment comment);
 }
