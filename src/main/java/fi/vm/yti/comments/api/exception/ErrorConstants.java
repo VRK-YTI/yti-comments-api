@@ -19,6 +19,7 @@ public abstract class ErrorConstants {
     public static final String ERR_MSG_INVALID_SOURCE_DATA = "ERR_MSG_INVALID_SOURCE_DATA";
     public static final String ERR_MSG_INVALID_ID = "ERR_MSG_INVALID_ID";
     public static final String ERR_MSG_USER_PROPOSED_STATUS_REQUIRED = "ERR_MSG_USER_PROPOSED_STATUS_REQUIRED";
+    public static final String ERR_MSG_USER_OTHER_USER_ALREADY_RESPONDED_TO_THIS_COMMENT_CANT_MODIFY_OR_DELETE = "ERR_MSG_USER_OTHER_USER_ALREADY_RESPONDED_TO_THIS_COMMENT_CANT_MODIFY_OR_DELETE";
 
     private ErrorConstants() {
     }

@@ -211,4 +211,14 @@ public class CommentDaoImpl implements CommentDao {
         commentThreadRepository.save(commentThread);
         commentRepository.delete(theComment);
     }
+
+    @Transactional
+    public boolean commentHasNoChildren(Comment comment) {
+        Comment parentComment = commentRepository.findByParentComment(comment);
+        if (parentComment != null) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 }

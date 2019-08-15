@@ -106,4 +106,9 @@ public class CommentServiceImpl implements CommentService {
     public void deleteComment(Comment comment) {
         commentDao.deleteComment(comment);
     }
+
+    @Transactional
+    public boolean commentHasNoChildren(Comment comment) {
+        return commentDao.commentHasNoChildren(comment);
+    }
 }

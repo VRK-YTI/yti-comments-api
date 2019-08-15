@@ -22,6 +22,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.glassfish.jersey.jackson.internal.jackson.jaxrs.cfg.ObjectWriterInjector;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import fi.vm.yti.comments.api.dao.CommentDao;
@@ -34,8 +35,10 @@ import fi.vm.yti.comments.api.dto.OrganizationDTO;
 import fi.vm.yti.comments.api.entity.Comment;
 import fi.vm.yti.comments.api.entity.CommentRound;
 import fi.vm.yti.comments.api.entity.CommentThread;
+import fi.vm.yti.comments.api.error.ErrorModel;
 import fi.vm.yti.comments.api.exception.NotFoundException;
 import fi.vm.yti.comments.api.exception.UnauthorizedException;
+import fi.vm.yti.comments.api.exception.YtiCommentsException;
 import fi.vm.yti.comments.api.export.ExportService;
 import fi.vm.yti.comments.api.parser.CommentParser;
 import fi.vm.yti.comments.api.parser.CommentRoundParser;
@@ -51,6 +54,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import static fi.vm.yti.comments.api.constants.ApiConstants.*;
+import static fi.vm.yti.comments.api.exception.ErrorConstants.ERR_MSG_USER_OTHER_USER_ALREADY_RESPONDED_TO_THIS_COMMENT_CANT_MODIFY_OR_DELETE;
 
 @Component
 @Path("/v1/commentrounds")
@@ -447,16 +451,20 @@ public class CommentRoundResource implements AbstractBaseResource {
                                                            @ApiParam(value = "Comment UUID.", required = true) @PathParam("commentId") final UUID commentId,
                                                            @ApiParam(value = "JSON playload for commentRound data.", required = true) final String jsonPayload) {
         final Comment comment = commentDao.findById(commentId);
-        if (authorizationManager.canUserModifyComment(comment)) {
-            ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENT, FILTER_NAME_COMMENTTHREAD + "," + FILTER_NAME_COMMENTROUND)));
-            final CommentDTO commentDto = commentService.addOrUpdateCommentFromDto(commentRoundId, commentThreadId, commentParser.parseCommentFromJson(jsonPayload));
-            if (commentDto != null) {
-                return Response.ok(commentDto).build();
-            } else {
-                throw new NotFoundException();
-            }
-        } else {
+        boolean problemWithAuth = !authorizationManager.canUserDeleteComment(comment);
+        boolean problemWithConcurrentModification = !commentService.commentHasNoChildren(comment.getParentComment());
+        if (problemWithAuth) {
             throw new UnauthorizedException();
+        }
+        if (problemWithConcurrentModification) {
+            throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), ERR_MSG_USER_OTHER_USER_ALREADY_RESPONDED_TO_THIS_COMMENT_CANT_MODIFY_OR_DELETE));
+        }
+        ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENT, FILTER_NAME_COMMENTTHREAD + "," + FILTER_NAME_COMMENTROUND)));
+        final CommentDTO commentDto = commentService.addOrUpdateCommentFromDto(commentRoundId, commentThreadId, commentParser.parseCommentFromJson(jsonPayload));
+        if (commentDto != null) {
+            return Response.ok(commentDto).build();
+        } else {
+            throw new NotFoundException();
         }
     }
 
@@ -529,12 +537,14 @@ public class CommentRoundResource implements AbstractBaseResource {
                                                            @ApiParam(value = "Comment UUID.", required = true) @PathParam("commentId") final UUID commentId) {
         final Comment existingComment = commentDao.findById(commentId);
         if (existingComment != null) {
-            if (authorizationManager.canUserDeleteComment(existingComment)) {
-                commentService.deleteComment(existingComment);
-            } else {
+            boolean problemWithAuth = !authorizationManager.canUserDeleteComment(existingComment);
+            boolean problemWithConcurrentModification = !commentService.commentHasNoChildren(existingComment.getParentComment());
+            if (problemWithAuth) {
                 throw new UnauthorizedException();
             }
-
+            if (problemWithConcurrentModification) {
+                throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), ERR_MSG_USER_OTHER_USER_ALREADY_RESPONDED_TO_THIS_COMMENT_CANT_MODIFY_OR_DELETE));
+            }
         } else {
             throw new NotFoundException();
         }

@@ -29,4 +29,6 @@ public interface CommentService {
                                                 final Set<CommentDTO> fromComments);
 
     void deleteComment(Comment comment);
+
+    boolean commentHasNoChildren(Comment comment);
 }
