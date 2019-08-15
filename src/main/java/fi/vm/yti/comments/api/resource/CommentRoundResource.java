@@ -452,7 +452,7 @@ public class CommentRoundResource implements AbstractBaseResource {
                                                            @ApiParam(value = "JSON playload for commentRound data.", required = true) final String jsonPayload) {
         final Comment comment = commentDao.findById(commentId);
         boolean problemWithAuth = !authorizationManager.canUserDeleteComment(comment);
-        boolean problemWithConcurrentModification = !commentService.commentHasNoChildren(comment.getParentComment());
+        boolean problemWithConcurrentModification = !commentService.commentHasNoChildren(comment);
         if (problemWithAuth) {
             throw new UnauthorizedException();
         }
@@ -538,13 +538,14 @@ public class CommentRoundResource implements AbstractBaseResource {
         final Comment existingComment = commentDao.findById(commentId);
         if (existingComment != null) {
             boolean problemWithAuth = !authorizationManager.canUserDeleteComment(existingComment);
-            boolean problemWithConcurrentModification = !commentService.commentHasNoChildren(existingComment.getParentComment());
+            boolean problemWithConcurrentModification = !commentService.commentHasNoChildren(existingComment);
             if (problemWithAuth) {
                 throw new UnauthorizedException();
             }
             if (problemWithConcurrentModification) {
                 throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), ERR_MSG_USER_OTHER_USER_ALREADY_RESPONDED_TO_THIS_COMMENT_CANT_MODIFY_OR_DELETE));
             }
+            commentService.deleteComment(existingComment);
         } else {
             throw new NotFoundException();
         }

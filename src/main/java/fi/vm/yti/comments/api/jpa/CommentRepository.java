@@ -28,5 +28,5 @@ public interface CommentRepository extends PagingAndSortingRepository<Comment, S
 
     Set<Comment> findAll();
 
-    Comment findByParentComment(final Comment comment);
+    Set<Comment> findByParentComment(final Comment comment);
 }

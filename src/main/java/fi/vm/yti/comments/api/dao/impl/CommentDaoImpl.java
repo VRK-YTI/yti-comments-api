@@ -206,16 +206,16 @@ public class CommentDaoImpl implements CommentDao {
     @Transactional
     public void deleteComment(final Comment comment) {
         Comment theComment = commentRepository.findById(comment.getId());
-        CommentThread commentThread = commentThreadRepository.findById(theComment.getCommentThread().getId());
+        /*CommentThread commentThread = commentThreadRepository.findById(theComment.getCommentThread().getId());
         commentThread.getComments().remove(theComment);
-        commentThreadRepository.save(commentThread);
+        commentThreadRepository.save(commentThread);*/
         commentRepository.delete(theComment);
     }
 
     @Transactional
     public boolean commentHasNoChildren(Comment comment) {
-        Comment parentComment = commentRepository.findByParentComment(comment);
-        if (parentComment != null) {
+        Set<Comment> parentComments = commentRepository.findByParentComment(comment);
+        if (!parentComments.isEmpty()) {
             return false;
         } else {
             return true;
