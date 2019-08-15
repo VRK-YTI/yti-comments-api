@@ -89,7 +89,7 @@ public class AuthorizationManagerImpl implements AuthorizationManager {
     public boolean canUserAddCommentsToCommentRound(final CommentRound commentRound) {
         final YtiUser user = userProvider.getUser();
         final Collection<UUID> organizationIds = commentRound.getOrganizations().stream().map(AbstractIdentifyableEntity::getId).collect(Collectors.toList());
-        return user.isSuperuser() || (user.isInAnyRole(EnumSet.of(ADMIN, CODE_LIST_EDITOR, TERMINOLOGY_EDITOR, DATA_MODEL_EDITOR), organizationIds) && STATUS_INPROGRESS.equalsIgnoreCase(commentRound.getStatus()));
+        return user.isSuperuser() || (user.isInAnyRole(EnumSet.of(ADMIN, CODE_LIST_EDITOR, TERMINOLOGY_EDITOR, DATA_MODEL_EDITOR, MEMBER), organizationIds) && STATUS_INPROGRESS.equalsIgnoreCase(commentRound.getStatus()));
     }
 
     public boolean canUserAddCommentThreadsToCommentRound(final CommentRound commentRound) {
