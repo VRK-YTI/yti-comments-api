@@ -97,7 +97,7 @@ public class AuthorizationManagerImpl implements AuthorizationManager {
         final Collection<UUID> organizationIds = commentRound.getOrganizations().stream().map(AbstractIdentifyableEntity::getId).collect(Collectors.toList());
         return user.isSuperuser() ||
             (user.getId().equals(commentRound.getUserId()) && STATUS_INCOMPLETE.equalsIgnoreCase(commentRound.getStatus())) ||
-            ((user.getId().equals(commentRound.getUserId()) || user.isInAnyRole(EnumSet.of(ADMIN, CODE_LIST_EDITOR, TERMINOLOGY_EDITOR, DATA_MODEL_EDITOR), organizationIds)) &&
+            ((user.getId().equals(commentRound.getUserId()) || user.isInAnyRole(EnumSet.of(ADMIN, CODE_LIST_EDITOR, TERMINOLOGY_EDITOR, DATA_MODEL_EDITOR, MEMBER), organizationIds)) &&
                 (STATUS_INPROGRESS.equalsIgnoreCase(commentRound.getStatus()) && !commentRound.getFixedThreads()));
     }
 }
