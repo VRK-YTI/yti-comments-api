@@ -213,9 +213,10 @@ public class CommentDaoImpl implements CommentDao {
     }
 
     @Transactional
-    public boolean commentHasNoChildren(Comment comment) {
-        Set<Comment> parentComments = commentRepository.findByParentComment(comment);
-        if (!parentComments.isEmpty()) {
+    public boolean commentHasChildren(Comment comment) {
+        Comment theComment = commentRepository.findById(comment.getId());
+        Set<Comment> childComments = commentRepository.findByParentComment(theComment);
+        if (childComments.isEmpty()) {
             return false;
         } else {
             return true;

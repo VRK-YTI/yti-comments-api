@@ -30,5 +30,5 @@ public interface CommentService {
 
     void deleteComment(Comment comment);
 
-    boolean commentHasNoChildren(Comment comment);
+    boolean commentHasChildren(Comment comment);
 }

@@ -32,5 +32,5 @@ public interface CommentDao {
 
     void deleteComment(final Comment comment);
 
-    boolean commentHasNoChildren(Comment comment);
+    boolean commentHasChildren(Comment comment);
 }

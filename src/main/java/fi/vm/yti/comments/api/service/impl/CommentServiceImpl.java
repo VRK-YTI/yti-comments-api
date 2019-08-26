@@ -108,7 +108,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Transactional
-    public boolean commentHasNoChildren(Comment comment) {
-        return commentDao.commentHasNoChildren(comment);
+    public boolean commentHasChildren(Comment comment) {
+        return commentDao.commentHasChildren(comment);
     }
 }
