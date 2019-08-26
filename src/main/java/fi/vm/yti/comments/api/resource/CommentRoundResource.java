@@ -297,9 +297,10 @@ public class CommentRoundResource implements AbstractBaseResource {
     })
     @Transactional
     public Response createOrUpdateCommentRounds(@ApiParam(value = "JSON playload for commentRound data.", required = true) final String jsonPayload,
+                                                @ApiParam(value = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
                                                 @ApiParam(value = "Remove orphan CommentThread objects") @QueryParam("removeCommentThreadOrphans") @DefaultValue("false") final boolean removeCommentThreadOrphans) {
         if (authorizationManager.canUserAddCommentRound()) {
-            ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTROUND, FILTER_NAME_COMMENTTHREAD)));
+            ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTROUND, expand)));
             final Set<CommentRoundDTO> commentRoundDtos = commentRoundService.addOrUpdateCommentRoundsFromDtos(commentRoundParser.parseCommentRoundsFromJson(jsonPayload), removeCommentThreadOrphans);
             return createResponse("CommentRounds", MESSAGE_TYPE_ADDED_OR_MODIFIED, commentRoundDtos);
         } else {
@@ -319,12 +320,13 @@ public class CommentRoundResource implements AbstractBaseResource {
     @Transactional
     @Path("{commentRoundId}")
     public Response updateCommentRound(@ApiParam(value = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
+                                       @ApiParam(value = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
                                        @ApiParam(value = "Remove orphan CommentThread objects") @QueryParam("removeCommentThreadOrphans") @DefaultValue("false") final boolean removeCommentThreadOrphans,
                                        @ApiParam(value = "JSON playload for CommentRound data.", required = true) final String jsonPayload) {
         final CommentRound commentRound = commentRoundDao.findById(commentRoundId);
         if (commentRound != null) {
             if (authorizationManager.canUserModifyCommentRound(commentRound)) {
-                ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTROUND, FILTER_NAME_COMMENTTHREAD)));
+                ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTROUND, expand)));
                 final CommentRoundDTO commentRoundDto = commentRoundService.addOrUpdateCommentRoundFromDto(commentRoundParser.parseCommentRoundFromJson(jsonPayload), removeCommentThreadOrphans);
                 if (commentRoundDto != null) {
                     return Response.ok(commentRoundDto).build();
@@ -350,10 +352,11 @@ public class CommentRoundResource implements AbstractBaseResource {
     @Transactional
     @Path("{commentRoundId}/comments")
     public Response createOrUpdateCommentRoundComments(@ApiParam(value = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
+                                                       @ApiParam(value = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
                                                        @ApiParam(value = "JSON playload for commentRound commentThread data.", required = true) final String jsonPayload) {
         final CommentRound commentRound = commentRoundDao.findById(commentRoundId);
         if (authorizationManager.canUserAddCommentsToCommentRound(commentRound)) {
-            ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENT, FILTER_NAME_COMMENTTHREAD + "," + FILTER_NAME_COMMENTROUND)));
+            ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENT, expand)));
             final Set<CommentDTO> commentDtos = commentService.addOrUpdateCommentsFromDtos(commentRoundId, commentParser.parseCommentsFromJson(jsonPayload));
             return createResponse("Comments", MESSAGE_TYPE_ADDED_OR_MODIFIED, commentDtos);
         } else {
@@ -372,11 +375,12 @@ public class CommentRoundResource implements AbstractBaseResource {
     @Transactional
     @Path("{commentRoundId}/commentthreads")
     public Response createOrUpdateCommentRoundCommentThreads(@ApiParam(value = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
+                                                             @ApiParam(value = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
                                                              @ApiParam(value = "Remove orphans") @QueryParam("removeOrphans") @DefaultValue("false") final boolean removeOrphans,
                                                              @ApiParam(value = "JSON playload for commentRound commentThread data.", required = true) final String jsonPayload) {
         final CommentRound commentRound = commentRoundDao.findById(commentRoundId);
         if (authorizationManager.canUserAddCommentThreadsToCommentRound(commentRound)) {
-            ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTTHREAD, FILTER_NAME_COMMENT)));
+            ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTTHREAD, expand)));
             final Set<CommentThreadDTO> commentThreadDtos = commentThreadService.addOrUpdateCommentThreadsFromDtos(commentRoundId, commentThreadParser.parseCommentThreadsFromJson(jsonPayload), removeOrphans);
             final Set<CommentThreadDTO> sortedThreads = commentThreadDtos.stream().sorted(Comparator.comparing(CommentThreadDTO::getResourceUri, Comparator.nullsLast(Comparator.reverseOrder()))).collect(Collectors.toCollection(LinkedHashSet::new));
             return createResponse("CommentThreads", MESSAGE_TYPE_ADDED_OR_MODIFIED, sortedThreads);
@@ -398,9 +402,10 @@ public class CommentRoundResource implements AbstractBaseResource {
     @Path("{commentRoundId}/commentthreads/{commentThreadId}")
     public Response updateCommentRoundCommentThread(@ApiParam(value = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
                                                     @ApiParam(value = "CommentThread UUID.", required = true) @PathParam("commentThreadId") final UUID commentThreadId,
+                                                    @ApiParam(value = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
                                                     @ApiParam(value = "JSON playload for commentRound data.", required = true) final String jsonPayload) {
         if (authorizationManager.isSuperUser()) {
-            ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTTHREAD, FILTER_NAME_COMMENT)));
+            ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTTHREAD, expand)));
             final CommentThreadDTO commentThread = commentThreadService.addOrUpdateCommentThreadFromDto(commentRoundId, commentThreadParser.parseCommentThreadFromJson(jsonPayload));
             if (commentThread != null) {
                 return Response.ok(commentThread).build();
@@ -424,10 +429,11 @@ public class CommentRoundResource implements AbstractBaseResource {
     @Path("{commentRoundId}/commentthreads/{commentThreadId}/comments")
     public Response createOrUpdateCommentRoundCommentThreadsComments(@ApiParam(value = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
                                                                      @ApiParam(value = "CommentThread UUID.", required = true) @PathParam("commentThreadId") final UUID commentThreadId,
+                                                                     @ApiParam(value = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
                                                                      @ApiParam(value = "JSON playload for commentRound commentThread data.", required = true) final String jsonPayload) {
         final CommentRound commentRound = commentRoundDao.findById(commentRoundId);
         if (authorizationManager.canUserAddCommentsToCommentRound(commentRound)) {
-            ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENT, FILTER_NAME_COMMENTTHREAD + "," + FILTER_NAME_COMMENTROUND)));
+            ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENT, expand)));
             final Set<CommentDTO> commentDtos = commentService.addOrUpdateCommentsFromDtos(commentRoundId, commentThreadId, commentParser.parseCommentsFromJson(jsonPayload));
             return createResponse("Comments", MESSAGE_TYPE_ADDED_OR_MODIFIED, commentDtos);
         } else {
@@ -449,6 +455,7 @@ public class CommentRoundResource implements AbstractBaseResource {
     public Response updateCommentRoundCommentThreadComment(@ApiParam(value = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
                                                            @ApiParam(value = "CommentThread UUID.", required = true) @PathParam("commentThreadId") final UUID commentThreadId,
                                                            @ApiParam(value = "Comment UUID.", required = true) @PathParam("commentId") final UUID commentId,
+                                                           @ApiParam(value = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
                                                            @ApiParam(value = "JSON playload for commentRound data.", required = true) final String jsonPayload) {
         final Comment comment = commentDao.findById(commentId);
         boolean problemWithAuth = !authorizationManager.canUserDeleteComment(comment);
@@ -459,7 +466,7 @@ public class CommentRoundResource implements AbstractBaseResource {
         if (problemWithConcurrentModification) {
             throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), ERR_MSG_USER_OTHER_USER_ALREADY_RESPONDED_TO_THIS_COMMENT_CANT_MODIFY_OR_DELETE));
         }
-        ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENT, FILTER_NAME_COMMENTTHREAD + "," + FILTER_NAME_COMMENTROUND)));
+        ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENT, expand)));
         final CommentDTO commentDto = commentService.addOrUpdateCommentFromDto(commentRoundId, commentThreadId, commentParser.parseCommentFromJson(jsonPayload));
         if (commentDto != null) {
             return Response.ok(commentDto).build();
