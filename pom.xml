@@ -409,7 +409,7 @@
                     <portPropertyFile>target/test-classes/test-port.properties</portPropertyFile>
                     <images>
                         <image>
-                            <name>yti-postgres:latest</name>
+                            <name>yti-postgres:dev</name>
                             <alias>${project.artifactId}_test_postgres</alias>
                             <run>
                                 <namingStrategy>alias</namingStrategy>
