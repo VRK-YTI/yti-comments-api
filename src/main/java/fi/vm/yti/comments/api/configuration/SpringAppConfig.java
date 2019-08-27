@@ -29,7 +29,7 @@ import com.zaxxer.hikari.HikariDataSource;
 @PropertySource(value = "classpath", ignoreResourceNotFound = true)
 public class SpringAppConfig {
 
-    private static final int CONNECTION_TIMEOUT = 30000;
+    private static final int CONNECTION_TIMEOUT = 180000;
 
     @Value(value = "${application.contextPath}")
     private String contextPath;
