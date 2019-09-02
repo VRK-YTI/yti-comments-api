@@ -12,9 +12,7 @@ import org.springframework.stereotype.Component;
 
 import fi.vm.yti.comments.api.dao.CommentRoundDao;
 import fi.vm.yti.comments.api.entity.CommentRound;
-import static fi.vm.yti.comments.api.constants.ApiConstants.STATUS_AWAIT;
-import static fi.vm.yti.comments.api.constants.ApiConstants.STATUS_ENDED;
-import static fi.vm.yti.comments.api.constants.ApiConstants.STATUS_INPROGRESS;
+import static fi.vm.yti.comments.api.constants.ApiConstants.*;
 
 @Component
 public class CommentRoundScheduler {
@@ -47,7 +45,12 @@ public class CommentRoundScheduler {
     }
 
     private void updateStarting() {
-        final Set<CommentRound> commentRounds = commentRoundDao.findByStatusAndStartDateAfter(STATUS_AWAIT, LocalDate.now());
+        startRounds(STATUS_INCOMPLETE);
+        startRounds(STATUS_AWAIT);
+    }
+
+    private void startRounds(final String status) {
+        final Set<CommentRound> commentRounds = commentRoundDao.findByStatusAndStartDateAfter(status, LocalDate.now());
         commentRounds.forEach(commentRound -> {
             commentRound.setStatus(STATUS_INPROGRESS);
             commentRound.setModified(LocalDateTime.now());
