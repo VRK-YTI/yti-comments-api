@@ -19,7 +19,6 @@ public abstract class ApiConstants {
     public static final String GROUPMANAGEMENT_API_CONTEXT_PATH = "public-api";
     public static final String GROUPMANAGEMENT_API_PRIVATE_CONTEXT_PATH = "private-api";
     public static final String GROUPMANAGEMENT_API_USERS = "users";
-    public static final String GROUPMANAGEMENT_API_REQUEST = "request";
     public static final String GROUPMANAGEMENT_API_REQUESTS = "requests";
     public static final String GROUPMANAGEMENT_API_ORGANIZATIONS = "organizations";
     public static final String FILTER_NAME_COMMENT = "comment";
