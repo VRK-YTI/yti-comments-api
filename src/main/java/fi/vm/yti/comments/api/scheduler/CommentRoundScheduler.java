@@ -1,5 +1,6 @@
 package fi.vm.yti.comments.api.scheduler;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -41,7 +42,7 @@ public class CommentRoundScheduler {
         final Set<CommentRound> commentRounds = commentRoundDao.findByStatusAndStartDateAfter(currentStatus, LocalDate.now());
         commentRounds.forEach(commentRound -> {
             commentRound.setStatus(endStatus);
-            commentRound.setModified(LocalDateTime.now());
+            commentRound.setModified(LocalDateTime.now(Clock.systemUTC()));
         });
         commentRoundDao.saveAll(commentRounds);
     }
