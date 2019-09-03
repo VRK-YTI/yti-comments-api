@@ -95,7 +95,7 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
                                                                 final boolean removeOrphans) {
         final Set<CommentThread> commentThreads = new HashSet<>();
         if (fromCommentThreads != null) {
-            fromCommentThreads.forEach(fromCommentThread -> commentThreads.add(createCommentThread(commentRound, fromCommentThread)));
+            fromCommentThreads.forEach(fromCommentThread -> commentThreads.add(createOrUpdateCommentThread(commentRound, fromCommentThread)));
         }
         if (removeOrphans && ApiConstants.STATUS_INCOMPLETE.equalsIgnoreCase(commentRound.getStatus())) {
             final Set<CommentThread> existingCommentThreads = commentRound.getCommentThreads();

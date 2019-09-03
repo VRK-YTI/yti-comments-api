@@ -12,9 +12,7 @@ import org.springframework.stereotype.Component;
 
 import fi.vm.yti.comments.api.dao.CommentRoundDao;
 import fi.vm.yti.comments.api.entity.CommentRound;
-import static fi.vm.yti.comments.api.constants.ApiConstants.STATUS_AWAIT;
-import static fi.vm.yti.comments.api.constants.ApiConstants.STATUS_ENDED;
-import static fi.vm.yti.comments.api.constants.ApiConstants.STATUS_INPROGRESS;
+import static fi.vm.yti.comments.api.constants.ApiConstants.*;
 
 @Component
 public class CommentRoundScheduler {
@@ -26,30 +24,23 @@ public class CommentRoundScheduler {
         this.commentRoundDao = commentRoundDao;
     }
 
-    @Scheduled(cron = "1 0 * * * *")
+    @Scheduled(cron = "1 0 * * * *", zone = "Europe/Helsinki")
     public void updateCommentRoundStatuses() {
         updateStatuses();
     }
 
     @Transactional
     public void updateStatuses() {
-        updateEnding();
-        updateStarting();
+        startRounds(STATUS_INPROGRESS, STATUS_ENDED);
+        startRounds(STATUS_AWAIT, STATUS_INPROGRESS);
+        startRounds(STATUS_INCOMPLETE, STATUS_INPROGRESS);
     }
 
-    private void updateEnding() {
-        final Set<CommentRound> commentRounds = commentRoundDao.findByStatusAndEndDateBefore(STATUS_INPROGRESS, LocalDate.now());
+    private void startRounds(final String currentStatus,
+                             final String endStatus) {
+        final Set<CommentRound> commentRounds = commentRoundDao.findByStatusAndStartDateAfter(currentStatus, LocalDate.now());
         commentRounds.forEach(commentRound -> {
-            commentRound.setStatus(STATUS_ENDED);
-            commentRound.setModified(LocalDateTime.now());
-        });
-        commentRoundDao.saveAll(commentRounds);
-    }
-
-    private void updateStarting() {
-        final Set<CommentRound> commentRounds = commentRoundDao.findByStatusAndStartDateAfter(STATUS_AWAIT, LocalDate.now());
-        commentRounds.forEach(commentRound -> {
-            commentRound.setStatus(STATUS_INPROGRESS);
+            commentRound.setStatus(endStatus);
             commentRound.setModified(LocalDateTime.now());
         });
         commentRoundDao.saveAll(commentRounds);
