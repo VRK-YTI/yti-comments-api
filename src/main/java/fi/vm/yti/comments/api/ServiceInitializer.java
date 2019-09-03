@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.inject.Inject;
 
@@ -61,11 +62,17 @@ public class ServiceInitializer implements ApplicationRunner {
 
     public void initialize() {
         printLogo();
+        printTimeZone();
         updateSwaggerHost();
         LOG.info("*** Updating organizations. ***");
         organizationUpdater.updateOrganizations();
         LOG.info("*** Updating users. ***");
         userService.updateUsers();
+    }
+
+    private void printTimeZone() {
+        // TODO: Remove this debug used for testing purposes.
+        LOG.debug("Timezone information for Europe/Helsinki: " + TimeZone.getTimeZone("Europe/Helsinki"));
     }
 
     public void printLogo() {
