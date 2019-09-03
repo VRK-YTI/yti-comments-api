@@ -72,7 +72,7 @@ public class ServiceInitializer implements ApplicationRunner {
 
     private void printTimeZone() {
         // TODO: Remove this debug used for testing purposes.
-        LOG.debug("Timezone information for Europe/Helsinki: " + TimeZone.getTimeZone("Europe/Helsinki"));
+        LOG.info("Timezone information for Europe/Helsinki: " + TimeZone.getTimeZone("Europe/Helsinki"));
     }
 
     public void printLogo() {
