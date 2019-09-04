@@ -32,14 +32,19 @@ public class CommentRoundScheduler {
 
     @Transactional
     public void updateStatuses() {
-        startRounds(STATUS_INPROGRESS, STATUS_ENDED);
-        startRounds(STATUS_AWAIT, STATUS_INPROGRESS);
-        startRounds(STATUS_INCOMPLETE, STATUS_INPROGRESS);
+        changeRoundStatuses(STATUS_INPROGRESS, STATUS_ENDED);
+        changeRoundStatuses(STATUS_AWAIT, STATUS_INPROGRESS);
+        changeRoundStatuses(STATUS_INCOMPLETE, STATUS_INPROGRESS);
     }
 
-    private void startRounds(final String currentStatus,
-                             final String endStatus) {
-        final Set<CommentRound> commentRounds = commentRoundDao.findByStatusAndStartDateAfter(currentStatus, LocalDate.now());
+    private void changeRoundStatuses(final String currentStatus,
+                                     final String endStatus) {
+        final Set<CommentRound> commentRounds;
+        if (endStatus.equalsIgnoreCase(STATUS_ENDED)) {
+            commentRounds = commentRoundDao.findByStatusAndEndDateBefore(currentStatus, LocalDate.now());
+        } else {
+            commentRounds = commentRoundDao.findByStatusAndStartDateAfter(currentStatus, LocalDate.now());
+        }
         commentRounds.forEach(commentRound -> {
             commentRound.setStatus(endStatus);
             commentRound.setModified(LocalDateTime.now(Clock.systemUTC()));
