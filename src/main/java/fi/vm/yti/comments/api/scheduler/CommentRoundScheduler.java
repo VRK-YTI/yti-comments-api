@@ -1,8 +1,8 @@
 package fi.vm.yti.comments.api.scheduler;
 
-import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -47,7 +47,7 @@ public class CommentRoundScheduler {
         }
         commentRounds.forEach(commentRound -> {
             commentRound.setStatus(endStatus);
-            commentRound.setModified(LocalDateTime.now(Clock.systemUTC()));
+            commentRound.setModified(LocalDateTime.now(ZoneOffset.UTC));
         });
         commentRoundDao.saveAll(commentRounds);
     }
