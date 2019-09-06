@@ -8,6 +8,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -53,7 +54,7 @@ public class DatamodelProxyResource implements AbstractIntegrationResource {
         if (user.isAnonymous()) {
             throw new UnauthorizedException();
         }
-        return fetchIntegrationContainerData(createDatamodelContainerApiUrl(), restTemplate);
+        return fetchIntegrationContainerData(createDatamodelContainerApiUrl(), restTemplate, HttpMethod.GET);
     }
 
     @GET
@@ -67,7 +68,7 @@ public class DatamodelProxyResource implements AbstractIntegrationResource {
             throw new UnauthorizedException();
         }
         if (container != null && !container.isEmpty()) {
-            return fetchIntegrationResourceData(createDatamodelResourcesApiUrl(container), restTemplate);
+            return fetchIntegrationResourceData(createDatamodelResourcesApiUrl(container), restTemplate, HttpMethod.GET);
         } else {
             throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), ERR_MSG_USER_406));
         }

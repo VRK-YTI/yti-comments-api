@@ -8,6 +8,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -54,7 +55,7 @@ public class TerminologyProxyResource implements AbstractIntegrationResource {
             throw new UnauthorizedException();
         }
         final String requestUrl = createTerminologyContainerApiUrl();
-        return fetchIntegrationResources(requestUrl, "Containers", restTemplate);
+        return fetchIntegrationResources(requestUrl, "Containers", restTemplate, HttpMethod.GET, null);
     }
 
     @GET
@@ -68,7 +69,7 @@ public class TerminologyProxyResource implements AbstractIntegrationResource {
             throw new UnauthorizedException();
         }
         if (container != null && !container.isEmpty()) {
-            return fetchIntegrationResources(createTerminologyResourcesApiUrl(container), "Containers", restTemplate);
+            return fetchIntegrationResources(createTerminologyResourcesApiUrl(container), "Containers", restTemplate, HttpMethod.GET, null);
         } else {
             throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), ERR_MSG_USER_406));
         }
