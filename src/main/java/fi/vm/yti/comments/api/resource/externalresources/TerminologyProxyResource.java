@@ -2,6 +2,7 @@ package fi.vm.yti.comments.api.resource.externalresources;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -58,7 +59,7 @@ public class TerminologyProxyResource implements AbstractIntegrationResource {
         return fetchIntegrationResources(requestUrl, "Containers", restTemplate, HttpMethod.GET, null);
     }
 
-    @GET
+    @POST
     @Path("/resources")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @ApiOperation(value = "Get Resources from the Terminology API.")

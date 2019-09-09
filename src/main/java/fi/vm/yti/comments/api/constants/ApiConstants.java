@@ -2,7 +2,7 @@ package fi.vm.yti.comments.api.constants;
 
 public abstract class ApiConstants {
 
-    public static final String API_VERSION = "v1";
+    public static final String API_VERSION_V1 = "v1";
     public static final String API_CONTEXT_PATH = "comments-api";
     public static final String API_BASE_PATH = "api";
     public static final String API_PATH_COMMENTS = "comments";
@@ -10,10 +10,10 @@ public abstract class ApiConstants {
     public static final String API_PATH_THREADS = "threads";
     public static final String API_PATH_COMMENTROUNDS = "commentrounds";
     public static final String CODELIST_API_CONTEXT_PATH = "codelist-api";
+    public static final String DATAMODEL_API_CONTEXT_PATH = "datamodel";
     public static final String CODELIST_API_PATH = "api";
     public static final String CODELIST_API_VERSION = "v1";
     public static final String API_INTEGRATION = "integration";
-    public static final String API_REST = "rest";
     public static final String API_CONTAINERS = "containers";
     public static final String API_RESOURCES = "resources";
     public static final String GROUPMANAGEMENT_API_CONTEXT_PATH = "public-api";

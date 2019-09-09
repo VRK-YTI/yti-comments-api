@@ -2,6 +2,7 @@ package fi.vm.yti.comments.api.resource.externalresources;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -57,7 +58,7 @@ public class DatamodelProxyResource implements AbstractIntegrationResource {
         return fetchIntegrationContainerData(createDatamodelContainerApiUrl(), restTemplate, HttpMethod.GET);
     }
 
-    @GET
+    @POST
     @Path("/resources")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @ApiOperation(value = "Get Resources from the Datamodel API.")
@@ -75,10 +76,10 @@ public class DatamodelProxyResource implements AbstractIntegrationResource {
     }
 
     private String createDatamodelContainerApiUrl() {
-        return datamodelProperties.getUrl() + "/" + API_BASE_PATH + "/" + API_REST + "/" + API_INTEGRATION + "/" + API_CONTAINERS;
+        return datamodelProperties.getUrl() + "/" + DATAMODEL_API_CONTEXT_PATH + "/" + API_BASE_PATH + "/" + API_VERSION_V1 + "/" + API_INTEGRATION + "/" + API_CONTAINERS;
     }
 
     private String createDatamodelResourcesApiUrl(final String container) {
-        return datamodelProperties.getUrl() + "/" + API_BASE_PATH + "/" + API_REST + "/" + API_INTEGRATION + "/" + API_RESOURCES + "/?container=" + container;
+        return datamodelProperties.getUrl() + "/" + DATAMODEL_API_CONTEXT_PATH + "/" + API_BASE_PATH + "/" + API_VERSION_V1 + "/" + API_INTEGRATION + "/" + API_RESOURCES + "/?container=" + container;
     }
 }

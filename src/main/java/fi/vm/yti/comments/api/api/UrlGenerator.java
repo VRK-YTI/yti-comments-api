@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import fi.vm.yti.comments.api.configuration.CommentsApiConfiguration;
 import static fi.vm.yti.comments.api.constants.ApiConstants.API_BASE_PATH;
-import static fi.vm.yti.comments.api.constants.ApiConstants.API_VERSION;
+import static fi.vm.yti.comments.api.constants.ApiConstants.API_VERSION_V1;
 
 @Component
 public class UrlGenerator {
@@ -27,7 +27,7 @@ public class UrlGenerator {
         builder.append("/");
         builder.append(API_BASE_PATH);
         builder.append("/");
-        builder.append(API_VERSION);
+        builder.append(API_VERSION_V1);
         builder.append("/");
         builder.append(apiPath);
         builder.append("/");
