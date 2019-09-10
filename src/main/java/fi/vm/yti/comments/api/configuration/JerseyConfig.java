@@ -22,6 +22,7 @@ import fi.vm.yti.comments.api.resource.OrganizationResource;
 import fi.vm.yti.comments.api.resource.PingResource;
 import fi.vm.yti.comments.api.resource.SourceResource;
 import fi.vm.yti.comments.api.resource.SwaggerResource;
+import fi.vm.yti.comments.api.resource.SystemResource;
 import fi.vm.yti.comments.api.resource.externalresources.CodelistProxyResource;
 import fi.vm.yti.comments.api.resource.externalresources.DatamodelProxyResource;
 import fi.vm.yti.comments.api.resource.externalresources.GroupManagementProxyResource;
@@ -77,6 +78,9 @@ public class JerseyConfig extends ResourceConfig {
 
         // Logging
         register(RequestLoggingFilter.class);
+
+        // System
+        register(SystemResource.class);
 
         // Ping test API
         register(PingResource.class);
