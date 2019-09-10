@@ -94,9 +94,9 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
     }
 
     @Transactional
-    public Set<CommentRound> findByStatusAndStartDateAfter(final String status,
-                                                           final LocalDate now) {
-        return commentRoundRepository.findByStatusAndStartDateAfter(status, now);
+    public Set<CommentRound> findByStatusAndStartDateLessThanEqual(final String status,
+                                                                   final LocalDate now) {
+        return commentRoundRepository.findByStatusAndStartDateLessThanEqual(status, now);
     }
 
     @Transactional
