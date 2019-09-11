@@ -75,9 +75,8 @@ public class CodelistProxyResource implements AbstractIntegrationResource {
                                  @ApiParam(value = "Pagination parameter for start index.") @QueryParam("from") @DefaultValue("0") final Integer from,
                                  @ApiParam(value = "Status enumerations in CSL format.") @QueryParam("status") final String status,
                                  @ApiParam(value = "After date filtering parameter, results will be codes with modified date after this ISO 8601 formatted date string.") @QueryParam("after") final String after,
-                                 @ApiParam(value = "Search term used to filter results based on partial prefLabel match.") @QueryParam("searchTerm") final String searchTerm,
-                                 @ApiParam(value = "Include pagination related meta element and wrap response items in bulk array.") @QueryParam("includeMeta") @DefaultValue("false") final boolean includeMeta) {
-        return fetchResources(container, language, pageSize, from, status, after, searchTerm, includeMeta, null, HttpMethod.GET);
+                                 @ApiParam(value = "Search term used to filter results based on partial prefLabel match.") @QueryParam("searchTerm") final String searchTerm) {
+        return fetchResources(container, language, pageSize, from, status, after, searchTerm, null, HttpMethod.GET);
     }
 
     @POST
@@ -92,10 +91,8 @@ public class CodelistProxyResource implements AbstractIntegrationResource {
                                  @ApiParam(value = "Status enumerations in CSL format.") @QueryParam("status") final String status,
                                  @ApiParam(value = "After date filtering parameter, results will be codes with modified date after this ISO 8601 formatted date string.") @QueryParam("after") final String after,
                                  @ApiParam(value = "Search term used to filter results based on partial prefLabel match.") @QueryParam("searchTerm") final String searchTerm,
-                                 @ApiParam(value = "Include pagination related meta element and wrap response items in bulk array.") @QueryParam("includeMeta") @DefaultValue("false") final boolean includeMeta,
-                                 @ApiParam(value = "A set of resource URIs in CSL format to be excluded from the results.") @RequestBody final String excludedResourceUris
-    ) {
-        return fetchResources(container, language, pageSize, from, status, after, searchTerm, includeMeta, excludedResourceUris, HttpMethod.POST);
+                                 @ApiParam(value = "A set of resource URIs in CSL format to be excluded from the results.") @RequestBody final String excludedResourceUris) {
+        return fetchResources(container, language, pageSize, from, status, after, searchTerm, excludedResourceUris, HttpMethod.POST);
     }
 
     private Response fetchResources(String container,
@@ -105,7 +102,6 @@ public class CodelistProxyResource implements AbstractIntegrationResource {
                                     String status,
                                     String after,
                                     String searchTerm,
-                                    boolean includeMeta,
                                     String excludedResourceUris,
                                     HttpMethod httpMethod) {
         final YtiUser user = authenticatedUserProvider.getUser();
@@ -130,7 +126,6 @@ public class CodelistProxyResource implements AbstractIntegrationResource {
             if (searchTerm != null && !searchTerm.isEmpty()) {
                 paramsMap.put("searchTerm", searchTerm);
             }
-            paramsMap.put("includeMeta", includeMeta ? "true" : "false");
 
             return fetchIntegrationResources(createCodelistResourcesApiUrl(container, paramsMap), RESOURCES, restTemplate, httpMethod, excludedResourceUris);
         } else {
