@@ -75,10 +75,9 @@ public class CodelistProxyResource implements AbstractIntegrationResource {
                                  @ApiParam(value = "Pagination parameter for start index.") @QueryParam("from") @DefaultValue("0") final Integer from,
                                  @ApiParam(value = "Status enumerations in CSL format.") @QueryParam("status") final String status,
                                  @ApiParam(value = "After date filtering parameter, results will be codes with modified date after this ISO 8601 formatted date string.") @QueryParam("after") final String after,
-                                 @ApiParam(value = "Container URI.", required = true) @QueryParam("uri") final String codeSchemeUri,
                                  @ApiParam(value = "Search term used to filter results based on partial prefLabel match.") @QueryParam("searchTerm") final String searchTerm,
                                  @ApiParam(value = "Include pagination related meta element and wrap response items in bulk array.") @QueryParam("includeMeta") @DefaultValue("false") final boolean includeMeta) {
-        return fetchResources(container, language, pageSize, from, status, after, codeSchemeUri, searchTerm, includeMeta, null, HttpMethod.GET);
+        return fetchResources(container, language, pageSize, from, status, after, searchTerm, includeMeta, null, HttpMethod.GET);
     }
 
     @POST
@@ -92,12 +91,11 @@ public class CodelistProxyResource implements AbstractIntegrationResource {
                                  @ApiParam(value = "Pagination parameter for start index.") @QueryParam("from") @DefaultValue("0") final Integer from,
                                  @ApiParam(value = "Status enumerations in CSL format.") @QueryParam("status") final String status,
                                  @ApiParam(value = "After date filtering parameter, results will be codes with modified date after this ISO 8601 formatted date string.") @QueryParam("after") final String after,
-                                 @ApiParam(value = "Container URI.", required = true) @QueryParam("uri") final String codeSchemeUri,
                                  @ApiParam(value = "Search term used to filter results based on partial prefLabel match.") @QueryParam("searchTerm") final String searchTerm,
                                  @ApiParam(value = "Include pagination related meta element and wrap response items in bulk array.") @QueryParam("includeMeta") @DefaultValue("false") final boolean includeMeta,
                                  @ApiParam(value = "A set of resource URIs in CSL format to be excluded from the results.") @RequestBody final String excludedResourceUris
     ) {
-        return fetchResources(container, language, pageSize, from, status, after, codeSchemeUri, searchTerm, includeMeta, excludedResourceUris, HttpMethod.POST);
+        return fetchResources(container, language, pageSize, from, status, after, searchTerm, includeMeta, excludedResourceUris, HttpMethod.POST);
     }
 
     private Response fetchResources(String container,
@@ -106,7 +104,6 @@ public class CodelistProxyResource implements AbstractIntegrationResource {
                                     Integer from,
                                     String status,
                                     String after,
-                                    String codeSchemeUri,
                                     String searchTerm,
                                     boolean includeMeta,
                                     String excludedResourceUris,
@@ -147,7 +144,7 @@ public class CodelistProxyResource implements AbstractIntegrationResource {
 
     private String createCodelistResourcesApiUrl(final String container,
                                                  Map<String, String> params) {
-        String theUrl = codelistProperties.getUrl() + "/" + CODELIST_API_CONTEXT_PATH + "/" + CODELIST_API_PATH + "/" + CODELIST_API_VERSION + "/" + API_INTEGRATION + "/" + API_RESOURCES + "/?uri=" + container;
+        String theUrl = codelistProperties.getUrl() + "/" + CODELIST_API_CONTEXT_PATH + "/" + CODELIST_API_PATH + "/" + CODELIST_API_VERSION + "/" + API_INTEGRATION + "/" + API_RESOURCES + "/?container=" + container;
         StringBuilder paramsBuilder = new StringBuilder("");
         params.forEach((key, value) -> { // yeah, not elegant, but not as bad as RestTemplate's official version of doing this.
             paramsBuilder.append("&" + key + "=" + value);
