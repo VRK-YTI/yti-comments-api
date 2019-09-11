@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
@@ -119,7 +120,14 @@ public interface AbstractBaseResource {
                 final ObjectMapper mapper = new ObjectMapper();
                 mapper.setFilterProvider(new SimpleFilterProvider().setFailOnUnknownId(false));
                 final String data = responseBody.toString();
-                return mapper.readValue(data, new TypeReference<Set<ResourceDTO>>() {
+                final JsonNode jsonNode = mapper.readTree(data);
+                final String dataString;
+                if (!jsonNode.isArray() && jsonNode.has("results")) {
+                    dataString = jsonNode.get("results").toString();
+                } else {
+                    dataString = data;
+                }
+                return mapper.readValue(dataString, new TypeReference<Set<ResourceDTO>>() {
                 });
             } catch (final IOException e) {
                 throw new YtiCommentsException(new ErrorModel(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to parse integration resources!"));
