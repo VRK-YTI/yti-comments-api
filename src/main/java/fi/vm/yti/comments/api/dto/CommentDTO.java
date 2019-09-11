@@ -32,6 +32,7 @@ public class CommentDTO extends AbstractIdentifyableDTO implements Serializable 
     private String proposedStatus;
     private String endStatus;
     private LocalDateTime created;
+    private LocalDateTime modified;
 
     public UserDTO getUser() {
         return user;
@@ -99,5 +100,17 @@ public class CommentDTO extends AbstractIdentifyableDTO implements Serializable 
 
     public void setCreated(final LocalDateTime created) {
         this.created = created;
+    }
+
+    @ApiModelProperty(dataType = "dateTime")
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+    public LocalDateTime getModified() {
+        return modified;
+    }
+
+    public void setModified(final LocalDateTime modified) {
+        this.modified = modified;
     }
 }

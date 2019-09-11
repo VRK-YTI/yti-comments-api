@@ -26,6 +26,7 @@ public class Comment extends AbstractIdentifyableEntity implements Serializable 
     private String proposedStatus;
     private String endStatus;
     private LocalDateTime created;
+    private LocalDateTime modified;
 
     @Column(name = "user_id")
     public UUID getUserId() {
@@ -90,5 +91,14 @@ public class Comment extends AbstractIdentifyableEntity implements Serializable 
 
     public void setCreated(final LocalDateTime created) {
         this.created = created;
+    }
+
+    @Column(name = "modified")
+    public LocalDateTime getModified() {
+        return modified;
+    }
+
+    public void setModified(final LocalDateTime modified) {
+        this.modified = modified;
     }
 }

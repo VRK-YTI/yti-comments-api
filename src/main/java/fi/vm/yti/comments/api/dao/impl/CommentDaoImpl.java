@@ -174,6 +174,7 @@ public class CommentDaoImpl implements CommentDao {
         comment.setCommentThread(commentThread);
         final LocalDateTime timeStamp = LocalDateTime.now();
         comment.setCreated(timeStamp);
+        comment.setModified(timeStamp);
         return comment;
     }
 
@@ -187,6 +188,8 @@ public class CommentDaoImpl implements CommentDao {
         } else if (existingComment.getParentComment() == null) {
             throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), ERR_MSG_USER_PROPOSED_STATUS_REQUIRED));
         }
+        final LocalDateTime timeStamp = LocalDateTime.now();
+        existingComment.setModified(timeStamp);
         return existingComment;
     }
 
