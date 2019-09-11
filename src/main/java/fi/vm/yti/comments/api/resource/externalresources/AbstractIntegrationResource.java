@@ -10,7 +10,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import fi.vm.yti.comments.api.exception.NotFoundException;
+import fi.vm.yti.comments.api.exception.UnauthorizedException;
 import fi.vm.yti.comments.api.resource.AbstractBaseResource;
+import fi.vm.yti.security.AuthenticatedUserProvider;
+import fi.vm.yti.security.YtiUser;
 
 interface AbstractIntegrationResource extends AbstractBaseResource {
 
@@ -22,12 +25,6 @@ interface AbstractIntegrationResource extends AbstractBaseResource {
                                                    final RestTemplate restTemplate,
                                                    final HttpMethod httpMethod) {
         return fetchIntegrationResources(requestUrl, CONTAINERS, restTemplate, httpMethod, null);
-    }
-
-    default Response fetchIntegrationResourceData(final String requestUrl,
-                                                  final RestTemplate restTemplate,
-                                                  final HttpMethod httpMethod) {
-        return fetchIntegrationResources(requestUrl, RESOURCES, restTemplate, httpMethod, null);
     }
 
     default Response fetchIntegrationResources(final String requestUrl,
@@ -50,4 +47,10 @@ interface AbstractIntegrationResource extends AbstractBaseResource {
         }
     }
 
+    default void checkUser(final AuthenticatedUserProvider authenticatedUserProvider) {
+        final YtiUser user = authenticatedUserProvider.getUser();
+        if (user.isAnonymous()) {
+            throw new UnauthorizedException();
+        }
+    }
 }
