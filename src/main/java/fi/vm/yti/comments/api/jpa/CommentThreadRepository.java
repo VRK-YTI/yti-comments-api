@@ -30,9 +30,6 @@ public interface CommentThreadRepository extends PagingAndSortingRepository<Comm
 
     Set<CommentThread> findAll();
 
-    @Query(value = "SELECT COUNT(ct) FROM commentthread AS ct WHERE ct.modified >= :modifiedAfter", nativeQuery = true)
-    long modifiedAfterCount(@Param("modifiedAfter") final Date modifiedAfter);
-
     @Query(value = "SELECT COUNT(ct) FROM commentthread AS ct WHERE ct.created >= :createdAfter", nativeQuery = true)
     long createdAfterCount(@Param("createdAfter") final Date createdAfter);
 }

@@ -60,7 +60,7 @@ public class SystemResource implements AbstractBaseResource {
         final SystemMetaCountDTO countMeta;
         if (modifiedAfter != null) {
             final Date modifiedAfterDate = parseDateFromString(modifiedAfter);
-            countMeta = new SystemMetaCountDTO(commentRoundRepository.modifiedAfterCount(modifiedAfterDate), commentThreadRepository.modifiedAfterCount(modifiedAfterDate), commentRepository.modifiedAfterCount(modifiedAfterDate));
+            countMeta = new SystemMetaCountDTO(commentRoundRepository.modifiedAfterCount(modifiedAfterDate), null, null);
             return createCountMetaResponse(countMeta, format);
         } else if (createdAfter != null) {
             final Date createdAfterDate = parseDateFromString(createdAfter);
@@ -97,9 +97,13 @@ public class SystemResource implements AbstractBaseResource {
         final StringBuffer stringBuffer = new StringBuffer();
         stringBuffer.append("CommentRounds: " + systemMetaCount.getCommentRoundCount());
         stringBuffer.append("\n");
-        stringBuffer.append("CommentThreads: " + systemMetaCount.getCommentThreadCount());
-        stringBuffer.append("\n");
-        stringBuffer.append("Comments: " + systemMetaCount.getCommentCount());
+        if (systemMetaCount.getCommentThreadCount() != null) {
+            stringBuffer.append("CommentThreads: " + systemMetaCount.getCommentThreadCount());
+            stringBuffer.append("\n");
+        }
+        if (systemMetaCount.getCommentCount() != null) {
+            stringBuffer.append("Comments: " + systemMetaCount.getCommentCount());
+        }
         return stringBuffer.toString();
     }
 }

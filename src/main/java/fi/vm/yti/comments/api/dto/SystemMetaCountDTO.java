@@ -2,27 +2,27 @@ package fi.vm.yti.comments.api.dto;
 
 public class SystemMetaCountDTO {
 
-    private long commentRoundCount;
-    private long commentThreadCount;
-    private long commentCount;
+    private Long commentRoundCount;
+    private Long commentThreadCount;
+    private Long commentCount;
 
-    public SystemMetaCountDTO(final long commentRoundCount,
-                              final long commentThreadCount,
-                              final long commentCount) {
+    public SystemMetaCountDTO(final Long commentRoundCount,
+                              final Long commentThreadCount,
+                              final Long commentCount) {
         this.commentRoundCount = commentRoundCount;
         this.commentThreadCount = commentThreadCount;
         this.commentCount = commentCount;
     }
 
-    public long getCommentRoundCount() {
+    public Long getCommentRoundCount() {
         return commentRoundCount;
     }
 
-    public long getCommentThreadCount() {
+    public Long getCommentThreadCount() {
         return commentThreadCount;
     }
 
-    public long getCommentCount() {
+    public Long getCommentCount() {
         return commentCount;
     }
 }

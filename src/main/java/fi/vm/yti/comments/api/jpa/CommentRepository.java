@@ -33,9 +33,6 @@ public interface CommentRepository extends PagingAndSortingRepository<Comment, S
 
     Set<Comment> findByParentComment(final Comment comment);
 
-    @Query(value = "SELECT COUNT(c) FROM comment AS c WHERE c.modified >= :modifiedAfter", nativeQuery = true)
-    long modifiedAfterCount(@Param("modifiedAfter") final Date modifiedAfter);
-
     @Query(value = "SELECT COUNT(c) FROM comment AS c WHERE c.created >= :createdAfter", nativeQuery = true)
     long createdAfterCount(@Param("createdAfter") final Date createdAfter);
 }
