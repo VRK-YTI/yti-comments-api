@@ -1,5 +1,6 @@
 package fi.vm.yti.comments.api.resource.externalresources;
 
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.springframework.http.HttpEntity;
@@ -37,6 +38,7 @@ interface AbstractIntegrationResource extends AbstractBaseResource {
             response = restTemplate.exchange(requestUrl, httpMethod, null, String.class);
         } else {
             HttpHeaders requestHeaders = new HttpHeaders();
+            requestHeaders.add("Content-Type", MediaType.APPLICATION_JSON);
             HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, requestHeaders);
             response = restTemplate.exchange(requestUrl, httpMethod, requestEntity, String.class);
         }
