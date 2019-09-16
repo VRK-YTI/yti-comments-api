@@ -53,6 +53,7 @@ public class AuthorizationManagerImpl implements AuthorizationManager {
         roles.add(DATA_MODEL_EDITOR);
         roles.add(TERMINOLOGY_EDITOR);
         roles.add(CODE_LIST_EDITOR);
+        roles.add(MEMBER);
         return userProvider.getUser().getOrganizations(roles);
     }
 
