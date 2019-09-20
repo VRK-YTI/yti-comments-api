@@ -5,6 +5,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -26,8 +27,8 @@ import static fi.vm.yti.comments.api.constants.ApiConstants.*;
 @Api(value = "codelist")
 public class CodelistProxyResource implements AbstractIntegrationResource {
 
-    private final AuthenticatedUserProvider authenticatedUserProvider;
     private final CodelistProperties codelistProperties;
+    private final AuthenticatedUserProvider authenticatedUserProvider;
     private final RestTemplate restTemplate;
 
     @Inject
@@ -44,9 +45,10 @@ public class CodelistProxyResource implements AbstractIntegrationResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @ApiOperation(value = "Get containers from the Codelist API.")
     @ApiResponse(code = 200, message = "Returns success.")
-    public Response getContainers() {
+    public Response getContainers(@ApiParam(value = "Language code for sorting results.") @QueryParam("language") final String language) {
         checkUser(authenticatedUserProvider);
-        return fetchIntegrationContainerData(createCodelistContainerApiUrl(), restTemplate, HttpMethod.GET);
+        final String apiUrl = createCodelistContainerApiUrl() + "?language=" + language;
+        return fetchIntegrationContainerData(apiUrl, restTemplate, HttpMethod.GET);
     }
 
     @POST

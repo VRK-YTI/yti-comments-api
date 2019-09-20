@@ -33,7 +33,7 @@ interface AbstractIntegrationResource extends AbstractBaseResource {
                                                final RestTemplate restTemplate,
                                                final HttpMethod httpMethod,
                                                final String requestBody) {
-        ResponseEntity response = null;
+        final ResponseEntity response;
         if (requestBody == null) {
             response = restTemplate.exchange(requestUrl, httpMethod, null, String.class);
         } else {
