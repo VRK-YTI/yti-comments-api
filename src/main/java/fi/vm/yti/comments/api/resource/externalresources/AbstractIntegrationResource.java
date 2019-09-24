@@ -10,11 +10,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import fi.vm.yti.comments.api.error.ErrorModel;
 import fi.vm.yti.comments.api.exception.NotFoundException;
 import fi.vm.yti.comments.api.exception.UnauthorizedException;
+import fi.vm.yti.comments.api.exception.YtiCommentsException;
 import fi.vm.yti.comments.api.resource.AbstractBaseResource;
 import fi.vm.yti.security.AuthenticatedUserProvider;
 import fi.vm.yti.security.YtiUser;
+import static fi.vm.yti.comments.api.exception.ErrorConstants.ERR_MSG_USER_406;
 
 interface AbstractIntegrationResource extends AbstractBaseResource {
 
@@ -24,8 +27,9 @@ interface AbstractIntegrationResource extends AbstractBaseResource {
 
     default Response fetchIntegrationContainerData(final String requestUrl,
                                                    final RestTemplate restTemplate,
-                                                   final HttpMethod httpMethod) {
-        return fetchIntegrationResources(requestUrl, CONTAINERS, restTemplate, httpMethod, null);
+                                                   final HttpMethod httpMethod,
+                                                   final String requestBody) {
+        return fetchIntegrationResources(requestUrl, CONTAINERS, restTemplate, httpMethod, requestBody);
     }
 
     default Response fetchIntegrationResources(final String requestUrl,
@@ -34,13 +38,13 @@ interface AbstractIntegrationResource extends AbstractBaseResource {
                                                final HttpMethod httpMethod,
                                                final String requestBody) {
         final ResponseEntity response;
-        if (requestBody == null) {
-            response = restTemplate.exchange(requestUrl, httpMethod, null, String.class);
-        } else {
-            HttpHeaders requestHeaders = new HttpHeaders();
-            requestHeaders.add("Content-Type", MediaType.APPLICATION_JSON);
-            HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, requestHeaders);
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.add("Content-Type", MediaType.APPLICATION_JSON);
+        HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, requestHeaders);
+        try {
             response = restTemplate.exchange(requestUrl, httpMethod, requestEntity, String.class);
+        } catch (final Exception e) {
+            throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), ERR_MSG_USER_406));
         }
         if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
             return createResponse(objectType, MESSAGE_TYPE_GET_RESOURCES, parseResourcesFromResponse(response));

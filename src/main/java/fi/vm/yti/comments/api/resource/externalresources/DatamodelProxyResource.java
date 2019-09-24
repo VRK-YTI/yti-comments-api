@@ -40,15 +40,14 @@ public class DatamodelProxyResource implements AbstractIntegrationResource {
         this.restTemplate = restTemplate;
     }
 
-    @GET
+    @POST
     @Path("/containers")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @ApiOperation(value = "Get Containers from the Datamodel API.")
     @ApiResponse(code = 200, message = "Returns success.")
-    public Response getContainers(@ApiParam(value = "Language code for sorting results.") @QueryParam("language") final String language) {
+    public Response getContainers(@ApiParam(value = "Request related parameters in request body.") @RequestBody final String searchQuery) {
         checkUser(authenticatedUserProvider);
-        final String apiUrl = createDatamodelContainerApiUrl() + "?language=" + language;
-        return fetchIntegrationContainerData(apiUrl, restTemplate, HttpMethod.GET);
+        return fetchIntegrationContainerData(createDatamodelContainerApiUrl(), restTemplate, HttpMethod.POST, searchQuery);
     }
 
     @POST
