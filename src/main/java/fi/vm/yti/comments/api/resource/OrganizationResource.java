@@ -19,15 +19,17 @@ import org.springframework.stereotype.Component;
 
 import fi.vm.yti.comments.api.dto.OrganizationDTO;
 import fi.vm.yti.comments.api.service.OrganizationService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import static fi.vm.yti.comments.api.constants.ApiConstants.FILTER_NAME_ORGANIZATION;
 
 @Component
 @Path("/v1/organizations")
-@Api(value = "organizations")
 @Produces(MediaType.APPLICATION_JSON)
 public class OrganizationResource implements AbstractBaseResource {
 
@@ -40,11 +42,11 @@ public class OrganizationResource implements AbstractBaseResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @ApiOperation(value = "Organizations API.")
-    @ApiResponse(code = 200, message = "Returns Organizations.")
+    @Operation(summary = "Organizations API.")
+    @ApiResponse(responseCode = "200", description = "Returns Organizations.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = OrganizationDTO.class))) })
     @Transactional
-    public Response getOrganizations(@ApiParam(value = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
-                                     @ApiParam(value = "A boolean value for only returning Organizations with CommentRounds.") @QueryParam("hasCommentRounds") final boolean hasCommentRounds) {
+    public Response getOrganizations(@Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
+                                     @Parameter(description = "A boolean value for only returning Organizations with CommentRounds.") @QueryParam("hasCommentRounds") final boolean hasCommentRounds) {
         ObjectWriterInjector.set(new AbstractBaseResource.FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_ORGANIZATION, expand)));
         final Set<OrganizationDTO> organizations = organizationService.findByRemovedIsFalse(hasCommentRounds);
         return createResponse("Organizations", MESSAGE_TYPE_GET_RESOURCES, organizations);
@@ -52,12 +54,15 @@ public class OrganizationResource implements AbstractBaseResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @ApiOperation(value = "Organizations fetching API for single Organization.")
-    @ApiResponse(code = 200, message = "Returns one single Organization.")
+    @Operation(summary = "Organizations fetching API for single Organization.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Returns one single Organization.", content = { @Content(schema = @Schema(implementation = OrganizationDTO.class)) }),
+        @ApiResponse(responseCode = "404", description = "No Organization found with given UUID.")
+    })
     @Transactional
     @Path("{organizationId}")
-    public Response getOrganization(@ApiParam(value = "Organization UUID.", required = true) @PathParam("organizationId") final UUID organizationId,
-                                    @ApiParam(value = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
+    public Response getOrganization(@Parameter(description = "Organization UUID.", required = true) @PathParam("organizationId") final UUID organizationId,
+                                    @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new AbstractBaseResource.FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_ORGANIZATION, expand)));
         final OrganizationDTO organization = organizationService.findById(organizationId);
         if (organization != null) {

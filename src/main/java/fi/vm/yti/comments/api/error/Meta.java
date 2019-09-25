@@ -11,11 +11,11 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @XmlType(propOrder = { "code", "message", "pageSize", "from", "resultCount", "totalResults", "after", "afterResourceUrl", "nextPage" })
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@ApiModel(value = "Meta", description = "Meta information model for API responses.")
+@Schema(name = "Meta", description = "Meta information model for API responses.")
 public class Meta {
 
     private static final Logger LOG = LoggerFactory.getLogger(Meta.class);

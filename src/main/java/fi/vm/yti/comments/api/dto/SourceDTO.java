@@ -7,12 +7,12 @@ import javax.xml.bind.annotation.XmlType;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonFilter("source")
 @XmlRootElement
 @XmlType(propOrder = { "id", "url", "containerType", "containerUri" })
-@ApiModel(value = "Source", description = "Source DTO that represents data for one single Source.")
+@Schema(name = "Source", description = "Source DTO that represents data for one single Source.")
 public class SourceDTO extends AbstractIdentifyableDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;

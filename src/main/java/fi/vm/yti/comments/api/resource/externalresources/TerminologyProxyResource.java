@@ -9,20 +9,25 @@ import javax.ws.rs.core.Response;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.RestTemplate;
 
 import fi.vm.yti.comments.api.configuration.TerminologyProperties;
+import fi.vm.yti.comments.api.dto.IntegrationContainerRequestDTO;
+import fi.vm.yti.comments.api.dto.IntegrationResourceRequestDTO;
+import fi.vm.yti.comments.api.dto.ResourceDTO;
 import fi.vm.yti.security.AuthenticatedUserProvider;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import static fi.vm.yti.comments.api.constants.ApiConstants.*;
 
 @Component
+@Produces({ "application/json", "application/xml" })
 @Path("/v1/terminology")
-@Api(value = "terminology")
 public class TerminologyProxyResource implements AbstractIntegrationResource {
 
     private final TerminologyProperties terminologyProperties;
@@ -41,9 +46,9 @@ public class TerminologyProxyResource implements AbstractIntegrationResource {
     @POST
     @Path("/containers")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @ApiOperation(value = "Get Containers from the Terminology API.")
-    @ApiResponse(code = 200, message = "Returns success.")
-    public Response getContainers(@ApiParam(value = "Request related parameters in request body.") @RequestBody final String searchQuery) {
+    @Operation(summary = "Get Containers from the Terminology API.")
+    @ApiResponse(responseCode = "200", description = "Returns success.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = ResourceDTO.class))) })
+    public Response getContainers(@Parameter(description = "Request related parameters in request body.") @RequestBody(content = @Content(schema = @Schema(implementation = IntegrationContainerRequestDTO.class))) final String searchQuery) {
         checkUser(authenticatedUserProvider);
         return fetchIntegrationContainerData(createTerminologyContainerApiUrl(), restTemplate, HttpMethod.POST, searchQuery);
     }
@@ -51,9 +56,9 @@ public class TerminologyProxyResource implements AbstractIntegrationResource {
     @POST
     @Path("/resources")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @ApiOperation(value = "Get Resources from the Terminology API.")
-    @ApiResponse(code = 200, message = "Returns success.")
-    public Response getResources(@ApiParam(value = "Request related parameters in request body.") @RequestBody final String searchQuery) {
+    @Operation(summary = "Get Resources from the Terminology API.")
+    @ApiResponse(responseCode = "200", description = "Returns success.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = ResourceDTO.class))) })
+    public Response getResources(@Parameter(description = "Request related parameters in request body.") @RequestBody(content = @Content(schema = @Schema(implementation = IntegrationResourceRequestDTO.class))) final String searchQuery) {
         checkUser(authenticatedUserProvider);
         return fetchIntegrationResources(createTerminologyResourcesApiUrl(), RESOURCES, restTemplate, HttpMethod.POST, searchQuery);
     }

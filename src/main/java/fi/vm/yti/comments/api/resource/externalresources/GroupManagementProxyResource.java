@@ -28,15 +28,16 @@ import fi.vm.yti.comments.api.groupmanagement.GroupManagementUserRequest;
 import fi.vm.yti.comments.api.resource.AbstractBaseResource;
 import fi.vm.yti.security.AuthenticatedUserProvider;
 import fi.vm.yti.security.YtiUser;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import static fi.vm.yti.comments.api.constants.ApiConstants.GROUPMANAGEMENT_API_CONTEXT_PATH;
 import static fi.vm.yti.comments.api.constants.ApiConstants.GROUPMANAGEMENT_API_REQUESTS;
 
 @Component
 @Path("/v1/groupmanagement")
-@Api(value = "groupmanagement")
 public class GroupManagementProxyResource implements AbstractBaseResource {
 
     private final AuthenticatedUserProvider authenticatedUserProvider;
@@ -55,8 +56,8 @@ public class GroupManagementProxyResource implements AbstractBaseResource {
     @GET
     @Path("/requests")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @ApiOperation(value = "Returns a list of user requests that the user has made.")
-    @ApiResponse(code = 200, message = "Returns success.")
+    @Operation(summary = "Returns a list of user requests that the user has made.")
+    @ApiResponse(responseCode = "200", description = "Returns success.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = GroupManagementUserRequest.class))) })
     public Response getUserRequests() {
         final YtiUser user = authenticatedUserProvider.getUser();
         if (user.isAnonymous()) {

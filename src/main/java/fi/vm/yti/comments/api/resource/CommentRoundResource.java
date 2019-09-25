@@ -25,6 +25,7 @@ import org.glassfish.jersey.jackson.internal.jackson.jaxrs.cfg.ObjectWriterInjec
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import fi.vm.yti.comments.api.api.ResponseWrapper;
 import fi.vm.yti.comments.api.dao.CommentDao;
 import fi.vm.yti.comments.api.dao.CommentRoundDao;
 import fi.vm.yti.comments.api.dao.CommentThreadDao;
@@ -48,17 +49,18 @@ import fi.vm.yti.comments.api.service.CommentRoundService;
 import fi.vm.yti.comments.api.service.CommentService;
 import fi.vm.yti.comments.api.service.CommentThreadService;
 import fi.vm.yti.comments.api.utils.StringUtils;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import static fi.vm.yti.comments.api.constants.ApiConstants.*;
 import static fi.vm.yti.comments.api.exception.ErrorConstants.ERR_MSG_USER_OTHER_USER_ALREADY_RESPONDED_TO_THIS_COMMENT_CANT_MODIFY_OR_DELETE;
 
 @Component
 @Path("/v1/commentrounds")
-@Api(value = "commentrounds")
 public class CommentRoundResource implements AbstractBaseResource {
 
     private final CommentRoundService commentRoundService;
@@ -100,18 +102,18 @@ public class CommentRoundResource implements AbstractBaseResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @ApiOperation(value = "CommentRound API for requesting all commentRounds.")
+    @Operation(summary = "CommentRound API for requesting all commentRounds.")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Returns all commentRounds from the system as a set.")
+        @ApiResponse(responseCode = "200", description = "Returns all commentRounds from the system as a set.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentRoundDTO.class))) })
     })
     @Transactional
-    public Response getCommentRounds(@ApiParam(value = "Filter option for organization filtering.") @QueryParam("organizationId") final UUID organizationId,
-                                     @ApiParam(value = "Filter option for status filtering.") @QueryParam("status") final String status,
-                                     @ApiParam(value = "Filter option for integration source type filtering.") @QueryParam("containerType") final String containerType,
-                                     @ApiParam(value = "Filter option for integration source name match.") @QueryParam("searchTerm") final String searchTerm,
-                                     @ApiParam(value = "Filter option for incomplete filtering for round creator only") @QueryParam("filterIncomplete") @DefaultValue("false") final Boolean filterIncomplete,
-                                     @ApiParam(value = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
-                                     @ApiParam(value = "Filter by user organizations or user id.") @QueryParam("filterContent") final Boolean filterContent) {
+    public Response getCommentRounds(@Parameter(description = "Filter option for organization filtering.") @QueryParam("organizationId") final UUID organizationId,
+                                     @Parameter(description = "Filter option for status filtering.") @QueryParam("status") final String status,
+                                     @Parameter(description = "Filter option for integration source type filtering.") @QueryParam("containerType") final String containerType,
+                                     @Parameter(description = "Filter option for integration source name match.") @QueryParam("searchTerm") final String searchTerm,
+                                     @Parameter(description = "Filter option for incomplete filtering for round creator only") @QueryParam("filterIncomplete") @DefaultValue("false") final Boolean filterIncomplete,
+                                     @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
+                                     @Parameter(description = "Filter by user organizations or user id.") @QueryParam("filterContent") @DefaultValue("false") final boolean filterContent) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTROUND, expand)));
         Set<CommentRoundDTO> commentRoundDtos;
         if (organizationId != null && status != null && containerType != null) {
@@ -174,16 +176,16 @@ public class CommentRoundResource implements AbstractBaseResource {
 
     @GET
     @Produces({ MediaType.APPLICATION_JSON + ";charset=UTF-8", "application/xlsx" })
-    @ApiOperation(value = "CommentRound API for requesting single commentRound.")
+    @Operation(summary = "CommentRound API for requesting single commentRound.")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Returns single commentRound."),
-        @ApiResponse(code = 404, message = "No CommentRound found with given UUID.")
+        @ApiResponse(responseCode = "200", description = "Returns single commentRound.", content= { @Content(schema = @Schema(implementation = CommentRoundDTO.class)) }),
+        @ApiResponse(responseCode = "404", description = "No CommentRound found with given UUID.")
     })
     @Transactional
     @Path("{commentRoundId}")
-    public Response getCommentRound(@ApiParam(value = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
-                                    @ApiParam(value = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
-                                    @ApiParam(value = "Format for output.") @QueryParam("format") @DefaultValue(FORMAT_JSON) final String format) {
+    public Response getCommentRound(@Parameter(description = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
+                                    @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
+                                    @Parameter(description = "Format for output.") @QueryParam("format") @DefaultValue(FORMAT_JSON) final String format) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTROUND, expand)));
         if (FORMAT_EXCEL.equalsIgnoreCase(format)) {
             final CommentRound commentRound = commentRoundDao.findById(commentRoundId);
@@ -207,15 +209,15 @@ public class CommentRoundResource implements AbstractBaseResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @ApiOperation(value = "CommentRound API for requesting users entry comments for each thread.")
+    @Operation(summary = "CommentRound API for requesting users entry comments for each thread.")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Returns list of comments for this commentThread."),
-        @ApiResponse(code = 404, message = "No CommentThread found with given UUID.")
+        @ApiResponse(responseCode = "200", description = "Returns list of comments for this commentThread.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDTO.class))) }),
+        @ApiResponse(responseCode = "404", description = "No CommentThread found with given UUID.")
     })
     @Transactional
     @Path("{commentRoundId}/mycomments")
-    public Response getCommentRoundMyMainComments(@ApiParam(value = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
-                                                  @ApiParam(value = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
+    public Response getCommentRoundMyMainComments(@Parameter(description = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
+                                                  @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENT, expand)));
         final Set<CommentDTO> commentDtos = commentService.findCommentRoundMainLevelCommentsForUserId(commentRoundId, authorizationManager.getUserId());
         final Set<CommentDTO> sortedComments = commentDtos.stream().sorted(Comparator.comparing(CommentDTO::getCreated)).collect(Collectors.toCollection(LinkedHashSet::new));
@@ -224,15 +226,15 @@ public class CommentRoundResource implements AbstractBaseResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @ApiOperation(value = "CommentRound API for requesting comments for commentThread.")
+    @Operation(summary = "CommentRound API for requesting comments for commentThread.")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Returns list of comments for this commentThread."),
-        @ApiResponse(code = 404, message = "No commentRound found with given UUID.")
+        @ApiResponse(responseCode = "200", description = "Returns list of comments for this commentThread.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDTO.class))) }),
+        @ApiResponse(responseCode = "404", description = "No commentRound found with given UUID.")
     })
     @Transactional
     @Path("{commentRoundId}/commentthreads/")
-    public Response getCommentRoundCommentThreads(@ApiParam(value = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
-                                                  @ApiParam(value = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
+    public Response getCommentRoundCommentThreads(@Parameter(description = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
+                                                  @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTTHREAD, expand)));
         final Set<CommentThreadDTO> commentThreadDtos = commentThreadService.findByCommentRoundId(commentRoundId);
         final Set<CommentThreadDTO> sortedThreads = commentThreadDtos.stream().sorted(Comparator.comparing(CommentThreadDTO::getResourceUri, Comparator.nullsLast(Comparator.reverseOrder()))).collect(Collectors.toCollection(LinkedHashSet::new));
@@ -241,16 +243,16 @@ public class CommentRoundResource implements AbstractBaseResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @ApiOperation(value = "CommentThread API for requesting single existing CommentThread.")
+    @Operation(summary = "CommentThread API for requesting single existing CommentThread.")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Returns one CommentThread matching UUID."),
-        @ApiResponse(code = 404, message = "No CommentThread found with given UUID.")
+        @ApiResponse(responseCode = "200", description = "Returns one CommentThread matching UUID.", content = { @Content(schema = @Schema(implementation = CommentThreadDTO.class)) }),
+        @ApiResponse(responseCode = "404", description = "No CommentThread found with given UUID.")
     })
     @Transactional
     @Path("{commentRoundId}/commentthreads/{commentThreadId}")
-    public Response getCommentRoundCommentThread(@ApiParam(value = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
-                                                 @ApiParam(value = "CommentThread UUID.", required = true) @PathParam("commentThreadId") final UUID commentThreadId,
-                                                 @ApiParam(value = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
+    public Response getCommentRoundCommentThread(@Parameter(description = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
+                                                 @Parameter(description = "CommentThread UUID.", required = true) @PathParam("commentThreadId") final UUID commentThreadId,
+                                                 @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTTHREAD, expand)));
         final CommentThreadDTO commentThread = commentThreadService.findById(commentThreadId);
         if (commentThread != null) {
@@ -262,16 +264,16 @@ public class CommentRoundResource implements AbstractBaseResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @ApiOperation(value = "CommentThread API for requesting comments for CommentThread.")
+    @Operation(summary = "CommentThread API for requesting comments for CommentThread.")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Returns list of comments for this CommentThread."),
-        @ApiResponse(code = 404, message = "No CommentThread found with given UUID.")
+        @ApiResponse(responseCode = "200", description = "Returns list of comments for this CommentThread.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDTO.class))) }),
+        @ApiResponse(responseCode = "404", description = "No CommentThread found with given UUID.")
     })
     @Transactional
     @Path("{commentRoundId}/commentthreads/{commentThreadId}/comments")
-    public Response getCommentRoundCommentThreadComments(@ApiParam(value = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
-                                                         @ApiParam(value = "CommentThread UUID.", required = true) @PathParam("commentThreadId") final UUID commentThreadId,
-                                                         @ApiParam(value = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
+    public Response getCommentRoundCommentThreadComments(@Parameter(description = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
+                                                         @Parameter(description = "CommentThread UUID.", required = true) @PathParam("commentThreadId") final UUID commentThreadId,
+                                                         @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENT, expand)));
         final Set<CommentDTO> commentDtos = commentService.findByCommentThreadId(commentThreadId);
         return createResponse("CommentThread Comments", MESSAGE_TYPE_GET_RESOURCES, commentDtos);
@@ -279,17 +281,17 @@ public class CommentRoundResource implements AbstractBaseResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @ApiOperation(value = "CommentThread API for requesting a single Commment for CommentThread.")
+    @Operation(summary = "CommentThread API for requesting a single Commment for CommentThread.")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Returns a single Comment for this CommentThread."),
-        @ApiResponse(code = 404, message = "No CommentThread found with given UUID.")
+        @ApiResponse(responseCode = "200", description = "Returns a single Comment for this CommentThread.", content = { @Content(schema = @Schema(implementation = CommentDTO.class)) }),
+        @ApiResponse(responseCode = "404", description = "No CommentThread found with given UUID.")
     })
     @Transactional
     @Path("{commentRoundId}/commentthreads/{commentThreadId}/comments/{commentId}")
-    public Response getCommentRoundCommentThreadComments(@ApiParam(value = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
-                                                         @ApiParam(value = "CommentThread UUID.", required = true) @PathParam("commentThreadId") final UUID commentThreadId,
-                                                         @ApiParam(value = "Comment UUID.", required = true) @PathParam("commentId") final UUID commentId,
-                                                         @ApiParam(value = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
+    public Response getCommentRoundCommentThreadComments(@Parameter(description = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
+                                                         @Parameter(description = "CommentThread UUID.", required = true) @PathParam("commentThreadId") final UUID commentThreadId,
+                                                         @Parameter(description = "Comment UUID.", required = true) @PathParam("commentId") final UUID commentId,
+                                                         @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENT, expand)));
         final CommentDTO commentDto = commentService.findById(commentId);
         if (commentDto != null) {
@@ -301,16 +303,16 @@ public class CommentRoundResource implements AbstractBaseResource {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @ApiOperation(value = "CommentRound API for creating or updating one or many CommentRounds from a list type JSON payload.")
+    @Operation(summary = "CommentRound API for creating or updating one or many CommentRounds from a list type JSON payload.")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Returns created or updated CommentRounds after storing them to database."),
-        @ApiResponse(code = 401, message = "Not authorized for given action."),
-        @ApiResponse(code = 406, message = "Data payload error, please check input data.")
+        @ApiResponse(responseCode = "200", description = "Returns created or updated CommentRounds after storing them to database.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentRoundDTO.class))) }),
+        @ApiResponse(responseCode = "401", description = "Not authorized for given action."),
+        @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
     })
     @Transactional
-    public Response createOrUpdateCommentRounds(@ApiParam(value = "JSON playload for commentRound data.", required = true) final String jsonPayload,
-                                                @ApiParam(value = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
-                                                @ApiParam(value = "Remove orphan CommentThread objects") @QueryParam("removeCommentThreadOrphans") @DefaultValue("false") final boolean removeCommentThreadOrphans) {
+    public Response createOrUpdateCommentRounds(@Parameter(description = "JSON playload for commentRound data.", required = true) final String jsonPayload,
+                                                @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
+                                                @Parameter(description = "Remove orphan CommentThread objects") @QueryParam("removeCommentThreadOrphans") @DefaultValue("false") final boolean removeCommentThreadOrphans) {
         if (authorizationManager.canUserAddCommentRound()) {
             ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTROUND, expand)));
             final Set<CommentRoundDTO> commentRoundDtos = commentRoundService.addOrUpdateCommentRoundsFromDtos(commentRoundParser.parseCommentRoundsFromJson(jsonPayload), removeCommentThreadOrphans);
@@ -322,19 +324,19 @@ public class CommentRoundResource implements AbstractBaseResource {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @ApiOperation(value = "CommentRound API for updating an existing CommentRound.")
+    @Operation(summary = "CommentRound API for updating an existing CommentRound.")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Updates a single existing CommentRound."),
-        @ApiResponse(code = 401, message = "Not authorized for given action."),
-        @ApiResponse(code = 404, message = "No CommentRound found with given UUID."),
-        @ApiResponse(code = 406, message = "Data payload error, please check input data.")
+        @ApiResponse(responseCode = "200", description = "Updates a single existing CommentRound.", content = { @Content(schema = @Schema(implementation = CommentDTO.class)) }),
+        @ApiResponse(responseCode = "401", description = "Not authorized for given action."),
+        @ApiResponse(responseCode = "404", description = "No CommentRound found with given UUID."),
+        @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
     })
     @Transactional
     @Path("{commentRoundId}")
-    public Response updateCommentRound(@ApiParam(value = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
-                                       @ApiParam(value = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
-                                       @ApiParam(value = "Remove orphan CommentThread objects") @QueryParam("removeCommentThreadOrphans") @DefaultValue("false") final boolean removeCommentThreadOrphans,
-                                       @ApiParam(value = "JSON playload for CommentRound data.", required = true) final String jsonPayload) {
+    public Response updateCommentRound(@Parameter(description = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
+                                       @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
+                                       @Parameter(description = "Remove orphan CommentThread objects") @QueryParam("removeCommentThreadOrphans") @DefaultValue("false") final boolean removeCommentThreadOrphans,
+                                       @Parameter(description = "JSON playload for CommentRound data.", required = true) final String jsonPayload) {
         final CommentRound commentRound = commentRoundDao.findById(commentRoundId);
         if (commentRound != null) {
             if (authorizationManager.canUserModifyCommentRound(commentRound)) {
@@ -355,17 +357,17 @@ public class CommentRoundResource implements AbstractBaseResource {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @ApiOperation(value = "CommentRound API for creating or updating one or many Comments from a list type JSON payload.")
+    @Operation(summary = "CommentRound API for creating or updating one or many Comments from a list type JSON payload.")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Returns created or updated Comments after storing them to database."),
-        @ApiResponse(code = 401, message = "Not authorized for given action."),
-        @ApiResponse(code = 406, message = "Data payload error, please check input data.")
+        @ApiResponse(responseCode = "200", description = "Returns created or updated Comments after storing them to database.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDTO.class))) }),
+        @ApiResponse(responseCode = "401", description = "Not authorized for given action."),
+        @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
     })
     @Transactional
     @Path("{commentRoundId}/comments")
-    public Response createOrUpdateCommentRoundComments(@ApiParam(value = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
-                                                       @ApiParam(value = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
-                                                       @ApiParam(value = "JSON playload for commentRound commentThread data.", required = true) final String jsonPayload) {
+    public Response createOrUpdateCommentRoundComments(@Parameter(description = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
+                                                       @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
+                                                       @Parameter(description = "JSON playload for commentRound commentThread data.", required = true) final String jsonPayload) {
         final CommentRound commentRound = commentRoundDao.findById(commentRoundId);
         if (authorizationManager.canUserAddCommentsToCommentRound(commentRound)) {
             ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENT, expand)));
@@ -378,18 +380,18 @@ public class CommentRoundResource implements AbstractBaseResource {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @ApiOperation(value = "CommentRound API for creating or updating one or many CommentThreads from a list type JSON payload.")
+    @Operation(summary = "CommentRound API for creating or updating one or many CommentThreads from a list type JSON payload.")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Returns created or updated CommentThreads after storing them to database."),
-        @ApiResponse(code = 401, message = "Not authorized for given action."),
-        @ApiResponse(code = 406, message = "Data payload error, please check input data.")
+        @ApiResponse(responseCode = "200", description = "Returns created or updated CommentThreads after storing them to database.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentThreadDTO.class))) }),
+        @ApiResponse(responseCode = "401", description = "Not authorized for given action."),
+        @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
     })
     @Transactional
     @Path("{commentRoundId}/commentthreads")
-    public Response createOrUpdateCommentRoundCommentThreads(@ApiParam(value = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
-                                                             @ApiParam(value = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
-                                                             @ApiParam(value = "Remove orphans") @QueryParam("removeOrphans") @DefaultValue("false") final boolean removeOrphans,
-                                                             @ApiParam(value = "JSON playload for commentRound commentThread data.", required = true) final String jsonPayload) {
+    public Response createOrUpdateCommentRoundCommentThreads(@Parameter(description = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
+                                                             @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
+                                                             @Parameter(description = "Remove orphans") @QueryParam("removeOrphans") @DefaultValue("false") final boolean removeOrphans,
+                                                             @Parameter(description = "JSON playload for commentRound commentThread data.", required = true) final String jsonPayload) {
         final CommentRound commentRound = commentRoundDao.findById(commentRoundId);
         if (authorizationManager.canUserAddCommentThreadsToCommentRound(commentRound)) {
             ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTTHREAD, expand)));
@@ -403,19 +405,19 @@ public class CommentRoundResource implements AbstractBaseResource {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @ApiOperation(value = "CommentRound API for updating an existing CommentThread.")
+    @Operation(summary = "CommentRound API for updating an existing CommentThread.")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Updates a single existing CommentThread."),
-        @ApiResponse(code = 401, message = "Not authorized for given action."),
-        @ApiResponse(code = 404, message = "No CommentRound found with given UUID."),
-        @ApiResponse(code = 406, message = "Data payload error, please check input data.")
+        @ApiResponse(responseCode = "200", description = "Updates a single existing CommentThread.", content = { @Content(schema = @Schema(implementation = CommentThreadDTO.class)) }),
+        @ApiResponse(responseCode = "401", description = "Not authorized for given action."),
+        @ApiResponse(responseCode = "404", description = "No CommentRound found with given UUID."),
+        @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
     })
     @Transactional
     @Path("{commentRoundId}/commentthreads/{commentThreadId}")
-    public Response updateCommentRoundCommentThread(@ApiParam(value = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
-                                                    @ApiParam(value = "CommentThread UUID.", required = true) @PathParam("commentThreadId") final UUID commentThreadId,
-                                                    @ApiParam(value = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
-                                                    @ApiParam(value = "JSON playload for commentRound data.", required = true) final String jsonPayload) {
+    public Response updateCommentRoundCommentThread(@Parameter(description = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
+                                                    @Parameter(description = "CommentThread UUID.", required = true) @PathParam("commentThreadId") final UUID commentThreadId,
+                                                    @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
+                                                    @Parameter(description = "JSON playload for commentRound data.", required = true) final String jsonPayload) {
         if (authorizationManager.isSuperUser()) {
             ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTTHREAD, expand)));
             final CommentThreadDTO commentThread = commentThreadService.addOrUpdateCommentThreadFromDto(commentRoundId, commentThreadParser.parseCommentThreadFromJson(jsonPayload));
@@ -431,18 +433,18 @@ public class CommentRoundResource implements AbstractBaseResource {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @ApiOperation(value = "CommentRound API for creating or updating one or many Comments from a list type JSON payload.")
+    @Operation(summary = "CommentRound API for creating or updating one or many Comments from a list type JSON payload.")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Returns created or updated Comments after storing them to database."),
-        @ApiResponse(code = 401, message = "Not authorized for given action."),
-        @ApiResponse(code = 406, message = "Data payload error, please check input data.")
+        @ApiResponse(responseCode = "200", description = "Returns created or updated Comments after storing them to database.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDTO.class))) }),
+        @ApiResponse(responseCode = "401", description = "Not authorized for given action."),
+        @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
     })
     @Transactional
     @Path("{commentRoundId}/commentthreads/{commentThreadId}/comments")
-    public Response createOrUpdateCommentRoundCommentThreadsComments(@ApiParam(value = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
-                                                                     @ApiParam(value = "CommentThread UUID.", required = true) @PathParam("commentThreadId") final UUID commentThreadId,
-                                                                     @ApiParam(value = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
-                                                                     @ApiParam(value = "JSON playload for commentRound commentThread data.", required = true) final String jsonPayload) {
+    public Response createOrUpdateCommentRoundCommentThreadComments(@Parameter(description = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
+                                                                    @Parameter(description = "CommentThread UUID.", required = true) @PathParam("commentThreadId") final UUID commentThreadId,
+                                                                    @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
+                                                                    @Parameter(description = "JSON playload for commentRound commentThread data.", required = true) final String jsonPayload) {
         final CommentRound commentRound = commentRoundDao.findById(commentRoundId);
         if (authorizationManager.canUserAddCommentsToCommentRound(commentRound)) {
             ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENT, expand)));
@@ -455,20 +457,20 @@ public class CommentRoundResource implements AbstractBaseResource {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @ApiOperation(value = "CommentRound API for updating an existing Comment.")
+    @Operation(summary = "CommentRound API for updating an existing Comment.")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Updates a single existing Comment."),
-        @ApiResponse(code = 401, message = "Not authorized for given action."),
-        @ApiResponse(code = 404, message = "No Comment found with given UUID."),
-        @ApiResponse(code = 406, message = "Data payload error, please check input data.")
+        @ApiResponse(responseCode = "200", description = "Updates a single existing Comment.", content = { @Content(schema = @Schema(implementation = CommentDTO.class)) }),
+        @ApiResponse(responseCode = "401", description = "Not authorized for given action."),
+        @ApiResponse(responseCode = "404", description = "No Comment found with given UUID."),
+        @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
     })
     @Transactional
     @Path("{commentRoundId}/commentthreads/{commentThreadId}/comments/{commentId}")
-    public Response updateCommentRoundCommentThreadComment(@ApiParam(value = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
-                                                           @ApiParam(value = "CommentThread UUID.", required = true) @PathParam("commentThreadId") final UUID commentThreadId,
-                                                           @ApiParam(value = "Comment UUID.", required = true) @PathParam("commentId") final UUID commentId,
-                                                           @ApiParam(value = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
-                                                           @ApiParam(value = "JSON playload for commentRound data.", required = true) final String jsonPayload) {
+    public Response updateCommentRoundCommentThreadComment(@Parameter(description = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
+                                                           @Parameter(description = "CommentThread UUID.", required = true) @PathParam("commentThreadId") final UUID commentThreadId,
+                                                           @Parameter(description = "Comment UUID.", required = true) @PathParam("commentId") final UUID commentId,
+                                                           @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
+                                                           @Parameter(description = "JSON playload for commentRound data.", required = true) final String jsonPayload) {
         final Comment comment = commentDao.findById(commentId);
         boolean problemWithAuth = !authorizationManager.canUserDeleteComment(comment);
         boolean problemWithConcurrentModification = commentService.commentHasChildren(comment);
@@ -491,12 +493,12 @@ public class CommentRoundResource implements AbstractBaseResource {
     @Path("{commentRoundId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @ApiOperation(value = "Deletes a single existing CommentRound.")
+    @Operation(summary = "Deletes a single existing CommentRound.")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "CommentRound deleted."),
-        @ApiResponse(code = 404, message = "CommentRound not found.")
+        @ApiResponse(responseCode = "200", description = "CommentRound deleted.", content = { @Content(schema = @Schema(implementation = ResponseWrapper.class)) }),
+        @ApiResponse(responseCode = "404", description = "CommentRound not found.")
     })
-    public Response deleteCommentRound(@ApiParam(value = "CommentRound UUID", required = true) @PathParam("commentRoundId") final String commentRoundId) {
+    public Response deleteCommentRound(@Parameter(description = "CommentRound UUID", required = true) @PathParam("commentRoundId") final String commentRoundId) {
         final UUID commentRoundUuid = StringUtils.parseUUIDFromString(commentRoundId);
         final CommentRound existingCommentRound = commentRoundDao.findById(commentRoundUuid);
         if (existingCommentRound != null) {
@@ -515,13 +517,13 @@ public class CommentRoundResource implements AbstractBaseResource {
     @Path("{commentRoundId}/commentThreads/{commentThreadId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @ApiOperation(value = "Deletes a single existing CommentThread.")
+    @Operation(summary = "Deletes a single existing CommentThread.")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "CommentThread deleted."),
-        @ApiResponse(code = 404, message = "CommentThread not found.")
+        @ApiResponse(responseCode = "200", description = "CommentThread deleted.", content = { @Content(schema = @Schema(implementation = ResponseWrapper.class)) }),
+        @ApiResponse(responseCode = "404", description = "CommentThread not found.")
     })
-    public Response deleteCommentRoundCommentThread(@ApiParam(value = "CommentRound UUID", required = true) @PathParam("commentRoundId") final String commentRoundId,
-                                                    @ApiParam(value = "CommentThread UUID", required = true) @PathParam("commentThreadId") final String commentThreadId) {
+    public Response deleteCommentRoundCommentThread(@Parameter(description = "CommentRound UUID", required = true) @PathParam("commentRoundId") final String commentRoundId,
+                                                    @Parameter(description = "CommentThread UUID", required = true) @PathParam("commentThreadId") final String commentThreadId) {
         final UUID commentRoundUuid = StringUtils.parseUUIDFromString(commentRoundId);
         final CommentRound existingCommentRound = commentRoundDao.findById(commentRoundUuid);
         if (existingCommentRound != null) {
@@ -546,14 +548,14 @@ public class CommentRoundResource implements AbstractBaseResource {
     @Path("{commentRoundId}/commentthreads/{commentThreadId}/comments/{commentId}/delete")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @ApiOperation(value = "Deletes a single existing Comment.")
+    @Operation(summary = "Deletes a single existing Comment.")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Comment deleted."),
-        @ApiResponse(code = 404, message = "Comment not found.")
+        @ApiResponse(responseCode = "200", description = "Comment deleted.", content = { @Content(schema = @Schema(implementation = ResponseWrapper.class)) }),
+        @ApiResponse(responseCode = "404", description = "Comment not found.")
     })
-    public Response deleteCommentRoundCommentThreadComment(@ApiParam(value = "CommentRound UUID", required = true) @PathParam("commentRoundId") final String commentRoundId,
-                                                           @ApiParam(value = "CommentThread UUID", required = true) @PathParam("commentThreadId") final String commentThreadId,
-                                                           @ApiParam(value = "Comment UUID.", required = true) @PathParam("commentId") final UUID commentId) {
+    public Response deleteCommentRoundCommentThreadComment(@Parameter(description = "CommentRound UUID", required = true) @PathParam("commentRoundId") final String commentRoundId,
+                                                           @Parameter(description = "CommentThread UUID", required = true) @PathParam("commentThreadId") final String commentThreadId,
+                                                           @Parameter(description = "Comment UUID.", required = true) @PathParam("commentId") final UUID commentId) {
         final Comment existingComment = commentDao.findById(commentId);
         if (existingComment != null) {
             boolean problemWithAuth = !authorizationManager.canUserDeleteComment(existingComment);

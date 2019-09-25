@@ -8,14 +8,14 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-class AbstractTimeStampedIdentifyableDTO extends AbstractIdentifyableDTO {
+public class AbstractTimeStampedIdentifyableDTO extends AbstractIdentifyableDTO {
 
     private LocalDateTime created;
     private LocalDateTime modified;
 
-    @ApiModelProperty(dataType = "dateTime")
+    @Schema(format = "dateTime")
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
@@ -27,7 +27,7 @@ class AbstractTimeStampedIdentifyableDTO extends AbstractIdentifyableDTO {
         this.created = created;
     }
 
-    @ApiModelProperty(dataType = "dateTime")
+    @Schema(format = "dateTime")
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")

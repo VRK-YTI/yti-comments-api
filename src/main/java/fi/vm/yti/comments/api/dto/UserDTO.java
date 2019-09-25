@@ -9,13 +9,13 @@ import javax.xml.bind.annotation.XmlType;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonFilter("user")
 @XmlRootElement
 @XmlType(propOrder = { "id", "email", "firstName", "lastName" })
 @JsonIgnoreProperties({ "displayName" })
-@ApiModel(value = "User", description = "User DTO for a single Groupmanagement User.")
+@Schema(name = "User", description = "User DTO for a single Groupmanagement User.")
 public class UserDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;

@@ -6,9 +6,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import fi.vm.yti.comments.api.error.Meta;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @XmlRootElement
 @XmlType(propOrder = { "meta", "results" })
+@Schema(name = "ResponseWrapper", description = "Wrapper for list type responses that includes meta block for additional metadata.")
 public class ResponseWrapper<T> {
 
     private Meta meta;

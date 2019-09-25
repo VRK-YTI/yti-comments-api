@@ -40,6 +40,7 @@ interface AbstractIntegrationResource extends AbstractBaseResource {
         final ResponseEntity response;
         HttpHeaders requestHeaders = new HttpHeaders();
         requestHeaders.add("Content-Type", MediaType.APPLICATION_JSON);
+        requestHeaders.add("Accept", MediaType.APPLICATION_JSON);
         HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, requestHeaders);
         try {
             response = restTemplate.exchange(requestUrl, httpMethod, requestEntity, String.class);

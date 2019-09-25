@@ -11,12 +11,11 @@ import javax.xml.bind.annotation.XmlType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @XmlRootElement
 @XmlType(propOrder = { "uri", "prefLabel", "description", "localName", "status", "modified" })
-@ApiModel(value = "Resource", description = "Resource DTO that represents data for one single Container or Resource for integration use.")
+@Schema(name = "Resource", description = "Resource DTO that represents data for one single Container or Resource for integration use.")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResourceDTO implements Serializable {
 
@@ -74,7 +73,7 @@ public class ResourceDTO implements Serializable {
         this.status = status;
     }
 
-    @ApiModelProperty(dataType = "dateTime")
+    @Schema(format = "dateTime")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     public Date getModified() {
         if (modified != null) {

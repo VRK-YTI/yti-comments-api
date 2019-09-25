@@ -1,7 +1,6 @@
 package fi.vm.yti.comments.api.configuration;
 
 import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.MediaType;
 
 import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -21,22 +20,20 @@ import fi.vm.yti.comments.api.resource.ImpersonateUserResource;
 import fi.vm.yti.comments.api.resource.OrganizationResource;
 import fi.vm.yti.comments.api.resource.PingResource;
 import fi.vm.yti.comments.api.resource.SourceResource;
-import fi.vm.yti.comments.api.resource.SwaggerResource;
 import fi.vm.yti.comments.api.resource.SystemResource;
 import fi.vm.yti.comments.api.resource.externalresources.CodelistProxyResource;
 import fi.vm.yti.comments.api.resource.externalresources.DatamodelProxyResource;
 import fi.vm.yti.comments.api.resource.externalresources.GroupManagementProxyResource;
 import fi.vm.yti.comments.api.resource.externalresources.TerminologyProxyResource;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.Contact;
-import io.swagger.annotations.Info;
-import io.swagger.annotations.License;
-import io.swagger.annotations.SwaggerDefinition;
-import static fi.vm.yti.comments.api.constants.ApiConstants.API_BASE_PATH;
-import static fi.vm.yti.comments.api.constants.ApiConstants.API_CONTEXT_PATH;
+import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.info.Contact;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.info.License;
+import io.swagger.v3.oas.annotations.servers.Server;
 
 @Component
-@SwaggerDefinition(
+@OpenAPIDefinition(
     info = @Info(
         description = "YTI Comments - Comments API - Spring Boot microservice.",
         version = "v1",
@@ -52,13 +49,12 @@ import static fi.vm.yti.comments.api.constants.ApiConstants.API_CONTEXT_PATH;
             url = "https://opensource.org/licenses/EUPL-1.1"
         )
     ),
-    host = "localhost:9701",
-    basePath = "/" + API_CONTEXT_PATH + "/" + API_BASE_PATH,
-    consumes = { MediaType.APPLICATION_JSON },
-    produces = { MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN },
-    schemes = { SwaggerDefinition.Scheme.HTTPS }
+    servers = {
+        @Server(
+            description = "Comments API",
+            url = "/comments-api")
+    }
 )
-@Api(value = "/api")
 @ApplicationPath("/api")
 public class JerseyConfig extends ResourceConfig {
 
@@ -86,7 +82,7 @@ public class JerseyConfig extends ResourceConfig {
         register(PingResource.class);
 
         // Swagger
-        register(SwaggerResource.class);
+        register(OpenApiResource.class);
 
         // GroupManagement
         register(GroupManagementProxyResource.class);

@@ -186,18 +186,24 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
 
+        <!-- Google Guava -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>28.1-jre</version>
+        </dependency>
+
         <!-- Swagger -->
         <dependency>
-            <groupId>io.swagger</groupId>
-            <artifactId>swagger-core</artifactId>
-            <scope>compile</scope>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-jaxrs2</artifactId>
             <version>${swagger.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.ws.rs</groupId>
-                    <artifactId>jsr311-api</artifactId>
-                </exclusion>
-            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-jaxrs2-servlet-initializer</artifactId>
+            <version>${swagger.version}</version>
         </dependency>
 
         <!-- FindBugs Annotations -->
@@ -306,31 +312,6 @@
                 </configuration>
             </plugin>
 
-            <!-- Swagger generation plugin -->
-            <plugin>
-                <groupId>com.github.kongchen</groupId>
-                <artifactId>swagger-maven-plugin</artifactId>
-                <version>${swagger-maven-plugin.version}</version>
-                <configuration>
-                    <apiSources>
-                        <apiSource>
-                            <springmvc>false</springmvc>
-                            <locations>fi.vm.yti.comments.api</locations>
-                            <swaggerDirectory>${project.build.outputDirectory}/swagger/</swaggerDirectory>
-                            <attachSwaggerArtifact>true</attachSwaggerArtifact>
-                        </apiSource>
-                    </apiSources>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
             <plugin>
                 <groupId>com.googlecode.maven-download-plugin</groupId>
                 <artifactId>download-maven-plugin</artifactId>
@@ -392,8 +373,8 @@
                     <file>${project.build.directory}/classes/static/swagger/index.html</file>
                     <replacements>
                         <replacement>
-                            <token>http://petstore.swagger.io/v2/swagger.json"</token>
-                            <value>/comments-api/api/swagger.json",
+                            <token>https://petstore.swagger.io/v2/swagger.json"</token>
+                            <value>/comments-api/api/openapi.yaml",
                                 validatorUrl: null
                             </value>
                         </replacement>
@@ -504,9 +485,9 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <spotify-docker.version>1.1.1</spotify-docker.version>
         <dockerfile-maven-version>1.4.4</dockerfile-maven-version>
-        <swagger.version>1.5.18</swagger.version>
-        <swagger-ui.version>3.1.6</swagger-ui.version>
-        <swagger-maven-plugin.version>3.1.6</swagger-maven-plugin.version>
+        <swagger.version>2.0.9</swagger.version>
+        <swagger-ui.version>3.23.11</swagger-ui.version>
+        <swagger-maven-plugin.version>2.1.1</swagger-maven-plugin.version>
         <apache.httpclient.version>4.5.6</apache.httpclient.version>
         <postgresql.version>42.2.5</postgresql.version>
         <apache.poi.version>3.17</apache.poi.version>

@@ -13,13 +13,12 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonFilter("comment")
 @XmlRootElement
 @XmlType(propOrder = { "id", "url", "created", "user", "content", "proposedStatus", "endStatus", "parentComment", "commentThread" })
-@ApiModel(value = "Comment", description = "Comment DTO that represents data for one single Comment in a CommentThread.")
+@Schema(name = "Comment", description = "Comment DTO that represents data for one single Comment in a CommentThread.")
 public class CommentDTO extends AbstractIdentifyableDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -90,7 +89,7 @@ public class CommentDTO extends AbstractIdentifyableDTO implements Serializable 
         this.url = url;
     }
 
-    @ApiModelProperty(dataType = "dateTime")
+    @Schema(format = "dateTime")
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
@@ -102,7 +101,7 @@ public class CommentDTO extends AbstractIdentifyableDTO implements Serializable 
         this.created = created;
     }
 
-    @ApiModelProperty(dataType = "dateTime")
+    @Schema(format = "dateTime")
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")

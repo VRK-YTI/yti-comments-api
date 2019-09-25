@@ -15,13 +15,12 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonFilter("commentRound")
 @XmlRootElement
 @XmlType(propOrder = { "id", "url", "created", "modified", "user", "startDate", "endDate", "status", "sourceLocalName", "sourceLabel", "fixedThreads", "openThreads", "organizations", "commentThreads" })
-@ApiModel(value = "CommentRound", description = "CommentRound DTO that represents data for one single CommentRound.")
+@Schema(name = "CommentRound", description = "CommentRound DTO that represents data for one single CommentRound.")
 public class CommentRoundDTO extends AbstractTimeStampedIdentifyableDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -41,7 +40,7 @@ public class CommentRoundDTO extends AbstractTimeStampedIdentifyableDTO implemen
     private Set<OrganizationDTO> organizations;
     private Set<CommentThreadDTO> commentThreads;
 
-    @ApiModelProperty(dataType = "dateTime")
+    @Schema(format = "dateTime")
     @JsonSerialize(using = LocalDateSerializer.class)
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
@@ -53,7 +52,7 @@ public class CommentRoundDTO extends AbstractTimeStampedIdentifyableDTO implemen
         this.startDate = startDate;
     }
 
-    @ApiModelProperty(dataType = "dateTime")
+    @Schema(format = "dateTime")
     @JsonSerialize(using = LocalDateSerializer.class)
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")

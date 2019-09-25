@@ -18,16 +18,17 @@ import org.springframework.stereotype.Component;
 import fi.vm.yti.comments.api.dto.CommentDTO;
 import fi.vm.yti.comments.api.exception.NotFoundException;
 import fi.vm.yti.comments.api.service.CommentService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import static fi.vm.yti.comments.api.constants.ApiConstants.FILTER_NAME_COMMENT;
 
 @Component
 @Path("/v1/comments")
-@Api(value = "comments")
 public class CommentResource implements AbstractBaseResource {
 
     private final CommentService commentService;
@@ -38,12 +39,12 @@ public class CommentResource implements AbstractBaseResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @ApiOperation(value = "Comment API for requesting all comments.")
+    @Operation(summary = "Comment API for requesting all comments.")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Returns all comments from the system as a list.")
+        @ApiResponse(responseCode = "200", description = "Returns all comments from the system as a list.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDTO.class))) })
     })
     @Transactional
-    public Response getComments(@ApiParam(value = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
+    public Response getComments(@Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENT, expand)));
         final Set<CommentDTO> commentDtos = commentService.findAll();
         return createResponse("Comments", MESSAGE_TYPE_GET_RESOURCES, commentDtos);
@@ -51,15 +52,15 @@ public class CommentResource implements AbstractBaseResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @ApiOperation(value = "Comment API for requesting single comment.")
+    @Operation(summary = "Comment API for requesting single comment.")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Returns single comment."),
-        @ApiResponse(code = 404, message = "No comment found with given UUID.")
+        @ApiResponse(responseCode = "200", description = "Returns single comment.", content = { @Content(schema = @Schema(implementation = CommentDTO.class)) }),
+        @ApiResponse(responseCode = "404", description = "No comment found with given UUID.")
     })
     @Transactional
     @Path("{commentId}")
-    public Response getComment(@ApiParam(value = "Comment UUID.", required = true) @PathParam("commentId") final UUID commentId,
-                               @ApiParam(value = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
+    public Response getComment(@Parameter(description = "Comment UUID.", required = true) @PathParam("commentId") final UUID commentId,
+                               @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENT, expand)));
         final CommentDTO comment = commentService.findById(commentId);
         if (comment != null) {

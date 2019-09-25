@@ -5,11 +5,11 @@ import java.io.Serializable;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @XmlRootElement
 @XmlType(propOrder = { "status", "count" })
-@ApiModel(value = "CommentThreadResult", description = "CommentThread result DTO that represents comment result data for one single CommentThread result.")
+@Schema(name = "CommentThreadResult", description = "CommentThread result DTO that represents comment result data for one single CommentThread result.")
 public class CommentThreadResultDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
