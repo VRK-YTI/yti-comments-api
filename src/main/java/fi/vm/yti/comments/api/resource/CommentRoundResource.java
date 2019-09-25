@@ -108,6 +108,7 @@ public class CommentRoundResource implements AbstractBaseResource {
     public Response getCommentRounds(@ApiParam(value = "Filter option for organization filtering.") @QueryParam("organizationId") final UUID organizationId,
                                      @ApiParam(value = "Filter option for status filtering.") @QueryParam("status") final String status,
                                      @ApiParam(value = "Filter option for integration source type filtering.") @QueryParam("containerType") final String containerType,
+                                     @ApiParam(value = "Filter option for integration source name match.") @QueryParam("searchTerm") final String searchTerm,
                                      @ApiParam(value = "Filter option for incomplete filtering for round creator only") @QueryParam("filterIncomplete") @DefaultValue("false") final Boolean filterIncomplete,
                                      @ApiParam(value = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
                                      @ApiParam(value = "Filter by user organizations or user id.") @QueryParam("filterContent") final Boolean filterContent) {
@@ -140,6 +141,17 @@ public class CommentRoundResource implements AbstractBaseResource {
                 }
             }).collect(Collectors.toSet());
         }
+
+        if (searchTerm != null && !searchTerm.isEmpty() && commentRoundDtos != null) {
+            commentRoundDtos = commentRoundDtos.stream().filter(commentRound -> {
+                if (commentRound.getLabel().toUpperCase().startsWith(searchTerm.toUpperCase()) || commentRound.getLabel().toUpperCase().endsWith(searchTerm.toUpperCase())) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }).collect(Collectors.toSet());
+        }
+
         final Set<CommentRoundDTO> commentRoundDtosToReturn = new HashSet<>();
         if (filterContent && commentRoundDtos != null && !commentRoundDtos.isEmpty()) {
             for (final CommentRoundDTO commentRoundDto : commentRoundDtos) {
