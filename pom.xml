@@ -224,6 +224,7 @@
     <build>
 
         <finalName>${project.artifactId}</finalName>
+
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -312,6 +313,7 @@
                 </configuration>
             </plugin>
 
+            <!-- Swagger UI download -->
             <plugin>
                 <groupId>com.googlecode.maven-download-plugin</groupId>
                 <artifactId>download-maven-plugin</artifactId>
@@ -332,6 +334,7 @@
                 </executions>
             </plugin>
 
+            <!-- Swagger UI resource copying -->
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.0.2</version>
@@ -357,6 +360,7 @@
                 </executions>
             </plugin>
 
+            <!-- Swagger UI spec path change to index file -->
             <plugin>
                 <groupId>com.google.code.maven-replacer-plugin</groupId>
                 <artifactId>replacer</artifactId>
@@ -382,6 +386,7 @@
                 </configuration>
             </plugin>
 
+            <!-- Integration testing -->
             <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
@@ -472,11 +477,8 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
-
     </build>
-
 
     <properties>
         <java.version>1.8</java.version>
