@@ -30,7 +30,7 @@
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
-                <version>Finchley.RELEASE</version>
+                <version>Greenwich.RELEASE</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -39,6 +39,7 @@
 
     <dependencies>
 
+        <!-- YTI Spring Security -->
         <dependency>
             <groupId>fi.vm.yti</groupId>
             <artifactId>yti-spring-security</artifactId>
@@ -72,6 +73,25 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
+        <!-- Spring boot database -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <!-- PostgreSQL -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgresql.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-simple</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
         <!-- Apache POI -->
         <dependency>
             <groupId>org.apache.poi</groupId>
@@ -89,7 +109,7 @@
         <dependency>
             <groupId>commons-net</groupId>
             <artifactId>commons-net</artifactId>
-            <version>3.5</version>
+            <version>3.6</version>
         </dependency>
 
         <!-- Apache Commons IO -->
@@ -122,32 +142,6 @@
             <artifactId>log4j-core</artifactId>
         </dependency>
 
-        <!-- Spring boot database -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
-
-        <!-- PostgreSQL -->
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>${postgresql.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-simple</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <!-- Hikari -->
-        <dependency>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP</artifactId>
-            <version>2.7.4</version>
-        </dependency>
-
         <!-- Apache HTTP Client -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -159,16 +153,14 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
-            <version>${flyway.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-maven-plugin</artifactId>
-            <version>${flyway.version}</version>
         </dependency>
 
         <!-- Spring Cloud -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-config</artifactId>
@@ -489,9 +481,9 @@
         <dockerfile-maven-version>1.4.4</dockerfile-maven-version>
         <swagger.version>2.0.9</swagger.version>
         <swagger-ui.version>3.23.11</swagger-ui.version>
-        <apache.httpclient.version>4.5.6</apache.httpclient.version>
-        <postgresql.version>42.2.5</postgresql.version>
-        <apache.poi.version>3.17</apache.poi.version>
+        <apache.httpclient.version>4.5.10</apache.httpclient.version>
+        <postgresql.version>42.2.8</postgresql.version>
+        <apache.poi.version>4.1.0</apache.poi.version>
     </properties>
 
 </project>
