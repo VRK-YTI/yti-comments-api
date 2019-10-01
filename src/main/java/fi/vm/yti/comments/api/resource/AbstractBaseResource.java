@@ -44,8 +44,7 @@ public interface AbstractBaseResource {
         return createSimpleFilterProvider(baseFilters, expand);
     }
 
-    default SimpleFilterProvider createSimpleFilterProvider(final List<String> baseFilters,
-                                                            final String expand) {
+    default SimpleFilterProvider createBaseFilterProvider() {
         final SimpleFilterProvider filterProvider = new SimpleFilterProvider();
         filterProvider.addFilter(FILTER_NAME_COMMENT, SimpleBeanPropertyFilter.filterOutAllExcept(FIELD_NAME_ID));
         filterProvider.addFilter(FILTER_NAME_SOURCE, SimpleBeanPropertyFilter.filterOutAllExcept(FIELD_NAME_ID));
@@ -53,16 +52,22 @@ public interface AbstractBaseResource {
         filterProvider.addFilter(FILTER_NAME_COMMENTTHREAD, SimpleBeanPropertyFilter.filterOutAllExcept(FIELD_NAME_ID));
         filterProvider.addFilter(FILTER_NAME_ORGANIZATION, SimpleBeanPropertyFilter.filterOutAllExcept(FIELD_NAME_ID));
         filterProvider.addFilter(FILTER_NAME_COMMENTROUNDORGANIZATION, SimpleBeanPropertyFilter.filterOutAllExcept(FIELD_NAME_ID));
+        return filterProvider;
+    }
+
+    default SimpleFilterProvider createSimpleFilterProvider(final List<String> baseFilters,
+                                                            final String expand) {
+        final SimpleFilterProvider filterProvider = createBaseFilterProvider();
         filterProvider.setFailOnUnknownId(false);
         if (baseFilters != null) {
             for (final String baseFilter : baseFilters) {
-                filterProvider.removeFilter(baseFilter);
+                filterProvider.removeFilter(baseFilter.trim());
             }
         }
         if (expand != null && !expand.isEmpty()) {
             final String[] filterOptions = expand.split(",");
             for (final String filter : filterOptions) {
-                filterProvider.removeFilter(filter);
+                filterProvider.removeFilter(filter.trim());
             }
         }
         return filterProvider;
