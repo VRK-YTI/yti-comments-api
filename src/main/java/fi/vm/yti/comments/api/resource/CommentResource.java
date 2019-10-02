@@ -20,6 +20,7 @@ import fi.vm.yti.comments.api.exception.NotFoundException;
 import fi.vm.yti.comments.api.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -44,7 +45,7 @@ public class CommentResource implements AbstractBaseResource {
         @ApiResponse(responseCode = "200", description = "Returns all comments from the system as a list.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDTO.class))) })
     })
     @Transactional
-    public Response getComments(@Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
+    public Response getComments(@Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENT, expand)));
         final Set<CommentDTO> commentDtos = commentService.findAll();
         return createResponse("Comments", MESSAGE_TYPE_GET_RESOURCES, commentDtos);
@@ -59,8 +60,8 @@ public class CommentResource implements AbstractBaseResource {
     })
     @Transactional
     @Path("{commentId}")
-    public Response getComment(@Parameter(description = "Comment UUID.", required = true) @PathParam("commentId") final UUID commentId,
-                               @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
+    public Response getComment(@Parameter(description = "Comment UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentId") final UUID commentId,
+                               @Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENT, expand)));
         final CommentDTO comment = commentService.findById(commentId);
         if (comment != null) {

@@ -26,6 +26,7 @@ import fi.vm.yti.comments.api.jpa.CommentRoundRepository;
 import fi.vm.yti.comments.api.jpa.CommentThreadRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 @Component
@@ -52,9 +53,9 @@ public class SystemResource implements AbstractBaseResource {
     @Operation(summary = "Get entity count meta information from the system")
     @ApiResponse(responseCode = "200", description = "Returns the meta information of entity counts from the system in given format (json / text).")
     @Produces({ "text/plain;charset=utf-8", MediaType.APPLICATION_JSON + ";charset=UTF-8" })
-    public Response getSystemCountMetaInformation(@Parameter(description = "Date after which resources have been modified.") @QueryParam("modifiedAfter") final String modifiedAfter,
-                                                  @Parameter(description = "Date after which resources have been created.") @QueryParam("createdAfter") final String createdAfter,
-                                                  @Parameter(description = "Format of output. Supports json and text, defaults to json.") @QueryParam("format") @DefaultValue("json") final String format) {
+    public Response getSystemCountMetaInformation(@Parameter(description = "Date after which resources have been modified.", in = ParameterIn.QUERY) @QueryParam("modifiedAfter") final String modifiedAfter,
+                                                  @Parameter(description = "Date after which resources have been created.", in = ParameterIn.QUERY) @QueryParam("createdAfter") final String createdAfter,
+                                                  @Parameter(description = "Format of output. Supports json and text, defaults to json.", in = ParameterIn.QUERY) @QueryParam("format") @DefaultValue("json") final String format) {
         final SystemMetaCountDTO countMeta;
         if (modifiedAfter != null) {
             final Date modifiedAfterDate = parseDateFromString(modifiedAfter);

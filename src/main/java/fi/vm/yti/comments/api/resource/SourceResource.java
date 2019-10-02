@@ -22,6 +22,7 @@ import fi.vm.yti.comments.api.parser.SourceParser;
 import fi.vm.yti.comments.api.service.SourceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -49,7 +50,7 @@ public class SourceResource implements AbstractBaseResource {
         @ApiResponse(responseCode = "200", description = "Returns all Sources from the system as a list.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = SourceDTO.class))) })
     })
     @Transactional
-    public Response getSources(@Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
+    public Response getSources(@Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_SOURCE, expand)));
         final Set<SourceDTO> sourceDtos = sourceService.findAll();
         return createResponse("Sources", MESSAGE_TYPE_GET_RESOURCES, sourceDtos);
@@ -64,8 +65,8 @@ public class SourceResource implements AbstractBaseResource {
     })
     @Transactional
     @Path("{sourceId}")
-    public Response getSource(@Parameter(description = "Source UUID.", required = true) @PathParam("sourceId") final UUID sourceId,
-                              @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
+    public Response getSource(@Parameter(description = "Source UUID.", in = ParameterIn.PATH, required = true) @PathParam("sourceId") final UUID sourceId,
+                              @Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_SOURCE, expand)));
         final SourceDTO source = sourceService.findById(sourceId);
         if (source != null) {
@@ -99,7 +100,7 @@ public class SourceResource implements AbstractBaseResource {
     })
     @Transactional
     @Path("{sourceId}")
-    public Response updateSource(@Parameter(description = "Source UUID.", required = true) @PathParam("sourceId") final UUID sourceId,
+    public Response updateSource(@Parameter(description = "Source UUID.", in = ParameterIn.PATH, required = true) @PathParam("sourceId") final UUID sourceId,
                                  @Parameter(description = "JSON playload for source data.", required = true) final String jsonPayload) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_SOURCE, null)));
         final SourceDTO source = sourceParser.parseSourceFromJson(jsonPayload);

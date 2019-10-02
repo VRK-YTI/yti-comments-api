@@ -23,6 +23,7 @@ import fi.vm.yti.comments.api.service.CommentService;
 import fi.vm.yti.comments.api.service.CommentThreadService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -51,7 +52,7 @@ public class CommentThreadResource implements AbstractBaseResource {
         @ApiResponse(responseCode = "200", description = "Returns all CommentThreads.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentThreadDTO.class))) })
     })
     @Transactional
-    public Response getCommentThreads(@Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
+    public Response getCommentThreads(@Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTTHREAD, expand)));
         final Set<CommentThreadDTO> commentThreadDtos = commentThreadService.findAll();
         return createResponse("CommentThreads", MESSAGE_TYPE_GET_RESOURCES, commentThreadDtos);
@@ -66,8 +67,8 @@ public class CommentThreadResource implements AbstractBaseResource {
     })
     @Transactional
     @Path("{commentThreadId}")
-    public Response getCommentThread(@Parameter(description = "CommentThread UUID.", required = true) @PathParam("commentThreadId") final UUID commentThreadId,
-                                     @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
+    public Response getCommentThread(@Parameter(description = "CommentThread UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentThreadId") final UUID commentThreadId,
+                                     @Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTTHREAD, expand)));
         final CommentThreadDTO commentThread = commentThreadService.findById(commentThreadId);
         if (commentThread != null) {
@@ -86,8 +87,8 @@ public class CommentThreadResource implements AbstractBaseResource {
     })
     @Transactional
     @Path("{commentThreadId}/comments")
-    public Response getCommentThreadComments(@Parameter(description = "CommentRound UUID.", required = true) @PathParam("commentThreadId") final UUID commentThreadId,
-                                             @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
+    public Response getCommentThreadComments(@Parameter(description = "CommentRound UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentThreadId") final UUID commentThreadId,
+                                             @Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENT, expand)));
         final CommentThreadDTO commentThread = commentThreadService.findById(commentThreadId);
         if (commentThread != null) {

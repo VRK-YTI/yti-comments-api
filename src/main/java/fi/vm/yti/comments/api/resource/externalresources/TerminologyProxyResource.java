@@ -48,7 +48,7 @@ public class TerminologyProxyResource implements AbstractIntegrationResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Operation(summary = "Get Containers from the Terminology API.")
     @ApiResponse(responseCode = "200", description = "Returns success.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = ResourceDTO.class))) })
-    public Response getContainers(@Parameter(description = "Request related parameters in request body.") @RequestBody(content = @Content(schema = @Schema(implementation = IntegrationContainerRequestDTO.class))) final String searchQuery) {
+    public Response getContainers(@RequestBody(description = "Request related parameters in request body.", content = @Content(schema = @Schema(implementation = IntegrationContainerRequestDTO.class))) final String searchQuery) {
         checkUser(authenticatedUserProvider);
         return fetchIntegrationContainerData(createTerminologyContainerApiUrl(), restTemplate, HttpMethod.POST, searchQuery);
     }
@@ -58,7 +58,7 @@ public class TerminologyProxyResource implements AbstractIntegrationResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Operation(summary = "Get Resources from the Terminology API.")
     @ApiResponse(responseCode = "200", description = "Returns success.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = ResourceDTO.class))) })
-    public Response getResources(@Parameter(description = "Request related parameters in request body.") @RequestBody(content = @Content(schema = @Schema(implementation = IntegrationResourceRequestDTO.class))) final String searchQuery) {
+    public Response getResources(@RequestBody(description = "Request related parameters in request body.", content = @Content(schema = @Schema(implementation = IntegrationResourceRequestDTO.class))) final String searchQuery) {
         checkUser(authenticatedUserProvider);
         return fetchIntegrationResources(createTerminologyResourcesApiUrl(), RESOURCES, restTemplate, HttpMethod.POST, searchQuery);
     }

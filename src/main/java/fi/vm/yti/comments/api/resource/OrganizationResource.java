@@ -21,6 +21,7 @@ import fi.vm.yti.comments.api.dto.OrganizationDTO;
 import fi.vm.yti.comments.api.service.OrganizationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -45,8 +46,8 @@ public class OrganizationResource implements AbstractBaseResource {
     @Operation(summary = "Organizations API.")
     @ApiResponse(responseCode = "200", description = "Returns Organizations.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = OrganizationDTO.class))) })
     @Transactional
-    public Response getOrganizations(@Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
-                                     @Parameter(description = "A boolean value for only returning Organizations with CommentRounds.") @QueryParam("hasCommentRounds") final boolean hasCommentRounds) {
+    public Response getOrganizations(@Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand,
+                                     @Parameter(description = "A boolean value for only returning Organizations with CommentRounds.", in = ParameterIn.QUERY) @QueryParam("hasCommentRounds") final boolean hasCommentRounds) {
         ObjectWriterInjector.set(new AbstractBaseResource.FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_ORGANIZATION, expand)));
         final Set<OrganizationDTO> organizations = organizationService.findByRemovedIsFalse(hasCommentRounds);
         return createResponse("Organizations", MESSAGE_TYPE_GET_RESOURCES, organizations);
@@ -61,8 +62,8 @@ public class OrganizationResource implements AbstractBaseResource {
     })
     @Transactional
     @Path("{organizationId}")
-    public Response getOrganization(@Parameter(description = "Organization UUID.", required = true) @PathParam("organizationId") final UUID organizationId,
-                                    @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
+    public Response getOrganization(@Parameter(description = "Organization UUID.", in = ParameterIn.PATH, required = true) @PathParam("organizationId") final UUID organizationId,
+                                    @Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new AbstractBaseResource.FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_ORGANIZATION, expand)));
         final OrganizationDTO organization = organizationService.findById(organizationId);
         if (organization != null) {

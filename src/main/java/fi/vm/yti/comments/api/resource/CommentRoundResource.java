@@ -51,9 +51,11 @@ import fi.vm.yti.comments.api.service.CommentThreadService;
 import fi.vm.yti.comments.api.utils.StringUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import static fi.vm.yti.comments.api.constants.ApiConstants.*;
@@ -107,13 +109,13 @@ public class CommentRoundResource implements AbstractBaseResource {
         @ApiResponse(responseCode = "200", description = "Returns all commentRounds from the system as a set.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentRoundDTO.class))) })
     })
     @Transactional
-    public Response getCommentRounds(@Parameter(description = "Filter option for organization filtering.") @QueryParam("organizationId") final UUID organizationId,
-                                     @Parameter(description = "Filter option for status filtering.") @QueryParam("status") final String status,
-                                     @Parameter(description = "Filter option for integration source type filtering.") @QueryParam("containerType") final String containerType,
-                                     @Parameter(description = "Filter option for integration source name match.") @QueryParam("searchTerm") final String searchTerm,
-                                     @Parameter(description = "Filter option for incomplete filtering for round creator only") @QueryParam("filterIncomplete") @DefaultValue("false") final Boolean filterIncomplete,
-                                     @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
-                                     @Parameter(description = "Filter by user organizations or user id.") @QueryParam("filterContent") @DefaultValue("false") final boolean filterContent) {
+    public Response getCommentRounds(@Parameter(description = "Filter option for organization filtering.", in = ParameterIn.QUERY) @QueryParam("organizationId") final UUID organizationId,
+                                     @Parameter(description = "Filter option for status filtering.", in = ParameterIn.QUERY) @QueryParam("status") final String status,
+                                     @Parameter(description = "Filter option for integration source type filtering.", in = ParameterIn.QUERY) @QueryParam("containerType") final String containerType,
+                                     @Parameter(description = "Filter option for integration source name match.", in = ParameterIn.QUERY) @QueryParam("searchTerm") final String searchTerm,
+                                     @Parameter(description = "Filter option for incomplete filtering for round creator only", in = ParameterIn.QUERY) @QueryParam("filterIncomplete") @DefaultValue("false") final Boolean filterIncomplete,
+                                     @Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand,
+                                     @Parameter(description = "Filter by user organizations or user id.", in = ParameterIn.QUERY) @QueryParam("filterContent") @DefaultValue("false") final boolean filterContent) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTROUND, expand)));
         Set<CommentRoundDTO> commentRoundDtos;
         if (organizationId != null && status != null && containerType != null) {
@@ -183,9 +185,9 @@ public class CommentRoundResource implements AbstractBaseResource {
     })
     @Transactional
     @Path("{commentRoundId}")
-    public Response getCommentRound(@Parameter(description = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
-                                    @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
-                                    @Parameter(description = "Format for output.") @QueryParam("format") @DefaultValue(FORMAT_JSON) final String format) {
+    public Response getCommentRound(@Parameter(description = "CommentRound UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentRoundId") final UUID commentRoundId,
+                                    @Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand,
+                                    @Parameter(description = "Format for output.", in = ParameterIn.QUERY) @QueryParam("format") @DefaultValue(FORMAT_JSON) final String format) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTROUND, expand)));
         if (FORMAT_EXCEL.equalsIgnoreCase(format)) {
             final CommentRound commentRound = commentRoundDao.findById(commentRoundId);
@@ -216,8 +218,8 @@ public class CommentRoundResource implements AbstractBaseResource {
     })
     @Transactional
     @Path("{commentRoundId}/mycomments")
-    public Response getCommentRoundMyMainComments(@Parameter(description = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
-                                                  @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
+    public Response getCommentRoundMyMainComments(@Parameter(description = "CommentRound UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentRoundId") final UUID commentRoundId,
+                                                  @Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENT, expand)));
         final Set<CommentDTO> commentDtos = commentService.findCommentRoundMainLevelCommentsForUserId(commentRoundId, authorizationManager.getUserId());
         final Set<CommentDTO> sortedComments = commentDtos.stream().sorted(Comparator.comparing(CommentDTO::getCreated)).collect(Collectors.toCollection(LinkedHashSet::new));
@@ -233,8 +235,8 @@ public class CommentRoundResource implements AbstractBaseResource {
     })
     @Transactional
     @Path("{commentRoundId}/commentthreads/")
-    public Response getCommentRoundCommentThreads(@Parameter(description = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
-                                                  @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
+    public Response getCommentRoundCommentThreads(@Parameter(description = "CommentRound UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentRoundId") final UUID commentRoundId,
+                                                  @Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTTHREAD, expand)));
         final Set<CommentThreadDTO> commentThreadDtos = commentThreadService.findByCommentRoundId(commentRoundId);
         final Set<CommentThreadDTO> sortedThreads = commentThreadDtos.stream().sorted(Comparator.comparing(CommentThreadDTO::getResourceUri, Comparator.nullsLast(Comparator.reverseOrder()))).collect(Collectors.toCollection(LinkedHashSet::new));
@@ -250,9 +252,9 @@ public class CommentRoundResource implements AbstractBaseResource {
     })
     @Transactional
     @Path("{commentRoundId}/commentthreads/{commentThreadId}")
-    public Response getCommentRoundCommentThread(@Parameter(description = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
-                                                 @Parameter(description = "CommentThread UUID.", required = true) @PathParam("commentThreadId") final UUID commentThreadId,
-                                                 @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
+    public Response getCommentRoundCommentThread(@Parameter(description = "CommentRound UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentRoundId") final UUID commentRoundId,
+                                                 @Parameter(description = "CommentThread UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentThreadId") final UUID commentThreadId,
+                                                 @Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTTHREAD, expand)));
         final CommentThreadDTO commentThread = commentThreadService.findById(commentThreadId);
         if (commentThread != null) {
@@ -271,9 +273,9 @@ public class CommentRoundResource implements AbstractBaseResource {
     })
     @Transactional
     @Path("{commentRoundId}/commentthreads/{commentThreadId}/comments")
-    public Response getCommentRoundCommentThreadComments(@Parameter(description = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
-                                                         @Parameter(description = "CommentThread UUID.", required = true) @PathParam("commentThreadId") final UUID commentThreadId,
-                                                         @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
+    public Response getCommentRoundCommentThreadComments(@Parameter(description = "CommentRound UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentRoundId") final UUID commentRoundId,
+                                                         @Parameter(description = "CommentThread UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentThreadId") final UUID commentThreadId,
+                                                         @Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENT, expand)));
         final Set<CommentDTO> commentDtos = commentService.findByCommentThreadId(commentThreadId);
         return createResponse("CommentThread Comments", MESSAGE_TYPE_GET_RESOURCES, commentDtos);
@@ -288,10 +290,10 @@ public class CommentRoundResource implements AbstractBaseResource {
     })
     @Transactional
     @Path("{commentRoundId}/commentthreads/{commentThreadId}/comments/{commentId}")
-    public Response getCommentRoundCommentThreadComments(@Parameter(description = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
-                                                         @Parameter(description = "CommentThread UUID.", required = true) @PathParam("commentThreadId") final UUID commentThreadId,
-                                                         @Parameter(description = "Comment UUID.", required = true) @PathParam("commentId") final UUID commentId,
-                                                         @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand) {
+    public Response getCommentRoundCommentThreadComments(@Parameter(description = "CommentRound UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentRoundId") final UUID commentRoundId,
+                                                         @Parameter(description = "CommentThread UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentThreadId") final UUID commentThreadId,
+                                                         @Parameter(description = "Comment UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentId") final UUID commentId,
+                                                         @Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENT, expand)));
         final CommentDTO commentDto = commentService.findById(commentId);
         if (commentDto != null) {
@@ -310,9 +312,9 @@ public class CommentRoundResource implements AbstractBaseResource {
         @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
     })
     @Transactional
-    public Response createOrUpdateCommentRounds(@Parameter(description = "JSON playload for commentRound data.", required = true) final String jsonPayload,
-                                                @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
-                                                @Parameter(description = "Remove orphan CommentThread objects") @QueryParam("removeCommentThreadOrphans") @DefaultValue("false") final boolean removeCommentThreadOrphans) {
+    public Response createOrUpdateCommentRounds(@Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand,
+                                                @Parameter(description = "Remove orphan CommentThread objects", in = ParameterIn.QUERY) @QueryParam("removeCommentThreadOrphans") @DefaultValue("false") final boolean removeCommentThreadOrphans,
+                                                @RequestBody(description = "JSON playload for commentRound data.", required = true) final String jsonPayload) {
         if (authorizationManager.canUserAddCommentRound()) {
             ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTROUND, expand)));
             final Set<CommentRoundDTO> commentRoundDtos = commentRoundService.addOrUpdateCommentRoundsFromDtos(commentRoundParser.parseCommentRoundsFromJson(jsonPayload), removeCommentThreadOrphans);
@@ -333,10 +335,10 @@ public class CommentRoundResource implements AbstractBaseResource {
     })
     @Transactional
     @Path("{commentRoundId}")
-    public Response updateCommentRound(@Parameter(description = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
-                                       @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
-                                       @Parameter(description = "Remove orphan CommentThread objects") @QueryParam("removeCommentThreadOrphans") @DefaultValue("false") final boolean removeCommentThreadOrphans,
-                                       @Parameter(description = "JSON playload for CommentRound data.", required = true) final String jsonPayload) {
+    public Response updateCommentRound(@Parameter(description = "CommentRound UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentRoundId") final UUID commentRoundId,
+                                       @Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand,
+                                       @Parameter(description = "Remove orphan CommentThread objects", in = ParameterIn.QUERY) @QueryParam("removeCommentThreadOrphans") @DefaultValue("false") final boolean removeCommentThreadOrphans,
+                                       @RequestBody(description = "JSON playload for CommentRound data.", required = true) final String jsonPayload) {
         final CommentRound commentRound = commentRoundDao.findById(commentRoundId);
         if (commentRound != null) {
             if (authorizationManager.canUserModifyCommentRound(commentRound)) {
@@ -365,9 +367,9 @@ public class CommentRoundResource implements AbstractBaseResource {
     })
     @Transactional
     @Path("{commentRoundId}/comments")
-    public Response createOrUpdateCommentRoundComments(@Parameter(description = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
-                                                       @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
-                                                       @Parameter(description = "JSON playload for commentRound commentThread data.", required = true) final String jsonPayload) {
+    public Response createOrUpdateCommentRoundComments(@Parameter(description = "CommentRound UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentRoundId") final UUID commentRoundId,
+                                                       @Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand,
+                                                       @RequestBody(description = "JSON playload for commentRound commentThread data.", required = true) final String jsonPayload) {
         final CommentRound commentRound = commentRoundDao.findById(commentRoundId);
         if (authorizationManager.canUserAddCommentsToCommentRound(commentRound)) {
             ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENT, expand)));
@@ -388,10 +390,10 @@ public class CommentRoundResource implements AbstractBaseResource {
     })
     @Transactional
     @Path("{commentRoundId}/commentthreads")
-    public Response createOrUpdateCommentRoundCommentThreads(@Parameter(description = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
-                                                             @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
-                                                             @Parameter(description = "Remove orphans") @QueryParam("removeOrphans") @DefaultValue("false") final boolean removeOrphans,
-                                                             @Parameter(description = "JSON playload for commentRound commentThread data.", required = true) final String jsonPayload) {
+    public Response createOrUpdateCommentRoundCommentThreads(@Parameter(description = "CommentRound UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentRoundId") final UUID commentRoundId,
+                                                             @Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand,
+                                                             @Parameter(description = "Remove orphans", in = ParameterIn.QUERY) @QueryParam("removeOrphans") @DefaultValue("false") final boolean removeOrphans,
+                                                             @RequestBody(description = "JSON playload for commentRound commentThread data.", required = true) final String jsonPayload) {
         final CommentRound commentRound = commentRoundDao.findById(commentRoundId);
         if (authorizationManager.canUserAddCommentThreadsToCommentRound(commentRound)) {
             ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTTHREAD, expand)));
@@ -414,10 +416,10 @@ public class CommentRoundResource implements AbstractBaseResource {
     })
     @Transactional
     @Path("{commentRoundId}/commentthreads/{commentThreadId}")
-    public Response updateCommentRoundCommentThread(@Parameter(description = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
-                                                    @Parameter(description = "CommentThread UUID.", required = true) @PathParam("commentThreadId") final UUID commentThreadId,
-                                                    @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
-                                                    @Parameter(description = "JSON playload for commentRound data.", required = true) final String jsonPayload) {
+    public Response updateCommentRoundCommentThread(@Parameter(description = "CommentRound UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentRoundId") final UUID commentRoundId,
+                                                    @Parameter(description = "CommentThread UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentThreadId") final UUID commentThreadId,
+                                                    @Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand,
+                                                    @RequestBody(description = "JSON playload for commentRound data.", required = true) final String jsonPayload) {
         if (authorizationManager.isSuperUser()) {
             ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTTHREAD, expand)));
             final CommentThreadDTO commentThread = commentThreadService.addOrUpdateCommentThreadFromDto(commentRoundId, commentThreadParser.parseCommentThreadFromJson(jsonPayload));
@@ -441,10 +443,10 @@ public class CommentRoundResource implements AbstractBaseResource {
     })
     @Transactional
     @Path("{commentRoundId}/commentthreads/{commentThreadId}/comments")
-    public Response createOrUpdateCommentRoundCommentThreadComments(@Parameter(description = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
-                                                                    @Parameter(description = "CommentThread UUID.", required = true) @PathParam("commentThreadId") final UUID commentThreadId,
-                                                                    @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
-                                                                    @Parameter(description = "JSON playload for commentRound commentThread data.", required = true) final String jsonPayload) {
+    public Response createOrUpdateCommentRoundCommentThreadComments(@Parameter(description = "CommentRound UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentRoundId") final UUID commentRoundId,
+                                                                    @Parameter(description = "CommentThread UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentThreadId") final UUID commentThreadId,
+                                                                    @Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand,
+                                                                    @RequestBody(description = "JSON playload for commentRound commentThread data.", required = true) final String jsonPayload) {
         final CommentRound commentRound = commentRoundDao.findById(commentRoundId);
         if (authorizationManager.canUserAddCommentsToCommentRound(commentRound)) {
             ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENT, expand)));
@@ -466,11 +468,11 @@ public class CommentRoundResource implements AbstractBaseResource {
     })
     @Transactional
     @Path("{commentRoundId}/commentthreads/{commentThreadId}/comments/{commentId}")
-    public Response updateCommentRoundCommentThreadComment(@Parameter(description = "CommentRound UUID.", required = true) @PathParam("commentRoundId") final UUID commentRoundId,
-                                                           @Parameter(description = "CommentThread UUID.", required = true) @PathParam("commentThreadId") final UUID commentThreadId,
-                                                           @Parameter(description = "Comment UUID.", required = true) @PathParam("commentId") final UUID commentId,
-                                                           @Parameter(description = "Filter string (csl) for expanding specific child objects.") @QueryParam("expand") final String expand,
-                                                           @Parameter(description = "JSON playload for commentRound data.", required = true) final String jsonPayload) {
+    public Response updateCommentRoundCommentThreadComment(@Parameter(description = "CommentRound UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentRoundId") final UUID commentRoundId,
+                                                           @Parameter(description = "CommentThread UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentThreadId") final UUID commentThreadId,
+                                                           @Parameter(description = "Comment UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentId") final UUID commentId,
+                                                           @Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand,
+                                                           @RequestBody(description = "JSON playload for commentRound data.", required = true) final String jsonPayload) {
         final Comment comment = commentDao.findById(commentId);
         boolean problemWithAuth = !authorizationManager.canUserDeleteComment(comment);
         boolean problemWithConcurrentModification = commentService.commentHasChildren(comment);
@@ -498,7 +500,7 @@ public class CommentRoundResource implements AbstractBaseResource {
         @ApiResponse(responseCode = "200", description = "CommentRound deleted.", content = { @Content(schema = @Schema(implementation = ResponseWrapper.class)) }),
         @ApiResponse(responseCode = "404", description = "CommentRound not found.")
     })
-    public Response deleteCommentRound(@Parameter(description = "CommentRound UUID", required = true) @PathParam("commentRoundId") final String commentRoundId) {
+    public Response deleteCommentRound(@Parameter(description = "CommentRound UUID", in = ParameterIn.PATH, required = true) @PathParam("commentRoundId") final String commentRoundId) {
         final UUID commentRoundUuid = StringUtils.parseUUIDFromString(commentRoundId);
         final CommentRound existingCommentRound = commentRoundDao.findById(commentRoundUuid);
         if (existingCommentRound != null) {
@@ -522,8 +524,8 @@ public class CommentRoundResource implements AbstractBaseResource {
         @ApiResponse(responseCode = "200", description = "CommentThread deleted.", content = { @Content(schema = @Schema(implementation = ResponseWrapper.class)) }),
         @ApiResponse(responseCode = "404", description = "CommentThread not found.")
     })
-    public Response deleteCommentRoundCommentThread(@Parameter(description = "CommentRound UUID", required = true) @PathParam("commentRoundId") final String commentRoundId,
-                                                    @Parameter(description = "CommentThread UUID", required = true) @PathParam("commentThreadId") final String commentThreadId) {
+    public Response deleteCommentRoundCommentThread(@Parameter(description = "CommentRound UUID", in = ParameterIn.PATH, required = true) @PathParam("commentRoundId") final String commentRoundId,
+                                                    @Parameter(description = "CommentThread UUID", in = ParameterIn.PATH, required = true) @PathParam("commentThreadId") final String commentThreadId) {
         final UUID commentRoundUuid = StringUtils.parseUUIDFromString(commentRoundId);
         final CommentRound existingCommentRound = commentRoundDao.findById(commentRoundUuid);
         if (existingCommentRound != null) {
@@ -553,9 +555,9 @@ public class CommentRoundResource implements AbstractBaseResource {
         @ApiResponse(responseCode = "200", description = "Comment deleted.", content = { @Content(schema = @Schema(implementation = ResponseWrapper.class)) }),
         @ApiResponse(responseCode = "404", description = "Comment not found.")
     })
-    public Response deleteCommentRoundCommentThreadComment(@Parameter(description = "CommentRound UUID", required = true) @PathParam("commentRoundId") final String commentRoundId,
-                                                           @Parameter(description = "CommentThread UUID", required = true) @PathParam("commentThreadId") final String commentThreadId,
-                                                           @Parameter(description = "Comment UUID.", required = true) @PathParam("commentId") final UUID commentId) {
+    public Response deleteCommentRoundCommentThreadComment(@Parameter(description = "CommentRound UUID", in = ParameterIn.PATH, required = true) @PathParam("commentRoundId") final String commentRoundId,
+                                                           @Parameter(description = "CommentThread UUID", in = ParameterIn.PATH, required = true) @PathParam("commentThreadId") final String commentThreadId,
+                                                           @Parameter(description = "Comment UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentId") final UUID commentId) {
         final Comment existingComment = commentDao.findById(commentId);
         if (existingComment != null) {
             boolean problemWithAuth = !authorizationManager.canUserDeleteComment(existingComment);
