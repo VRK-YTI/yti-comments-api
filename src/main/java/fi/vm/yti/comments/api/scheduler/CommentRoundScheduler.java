@@ -29,6 +29,7 @@ public class CommentRoundScheduler {
         this.commentRoundDao = commentRoundDao;
     }
 
+    @Transactional
     @Scheduled(cron = "0 0 0 * * *", zone = "Europe/Helsinki")
     public void updateCommentRoundStatuses() {
         updateStatuses();
