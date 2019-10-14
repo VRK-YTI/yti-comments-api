@@ -130,7 +130,7 @@ public interface AbstractBaseResource {
                 if (!jsonNode.isArray() && jsonNode.has("results")) {
                     dataString = jsonNode.get("results").toString();
                 } else {
-                    dataString = data;
+                    dataString = "[]";
                 }
                 return mapper.readValue(dataString, new TypeReference<Set<ResourceDTO>>() {
                 });
