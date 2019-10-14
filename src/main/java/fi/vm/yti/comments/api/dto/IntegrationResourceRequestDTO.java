@@ -11,4 +11,14 @@ public class IntegrationResourceRequestDTO extends AbstractBaseIntegrationReques
     public void setContainer(final String container) {
         this.container = container;
     }
+
+    private boolean includeIncomplete;
+
+    public boolean isIncludeIncomplete() {
+        return includeIncomplete;
+    }
+
+    public void setIncludeIncomplete(final boolean includeIncomplete) {
+        this.includeIncomplete = includeIncomplete;
+    }
 }
