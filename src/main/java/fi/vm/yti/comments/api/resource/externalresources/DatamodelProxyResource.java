@@ -17,7 +17,6 @@ import fi.vm.yti.comments.api.dto.IntegrationResourceRequestDTO;
 import fi.vm.yti.comments.api.dto.ResourceDTO;
 import fi.vm.yti.security.AuthenticatedUserProvider;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
