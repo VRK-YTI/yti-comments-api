@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -59,6 +60,11 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
     }
 
     @Transactional
+    public Set<CommentThread> findAll(final PageRequest pageRequest) {
+        return new HashSet<>(commentThreadRepository.findAll(pageRequest).getContent());
+    }
+
+    @Transactional
     public CommentThread findById(final UUID commentThreadId) {
         return commentThreadRepository.findById(commentThreadId);
     }
@@ -72,6 +78,11 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
     @Transactional
     public Set<CommentThread> findByCommentRoundId(final UUID commentRoundId) {
         return commentThreadRepository.findByCommentRoundId(commentRoundId);
+    }
+
+    @Transactional
+    public Set<CommentThread> findByIds(final Set<UUID> uuids) {
+        return commentThreadRepository.findByIdIn(uuids);
     }
 
     @Transactional
@@ -121,6 +132,30 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
         return commentThreads;
     }
 
+    @Transactional
+    public int getCommentThreadCount(final Set<UUID> commentThreadIds,
+                                     final UUID commentRoundId,
+                                     final LocalDateTime after,
+                                     final LocalDateTime before) {
+        if (commentThreadIds != null && after != null && before != null) {
+            return commentThreadRepository.getCommentThreadCountWithIdsAndAfterAndBefore(commentThreadIds, after, before);
+        } else if (commentThreadIds != null && after != null) {
+            return commentThreadRepository.getCommentThreadCountWithIdsAndAfter(commentThreadIds, after);
+        } else if (commentThreadIds != null && after != null) {
+            return commentThreadRepository.getCommentThreadCountWithIdsAndBefore(commentThreadIds, before);
+        } else if (commentRoundId != null && after != null && before != null) {
+            return commentThreadRepository.getCommentThreadCountWithCommentRoundIdAndAfterAndBefore(commentRoundId, after, before);
+        } else if (commentRoundId != null && after != null) {
+            return commentThreadRepository.getCommentThreadCountWithCommentRoundIdAndAfter(commentRoundId, after);
+        } else if (commentRoundId != null && before != null) {
+            return commentThreadRepository.getCommentThreadCountWithCommentRoundIdAndBefore(commentRoundId, before);
+        } else if (commentRoundId != null) {
+            return commentThreadRepository.getCommentThreadCountWithCommentRoundId(commentRoundId);
+        } else {
+            return commentThreadRepository.getCommentThreadCount();
+        }
+    }
+
     private void validateCommentRound(final CommentRound commentRound,
                                       final CommentThreadDTO fromCommentThread) {
         if (fromCommentThread.getCommentRound() != null && !commentRound.getId().equals(fromCommentThread.getCommentRound().getId())) {
@@ -149,6 +184,7 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
         } else {
             commentThread = createCommentThread(commentRound, fromCommentThread);
         }
+        commentRoundDao.updateModifiedAndContentModified(commentRound.getId(), LocalDateTime.now());
         return commentThread;
 
     }
@@ -174,5 +210,11 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
     @Transactional
     public void deleteCommentThread(final CommentThread commentThread) {
         commentThreadRepository.delete(commentThread);
+    }
+
+    @Transactional
+    public void updateCommentsModified(final UUID commentThreadId,
+                                       final LocalDateTime timeStamp) {
+        commentThreadRepository.updateCommentsModified(commentThreadId, timeStamp);
     }
 }

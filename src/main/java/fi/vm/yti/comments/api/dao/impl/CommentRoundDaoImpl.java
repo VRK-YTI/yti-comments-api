@@ -3,6 +3,7 @@ package fi.vm.yti.comments.api.dao.impl;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -10,6 +11,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -33,6 +35,7 @@ import fi.vm.yti.comments.api.jpa.CommentRoundRepository;
 import fi.vm.yti.comments.api.security.AuthorizationManager;
 import static fi.vm.yti.comments.api.constants.ApiConstants.*;
 import static fi.vm.yti.comments.api.exception.ErrorConstants.ERR_MSG_NO_RESOURCES_TO_COMMENT_STATUS_CHANGE_NOT_ALLOWED;
+import static java.time.LocalDateTime.now;
 
 @Component
 public class CommentRoundDaoImpl implements CommentRoundDao {
@@ -69,6 +72,11 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
     @Transactional
     public Set<CommentRound> findAll() {
         return commentRoundRepository.findAll();
+    }
+
+    @Transactional
+    public Set<CommentRound> findAll(final PageRequest pageRequest) {
+        return new HashSet<>(commentRoundRepository.findAll(pageRequest).getContent());
     }
 
     @Transactional
@@ -167,7 +175,38 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
             commentRound = createCommentRound(fromCommentRound);
         }
         return commentRound;
+    }
 
+    @Transactional
+    public Set<CommentRound> findByIds(final Set<UUID> uuids) {
+        return commentRoundRepository.findByIdIn(uuids);
+    }
+
+    @Transactional
+    public void updateModifiedAndContentModified(final UUID commentRoundId,
+                                                 final LocalDateTime timeStamp) {
+        commentRoundRepository.updateModifiedAndContentModified(commentRoundId, timeStamp);
+    }
+
+    @Transactional
+    public int getCommentRoundCount(final Set<UUID> commentRoundIds,
+                                    final LocalDateTime after,
+                                    final LocalDateTime before) {
+        if (commentRoundIds != null && after != null && before != null) {
+            return commentRoundRepository.getCommentRoundCountWithIdsAndAfterAndBefore(commentRoundIds, after, before);
+        } else if (commentRoundIds != null && after != null) {
+            return commentRoundRepository.getCommentRoundCountWithIdsAndAfter(commentRoundIds, after);
+        } else if (commentRoundIds != null && before != null) {
+            return commentRoundRepository.getCommentRoundCountWithIdsAndBefore(commentRoundIds, before);
+        } else if (after != null && before != null) {
+            return commentRoundRepository.getCommentRoundCountWithAfterAndBefore(after, before);
+        } else if (after != null) {
+            return commentRoundRepository.getCommentRoundCountWithAfter(after);
+        } else if (before != null) {
+            return commentRoundRepository.getCommentRoundCountWithBefore(before);
+        } else {
+            return commentRoundRepository.getCommentThreadCount();
+        }
     }
 
     private CommentRound createCommentRound(final CommentRoundDTO fromCommentRound) {
@@ -183,7 +222,7 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
         commentRound.setEndDate(fromCommentRound.getEndDate());
         commentRound.setSourceLocalName(fromCommentRound.getSourceLocalName());
         commentRound.setSourceLabel(fromCommentRound.getSourceLabel());
-        final LocalDateTime timeStamp = LocalDateTime.now();
+        final LocalDateTime timeStamp = now();
         commentRound.setCreated(timeStamp);
         commentRound.setModified(timeStamp);
         resolveAndSetSource(commentRound, fromCommentRound);
@@ -194,14 +233,18 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
     private CommentRound updateCommentRound(final CommentRound existingCommentRound,
                                             final CommentRoundDTO fromCommentRound,
                                             final boolean removeCommentThreadOrphans) {
+        final LocalDateTime timeStamp = now();
         existingCommentRound.setLabel(fromCommentRound.getLabel());
         existingCommentRound.setDescription(fromCommentRound.getDescription());
-        existingCommentRound.setStatus(fromCommentRound.getStatus());
+        if (!Objects.equals(existingCommentRound.getStatus(), fromCommentRound.getStatus())) {
+            existingCommentRound.setStatus(fromCommentRound.getStatus());
+            existingCommentRound.setStatusModified(timeStamp);
+        }
         existingCommentRound.setOpenThreads(fromCommentRound.getOpenThreads());
         existingCommentRound.setFixedThreads(fromCommentRound.getFixedThreads());
         existingCommentRound.setStartDate(fromCommentRound.getStartDate());
         existingCommentRound.setEndDate(fromCommentRound.getEndDate());
-        existingCommentRound.setModified(LocalDateTime.now());
+        existingCommentRound.setModified(timeStamp);
         existingCommentRound.setSourceLocalName(fromCommentRound.getSourceLocalName());
         existingCommentRound.setSourceLabel(fromCommentRound.getSourceLabel());
         resolveAndSetSource(existingCommentRound, fromCommentRound);
@@ -229,9 +272,9 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
                 final Set<UUID> newCommentThreadIds = commentThreads.stream().map(AbstractIdentifyableEntity::getId).collect(Collectors.toSet());
                 final Set<CommentThread> existingCommentThreads = existingCommentRound.getCommentThreads();
                 existingCommentThreads.forEach(existingCommentThread -> {
-                   if (!newCommentThreadIds.contains(existingCommentRound.getId())) {
-                       commentThreads.add(existingCommentThread);
-                   }
+                    if (!newCommentThreadIds.contains(existingCommentRound.getId())) {
+                        commentThreads.add(existingCommentThread);
+                    }
                 });
             }
             commentThreadDao.saveAll(commentThreads);

@@ -1,8 +1,11 @@
 package fi.vm.yti.comments.api.dao;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
+
+import org.springframework.data.domain.PageRequest;
 
 import fi.vm.yti.comments.api.dto.CommentRoundDTO;
 import fi.vm.yti.comments.api.entity.CommentRound;
@@ -14,6 +17,8 @@ public interface CommentRoundDao {
     void saveAll(final Set<CommentRound> commentRounds);
 
     Set<CommentRound> findAll();
+
+    Set<CommentRound> findAll(final PageRequest pageRequest);
 
     Set<CommentRound> findByOrganizationsIdAndStatus(final UUID organizationId,
                                                      final String status);
@@ -49,4 +54,13 @@ public interface CommentRoundDao {
                                                        final boolean removeCommentThreadOrphans);
 
     void deleteCommentRound(final CommentRound commentRound);
+
+    Set<CommentRound> findByIds(final Set<UUID> uuids);
+
+    void updateModifiedAndContentModified(final UUID commentRoundId,
+                                          final LocalDateTime timeStamp);
+
+    int getCommentRoundCount(final Set<UUID> commentRoundIds,
+                             final LocalDateTime after,
+                             final LocalDateTime before);
 }

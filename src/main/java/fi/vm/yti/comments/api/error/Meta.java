@@ -27,6 +27,7 @@ public class Meta {
     private Integer resultCount;
     private Integer totalResults;
     private Date after;
+    private Date before;
     private String afterResourceUrl;
     private String nextPage;
     private String entityIdentifier;
@@ -153,5 +154,13 @@ public class Meta {
 
     public void setEntityIdentifier(final String entityIdentifier) {
         this.entityIdentifier = entityIdentifier;
+    }
+
+    public Date getBefore() {
+        return before;
+    }
+
+    public void setBefore(final Date before) {
+        this.before = before;
     }
 }

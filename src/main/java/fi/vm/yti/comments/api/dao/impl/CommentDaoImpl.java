@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import fi.vm.yti.comments.api.dao.CommentDao;
+import fi.vm.yti.comments.api.dao.CommentRoundDao;
 import fi.vm.yti.comments.api.dao.CommentThreadDao;
 import fi.vm.yti.comments.api.dto.CommentDTO;
 import fi.vm.yti.comments.api.entity.Comment;
@@ -20,7 +21,6 @@ import fi.vm.yti.comments.api.entity.CommentThread;
 import fi.vm.yti.comments.api.error.ErrorModel;
 import fi.vm.yti.comments.api.exception.YtiCommentsException;
 import fi.vm.yti.comments.api.jpa.CommentRepository;
-import fi.vm.yti.comments.api.jpa.CommentThreadRepository;
 import fi.vm.yti.comments.api.security.AuthorizationManager;
 import static fi.vm.yti.comments.api.exception.ErrorConstants.*;
 
@@ -28,19 +28,19 @@ import static fi.vm.yti.comments.api.exception.ErrorConstants.*;
 public class CommentDaoImpl implements CommentDao {
 
     private final CommentRepository commentRepository;
-    private final CommentThreadRepository commentThreadRepository;
     private final CommentThreadDao commentThreadDao;
+    private final CommentRoundDao commentRoundDao;
     private final AuthorizationManager authorizationManager;
 
     @Inject
     public CommentDaoImpl(final CommentRepository commentRepository,
-                          CommentThreadRepository commentThreadRepository,
                           final CommentThreadDao commentThreadDao,
+                          final CommentRoundDao commentRoundDao,
                           final AuthorizationManager authorizationManager) {
         this.commentRepository = commentRepository;
         this.commentThreadDao = commentThreadDao;
+        this.commentRoundDao = commentRoundDao;
         this.authorizationManager = authorizationManager;
-        this.commentThreadRepository = commentThreadRepository;
     }
 
     @Transactional
@@ -124,6 +124,7 @@ public class CommentDaoImpl implements CommentDao {
         } else {
             comment = createComment(commentThread, fromComment);
         }
+        updateTimeStamps(commentThread.getCommentRound().getId(), commentThread.getId());
         return comment;
     }
 
@@ -149,7 +150,15 @@ public class CommentDaoImpl implements CommentDao {
         } else {
             comment = createComment(commentThread, fromComment);
         }
+        updateTimeStamps(commentRound.getId(), commentThread.getId());
         return comment;
+    }
+
+    private void updateTimeStamps(final UUID commentRoundId,
+                                  final UUID commentThreadId) {
+        final LocalDateTime now = LocalDateTime.now();
+        commentRoundDao.updateModifiedAndContentModified(commentRoundId, now);
+        commentThreadDao.updateCommentsModified(commentThreadId, now);
     }
 
     private Comment createComment(final CommentThread commentThread,
@@ -209,9 +218,6 @@ public class CommentDaoImpl implements CommentDao {
     @Transactional
     public void deleteComment(final Comment comment) {
         Comment theComment = commentRepository.findById(comment.getId());
-        /*CommentThread commentThread = commentThreadRepository.findById(theComment.getCommentThread().getId());
-        commentThread.getComments().remove(theComment);
-        commentThreadRepository.save(commentThread);*/
         commentRepository.delete(theComment);
     }
 

@@ -1,20 +1,25 @@
 package fi.vm.yti.comments.api.service.impl;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 
 import javax.transaction.Transactional;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import fi.vm.yti.comments.api.dao.CommentRoundDao;
 import fi.vm.yti.comments.api.dto.CommentRoundDTO;
 import fi.vm.yti.comments.api.dto.DtoMapper;
+import fi.vm.yti.comments.api.dto.ResourceDTO;
 import fi.vm.yti.comments.api.entity.CommentRound;
+import fi.vm.yti.comments.api.error.Meta;
 import fi.vm.yti.comments.api.service.CommentRoundService;
 
 @Component
-public class CommentRoundServiceImpl implements CommentRoundService {
+public class CommentRoundServiceImpl extends AbstractService implements CommentRoundService {
 
     private final CommentRoundDao commentRoundDao;
     private final DtoMapper dtoMapper;
@@ -28,6 +33,11 @@ public class CommentRoundServiceImpl implements CommentRoundService {
     @Transactional
     public Set<CommentRoundDTO> findAll() {
         return dtoMapper.mapDeepCommentRounds(commentRoundDao.findAll());
+    }
+
+    @Override
+    public Set<CommentRoundDTO> findAll(final PageRequest pageable) {
+        return dtoMapper.mapDeepCommentRounds(commentRoundDao.findAll(pageable));
     }
 
     @Transactional
@@ -90,5 +100,30 @@ public class CommentRoundServiceImpl implements CommentRoundService {
     @Transactional
     public void deleteCommentRound(final CommentRound commentRound) {
         commentRoundDao.deleteCommentRound(commentRound);
+    }
+
+    @Transactional
+    public int getCommentRoundCount(final Set<UUID> commentRoundIds,
+                                    final LocalDateTime after,
+                                    final LocalDateTime before) {
+        return commentRoundDao.getCommentRoundCount(commentRoundIds, after, before);
+    }
+
+    @Transactional
+    public Set<ResourceDTO> getContainers(final Set<UUID> commentRoundIds,
+                                          final Meta meta) {
+        final LocalDateTime after = convertDateToLocalDateTime(meta.getAfter());
+        final LocalDateTime before = convertDateToLocalDateTime(meta.getBefore());
+        final int commentRoundCount = getCommentRoundCount(commentRoundIds, after, before);
+        meta.setTotalResults(commentRoundCount);
+        if (meta != null) {
+            int page = getPageIndex(meta);
+            final PageRequest pageRequest = PageRequest.of(page, MAX_PAGE_COUNT, new Sort(Sort.Direction.ASC, "id"));
+            return dtoMapper.mapCommentRoundsToResources(commentRoundDao.findAll(pageRequest));
+        } else if (commentRoundIds != null && !commentRoundIds.isEmpty()) {
+            return dtoMapper.mapCommentRoundsToResources(commentRoundDao.findByIds(commentRoundIds));
+        } else {
+            return dtoMapper.mapCommentRoundsToResources(commentRoundDao.findAll());
+        }
     }
 }

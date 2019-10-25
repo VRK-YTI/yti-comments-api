@@ -1,7 +1,7 @@
 package fi.vm.yti.comments.api.dto;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @XmlRootElement
-@XmlType(propOrder = { "uri", "prefLabel", "description", "localName", "status", "modified" })
+@XmlType(propOrder = { "uri", "prefLabel", "description", "type", "localName", "status", "modified", "contentModified", "statusModified" })
 @Schema(name = "Resource", description = "Resource DTO that represents data for one single Container or Resource for integration use.")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResourceDTO implements Serializable {
@@ -23,10 +23,13 @@ public class ResourceDTO implements Serializable {
 
     private Map<String, String> prefLabel;
     private Map<String, String> description;
+    private String type;
     private String localName;
     private String uri;
     private String status;
-    private Date modified;
+    private LocalDateTime modified;
+    private LocalDateTime contentModified;
+    private LocalDateTime statusModified;
 
     public ResourceDTO() {
         prefLabel = new HashMap<>();
@@ -57,6 +60,14 @@ public class ResourceDTO implements Serializable {
         this.description = description;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(final String type) {
+        this.type = type;
+    }
+
     public String getLocalName() {
         return localName;
     }
@@ -75,18 +86,31 @@ public class ResourceDTO implements Serializable {
 
     @Schema(format = "dateTime")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    public Date getModified() {
-        if (modified != null) {
-            return new Date(modified.getTime());
-        }
-        return null;
+    public LocalDateTime getModified() {
+        return modified;
     }
 
-    public void setModified(final Date modified) {
-        if (modified != null) {
-            this.modified = new Date(modified.getTime());
-        } else {
-            this.modified = null;
-        }
+    public void setModified(final LocalDateTime modified) {
+        this.modified = modified;
+    }
+
+    @Schema(format = "dateTime")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    public LocalDateTime getContentModified() {
+        return contentModified;
+    }
+
+    public void setContentModified(final LocalDateTime contentModified) {
+        this.contentModified = contentModified;
+    }
+
+    @Schema(format = "dateTime")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    public LocalDateTime getStatusModified() {
+        return statusModified;
+    }
+
+    public void setStatusModified(final LocalDateTime statusModified) {
+        this.statusModified = statusModified;
     }
 }

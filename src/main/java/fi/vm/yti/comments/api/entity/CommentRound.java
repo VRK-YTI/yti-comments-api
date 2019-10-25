@@ -2,6 +2,7 @@ package fi.vm.yti.comments.api.entity;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -41,6 +42,8 @@ public class CommentRound extends AbstractTimeStampedIdentifyableEntity implemen
     private Set<Organization> organizations;
     private Map<String, String> sourceLabel;
     private Set<CommentThread> commentThreads;
+    private LocalDateTime contentModified;
+    private LocalDateTime statusModified;
 
     @Column(name = "startdate")
     public LocalDate getStartDate() {
@@ -167,5 +170,23 @@ public class CommentRound extends AbstractTimeStampedIdentifyableEntity implemen
 
     public void setCommentThreads(final Set<CommentThread> commentThreads) {
         this.commentThreads = commentThreads;
+    }
+
+    @Column(name = "content_modified")
+    public LocalDateTime getContentModified() {
+        return contentModified;
+    }
+
+    public void setContentModified(final LocalDateTime contentModified) {
+        this.contentModified = contentModified;
+    }
+
+    @Column(name = "status_modified")
+    public LocalDateTime getStatusModified() {
+        return statusModified;
+    }
+
+    public void setStatusModified(final LocalDateTime statusModified) {
+        this.statusModified = statusModified;
     }
 }

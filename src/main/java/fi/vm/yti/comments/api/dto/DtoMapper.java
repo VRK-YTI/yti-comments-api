@@ -1,6 +1,9 @@
 package fi.vm.yti.comments.api.dto;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -246,5 +249,55 @@ public class DtoMapper {
             organizations.forEach(organization -> organizationDtos.add(mapOrganization(organization, deep)));
         }
         return organizationDtos;
+    }
+
+    @Transactional
+    public Set<ResourceDTO> mapCommentRoundsToResources(final Set<CommentRound> commentRounds) {
+        final Set<ResourceDTO> resourceDtos = new HashSet<>();
+        commentRounds.forEach(resource -> resourceDtos.add(mapCommentRoundToResource(resource)));
+        return resourceDtos;
+    }
+
+    @Transactional
+    public ResourceDTO mapCommentRoundToResource(final CommentRound commentRound) {
+        final ResourceDTO resourceDto = new ResourceDTO();
+        resourceDto.setPrefLabel(createUndLocalizable(commentRound.getLabel()));
+        resourceDto.setDescription(createUndLocalizable(commentRound.getDescription()));
+        resourceDto.setUri(commentRound.getId().toString());
+        resourceDto.setStatus(commentRound.getStatus());
+        resourceDto.setModified(commentRound.getModified());
+        resourceDto.setStatusModified(commentRound.getStatusModified());
+        resourceDto.setContentModified(commentRound.getContentModified());
+        resourceDto.setType("commentround");
+        return resourceDto;
+    }
+
+    private Map<String, String> createUndLocalizable(final String text) {
+        if (text != null && !text.isEmpty()) {
+            final Map<String, String> localizable = new HashMap<>();
+            localizable.put("und", text);
+            return localizable;
+        } else {
+            return null;
+        }
+    }
+
+    @Transactional
+    public Set<ResourceDTO> mapCommentThreadsToResources(final Set<CommentThread> commentThreads) {
+        final Set<ResourceDTO> resourceDtos = new HashSet<>();
+        commentThreads.forEach(resource -> resourceDtos.add(mapCommentThreadToResource(resource)));
+        return resourceDtos;
+    }
+
+    @Transactional
+    public ResourceDTO mapCommentThreadToResource(final CommentThread commentThread) {
+        final ResourceDTO resourceDto = new ResourceDTO();
+        resourceDto.setPrefLabel(commentThread.getLabel());
+        resourceDto.setDescription(commentThread.getDescription());
+        resourceDto.setUri(commentThread.getId().toString());
+        final LocalDateTime contentModified = commentThread.getCommentsModified();
+        resourceDto.setModified(contentModified != null ? contentModified : commentThread.getCommentsModified());
+        resourceDto.setType("commentthread");
+        return resourceDto;
     }
 }

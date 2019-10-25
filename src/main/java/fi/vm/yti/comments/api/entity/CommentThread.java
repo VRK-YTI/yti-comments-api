@@ -38,6 +38,7 @@ public class CommentThread extends AbstractIdentifyableEntity implements Seriali
     private LocalDateTime created;
     private Set<Comment> comments;
     private CommentRound commentRound;
+    private LocalDateTime commentsModified;
 
     @Column(name = "resourceuri")
     public String getResourceUri() {
@@ -145,5 +146,14 @@ public class CommentThread extends AbstractIdentifyableEntity implements Seriali
 
     public void setCommentRound(final CommentRound commentRound) {
         this.commentRound = commentRound;
+    }
+
+    @Column(name = "comments_modified")
+    public LocalDateTime getCommentsModified() {
+        return commentsModified;
+    }
+
+    public void setCommentsModified(final LocalDateTime commentsModified) {
+        this.commentsModified = commentsModified;
     }
 }

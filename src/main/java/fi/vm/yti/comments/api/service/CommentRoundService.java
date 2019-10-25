@@ -3,12 +3,18 @@ package fi.vm.yti.comments.api.service;
 import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.data.domain.PageRequest;
+
 import fi.vm.yti.comments.api.dto.CommentRoundDTO;
+import fi.vm.yti.comments.api.dto.ResourceDTO;
 import fi.vm.yti.comments.api.entity.CommentRound;
+import fi.vm.yti.comments.api.error.Meta;
 
 public interface CommentRoundService {
 
     Set<CommentRoundDTO> findAll();
+
+    Set<CommentRoundDTO> findAll(final PageRequest pageable);
 
     Set<CommentRoundDTO> findByOrganizationsIdAndStatus(final UUID organizationId,
                                                         final String status);
@@ -38,4 +44,7 @@ public interface CommentRoundService {
                                                           final boolean removeCommentThreadOrphans);
 
     void deleteCommentRound(final CommentRound commentRound);
+
+    Set<ResourceDTO> getContainers(final Set<UUID> uuids,
+                                   final Meta meta);
 }

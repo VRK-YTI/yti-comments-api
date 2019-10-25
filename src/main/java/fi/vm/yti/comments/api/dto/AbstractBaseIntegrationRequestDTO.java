@@ -8,6 +8,7 @@ public class AbstractBaseIntegrationRequestDTO {
     private Integer pageSize;
     private List<String> status;
     private String after;
+    private String before;
     private List<String> filter;
     private String language;
     private String searchTerm;
@@ -43,6 +44,14 @@ public class AbstractBaseIntegrationRequestDTO {
 
     public void setAfter(final String after) {
         this.after = after;
+    }
+
+    public String getBefore() {
+        return before;
+    }
+
+    public void setBefore(final String before) {
+        this.before = before;
     }
 
     public List<String> getFilter() {
