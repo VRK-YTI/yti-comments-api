@@ -1,7 +1,7 @@
 package fi.vm.yti.comments.api.dto;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,9 +27,9 @@ public class ResourceDTO implements Serializable {
     private String localName;
     private String uri;
     private String status;
-    private LocalDateTime modified;
-    private LocalDateTime contentModified;
-    private LocalDateTime statusModified;
+    private Date modified;
+    private Date contentModified;
+    private Date statusModified;
 
     public ResourceDTO() {
         prefLabel = new HashMap<>();
@@ -86,31 +86,31 @@ public class ResourceDTO implements Serializable {
 
     @Schema(format = "dateTime")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    public LocalDateTime getModified() {
+    public Date getModified() {
         return modified;
     }
 
-    public void setModified(final LocalDateTime modified) {
+    public void setModified(final Date modified) {
         this.modified = modified;
     }
 
     @Schema(format = "dateTime")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    public LocalDateTime getContentModified() {
+    public Date getContentModified() {
         return contentModified;
     }
 
-    public void setContentModified(final LocalDateTime contentModified) {
+    public void setContentModified(final Date contentModified) {
         this.contentModified = contentModified;
     }
 
     @Schema(format = "dateTime")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    public LocalDateTime getStatusModified() {
+    public Date getStatusModified() {
         return statusModified;
     }
 
-    public void setStatusModified(final LocalDateTime statusModified) {
+    public void setStatusModified(final Date statusModified) {
         this.statusModified = statusModified;
     }
 }

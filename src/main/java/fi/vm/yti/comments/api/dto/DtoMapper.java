@@ -1,6 +1,5 @@
 package fi.vm.yti.comments.api.dto;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -21,6 +20,7 @@ import fi.vm.yti.comments.api.entity.Source;
 import fi.vm.yti.comments.api.service.ResultService;
 import fi.vm.yti.comments.api.service.UserService;
 import static fi.vm.yti.comments.api.constants.ApiConstants.*;
+import static fi.vm.yti.comments.api.utils.DateUtils.convertLocalDateTimeToDate;
 
 @Component
 public class DtoMapper {
@@ -265,21 +265,11 @@ public class DtoMapper {
         resourceDto.setDescription(createUndLocalizable(commentRound.getDescription()));
         resourceDto.setUri(commentRound.getId().toString());
         resourceDto.setStatus(commentRound.getStatus());
-        resourceDto.setModified(commentRound.getModified());
-        resourceDto.setStatusModified(commentRound.getStatusModified());
-        resourceDto.setContentModified(commentRound.getContentModified());
+        resourceDto.setModified(convertLocalDateTimeToDate(commentRound.getModified()));
+        resourceDto.setStatusModified(convertLocalDateTimeToDate(commentRound.getStatusModified()));
+        resourceDto.setContentModified(convertLocalDateTimeToDate(commentRound.getContentModified()));
         resourceDto.setType("commentround");
         return resourceDto;
-    }
-
-    private Map<String, String> createUndLocalizable(final String text) {
-        if (text != null && !text.isEmpty()) {
-            final Map<String, String> localizable = new HashMap<>();
-            localizable.put("und", text);
-            return localizable;
-        } else {
-            return null;
-        }
     }
 
     @Transactional
@@ -295,9 +285,18 @@ public class DtoMapper {
         resourceDto.setPrefLabel(commentThread.getLabel());
         resourceDto.setDescription(commentThread.getDescription());
         resourceDto.setUri(commentThread.getId().toString());
-        final LocalDateTime contentModified = commentThread.getCommentsModified();
-        resourceDto.setModified(contentModified != null ? contentModified : commentThread.getCommentsModified());
+        resourceDto.setModified(convertLocalDateTimeToDate(commentThread.getCommentsModified()));
         resourceDto.setType("commentthread");
         return resourceDto;
+    }
+
+    private Map<String, String> createUndLocalizable(final String text) {
+        if (text != null && !text.isEmpty()) {
+            final Map<String, String> localizable = new HashMap<>();
+            localizable.put("und", text);
+            return localizable;
+        } else {
+            return null;
+        }
     }
 }
