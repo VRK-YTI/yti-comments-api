@@ -215,6 +215,6 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
     @Transactional
     public void updateCommentsModified(final UUID commentThreadId,
                                        final LocalDateTime timeStamp) {
-        commentThreadRepository.updateCommentsModified(commentThreadId, timeStamp);
+//        commentThreadRepository.updateCommentsModified(commentThreadId, timeStamp);
     }
 }

@@ -185,7 +185,7 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
     @Transactional
     public void updateModifiedAndContentModified(final UUID commentRoundId,
                                                  final LocalDateTime timeStamp) {
-        commentRoundRepository.updateModifiedAndContentModified(commentRoundId, timeStamp);
+//        commentRoundRepository.updateModifiedAndContentModified(commentRoundId, timeStamp);
     }
 
     @Transactional
