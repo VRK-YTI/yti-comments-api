@@ -56,6 +56,11 @@ public class ConfigurationResource implements AbstractBaseResource {
         codelistConfig.put("url", codelistPublicUrl);
         configJson.set("codelistConfig", codelistConfig);
 
+        final boolean messagingEnabled = apiUtils.getMessagingEnabled();
+        final ObjectNode messagingConfig = mapper.createObjectNode();
+        messagingConfig.put("enabled", messagingEnabled);
+        configJson.set("messagingConfig", messagingConfig);
+
         configJson.put("env", apiUtils.getEnv());
         return Response.ok(configJson).build();
     }
