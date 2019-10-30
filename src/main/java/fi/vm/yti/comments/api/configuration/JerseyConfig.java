@@ -25,7 +25,6 @@ import fi.vm.yti.comments.api.resource.SystemResource;
 import fi.vm.yti.comments.api.resource.externalresources.CodelistProxyResource;
 import fi.vm.yti.comments.api.resource.externalresources.DatamodelProxyResource;
 import fi.vm.yti.comments.api.resource.externalresources.GroupManagementProxyResource;
-import fi.vm.yti.comments.api.resource.externalresources.MessagingProxyResource;
 import fi.vm.yti.comments.api.resource.externalresources.TerminologyProxyResource;
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
@@ -103,9 +102,6 @@ public class JerseyConfig extends ResourceConfig {
 
         // API: Integration API
         register(IntegrationResource.class);
-
-        // Messaging
-        register(MessagingProxyResource.class);
 
         // APIs
         register(SourceResource.class);

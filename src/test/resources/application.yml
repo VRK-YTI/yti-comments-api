@@ -32,6 +32,9 @@ service:
   name: yti-comments-api
   database-name: yti_comments
 
+messaging:
+  enabled: false
+
 hikari:
   jdbcUrl: jdbc:postgresql://${environment.postgres.host}:${testpostgres.port}/${service.database-name}
   username: postgres
