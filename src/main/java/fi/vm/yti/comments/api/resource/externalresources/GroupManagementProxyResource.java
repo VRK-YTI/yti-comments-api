@@ -5,13 +5,20 @@ import java.util.Set;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -27,15 +34,18 @@ import fi.vm.yti.comments.api.exception.YtiCommentsException;
 import fi.vm.yti.comments.api.groupmanagement.GroupManagementUserRequest;
 import fi.vm.yti.comments.api.resource.AbstractBaseResource;
 import fi.vm.yti.security.AuthenticatedUserProvider;
+import fi.vm.yti.security.Role;
 import fi.vm.yti.security.YtiUser;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import static fi.vm.yti.comments.api.constants.ApiConstants.GROUPMANAGEMENT_API_CONTEXT_PATH;
-import static fi.vm.yti.comments.api.constants.ApiConstants.GROUPMANAGEMENT_API_REQUESTS;
+import static fi.vm.yti.comments.api.constants.ApiConstants.*;
+import static fi.vm.yti.comments.api.exception.ErrorConstants.ERR_MSG_USER_401;
 
 @Component
 @Path("/v1/groupmanagement")
@@ -80,6 +90,38 @@ public class GroupManagementProxyResource implements AbstractBaseResource {
         } catch (final IOException e) {
             throw new YtiCommentsException(new ErrorModel(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Error parsing userRequests from groupmanagement!"));
         }
+    }
+
+    @POST
+    @Path("/request")
+    @Operation(summary = "Sends user request to add user to an organization to groupmanagement service.")
+    @ApiResponse(responseCode = "200", description = "Returns success.")
+    public Response sendUserRequest(@Parameter(description = "UUID for the requested organization.", required = true, in = ParameterIn.QUERY) @QueryParam("organizationId") final String organizationId) {
+        final YtiUser user = authenticatedUserProvider.getUser();
+        if (user.isAnonymous()) {
+            throw new UnauthorizedException(new ErrorModel(HttpStatus.UNAUTHORIZED.value(), ERR_MSG_USER_401));
+        }
+
+        final String requestUrl = createGroupManagementRequestApiUrl();
+
+        final LinkedMultiValueMap<String, Object> parameters = new LinkedMultiValueMap<>();
+        parameters.add("email", user.getEmail());
+        parameters.add("organizationId", organizationId);
+        parameters.add("role", Role.MEMBER.toString());
+        final HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(org.springframework.http.MediaType.MULTIPART_FORM_DATA);
+        final HttpEntity<LinkedMultiValueMap<String, Object>> entity = new HttpEntity<>(parameters, headers);
+
+        final ResponseEntity response = restTemplate.exchange(requestUrl, HttpMethod.POST, entity, String.class);
+        if (response.getStatusCode() == HttpStatus.OK) {
+            return Response.status(200).build();
+        } else {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    private String createGroupManagementRequestApiUrl() {
+        return groupManagementProperties.getUrl() + "/" + GROUPMANAGEMENT_API_CONTEXT_PATH + "/" + GROUPMANAGEMENT_API_REQUEST;
     }
 
     private String createGroupManagementRequestsApiUrl(final String email) {
