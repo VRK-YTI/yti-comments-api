@@ -22,11 +22,13 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import static fi.vm.yti.comments.api.constants.ApiConstants.*;
 
 @Component
 @Produces({ "application/json", "application/xml" })
 @Path("/v1/terminology")
+@Tag(name = "Terminology")
 public class TerminologyProxyResource implements AbstractIntegrationResource {
 
     private final TerminologyProperties terminologyProperties;

@@ -12,10 +12,12 @@ import org.springframework.stereotype.Component;
 
 import fi.vm.yti.comments.api.groupmanagement.GroupManagementUser;
 import fi.vm.yti.comments.api.groupmanagement.ImpersonateUserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Component
 @Path("/fakeableUsers")
 @Produces(MediaType.APPLICATION_JSON)
+@Tag(name = "System")
 public class ImpersonateUserResource implements AbstractBaseResource {
 
     private final ImpersonateUserService impersonateUserService;

@@ -58,6 +58,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import static fi.vm.yti.comments.api.constants.ApiConstants.*;
 import static fi.vm.yti.comments.api.exception.ErrorConstants.ERR_MSG_USER_OTHER_USER_ALREADY_RESPONDED_TO_THIS_COMMENT_CANT_MODIFY_OR_DELETE;
 
@@ -108,6 +109,7 @@ public class CommentRoundResource implements AbstractBaseResource {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Returns all commentRounds from the system as a set.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentRoundDTO.class))) })
     })
+    @Tag(name = "CommentRound")
     @Transactional
     public Response getCommentRounds(@Parameter(description = "Filter option for organization filtering.", in = ParameterIn.QUERY) @QueryParam("organizationId") final UUID organizationId,
                                      @Parameter(description = "Filter option for status filtering.", in = ParameterIn.QUERY) @QueryParam("status") final String status,
@@ -180,9 +182,10 @@ public class CommentRoundResource implements AbstractBaseResource {
     @Produces({ MediaType.APPLICATION_JSON + ";charset=UTF-8", "application/xlsx" })
     @Operation(summary = "CommentRound API for requesting single commentRound.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Returns single commentRound.", content= { @Content(schema = @Schema(implementation = CommentRoundDTO.class)) }),
+        @ApiResponse(responseCode = "200", description = "Returns single commentRound.", content = { @Content(schema = @Schema(implementation = CommentRoundDTO.class)) }),
         @ApiResponse(responseCode = "404", description = "No CommentRound found with given UUID.")
     })
+    @Tag(name = "CommentRound")
     @Transactional
     @Path("{commentRoundId}")
     public Response getCommentRound(@Parameter(description = "CommentRound UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentRoundId") final UUID commentRoundId,
@@ -216,6 +219,7 @@ public class CommentRoundResource implements AbstractBaseResource {
         @ApiResponse(responseCode = "200", description = "Returns list of comments for this commentThread.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDTO.class))) }),
         @ApiResponse(responseCode = "404", description = "No CommentThread found with given UUID.")
     })
+    @Tag(name = "Comment")
     @Transactional
     @Path("{commentRoundId}/mycomments")
     public Response getCommentRoundMyMainComments(@Parameter(description = "CommentRound UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentRoundId") final UUID commentRoundId,
@@ -233,6 +237,7 @@ public class CommentRoundResource implements AbstractBaseResource {
         @ApiResponse(responseCode = "200", description = "Returns list of comments for this commentThread.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDTO.class))) }),
         @ApiResponse(responseCode = "404", description = "No commentRound found with given UUID.")
     })
+    @Tag(name = "CommentThread")
     @Transactional
     @Path("{commentRoundId}/commentthreads/")
     public Response getCommentRoundCommentThreads(@Parameter(description = "CommentRound UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentRoundId") final UUID commentRoundId,
@@ -250,6 +255,7 @@ public class CommentRoundResource implements AbstractBaseResource {
         @ApiResponse(responseCode = "200", description = "Returns one CommentThread matching UUID.", content = { @Content(schema = @Schema(implementation = CommentThreadDTO.class)) }),
         @ApiResponse(responseCode = "404", description = "No CommentThread found with given UUID.")
     })
+    @Tag(name = "CommentThread")
     @Transactional
     @Path("{commentRoundId}/commentthreads/{commentThreadId}")
     public Response getCommentRoundCommentThread(@Parameter(description = "CommentRound UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentRoundId") final UUID commentRoundId,
@@ -271,6 +277,7 @@ public class CommentRoundResource implements AbstractBaseResource {
         @ApiResponse(responseCode = "200", description = "Returns list of comments for this CommentThread.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDTO.class))) }),
         @ApiResponse(responseCode = "404", description = "No CommentThread found with given UUID.")
     })
+    @Tag(name = "Comment")
     @Transactional
     @Path("{commentRoundId}/commentthreads/{commentThreadId}/comments")
     public Response getCommentRoundCommentThreadComments(@Parameter(description = "CommentRound UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentRoundId") final UUID commentRoundId,
@@ -288,12 +295,13 @@ public class CommentRoundResource implements AbstractBaseResource {
         @ApiResponse(responseCode = "200", description = "Returns a single Comment for this CommentThread.", content = { @Content(schema = @Schema(implementation = CommentDTO.class)) }),
         @ApiResponse(responseCode = "404", description = "No CommentThread found with given UUID.")
     })
+    @Tag(name = "Comment")
     @Transactional
     @Path("{commentRoundId}/commentthreads/{commentThreadId}/comments/{commentId}")
-    public Response getCommentRoundCommentThreadComments(@Parameter(description = "CommentRound UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentRoundId") final UUID commentRoundId,
-                                                         @Parameter(description = "CommentThread UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentThreadId") final UUID commentThreadId,
-                                                         @Parameter(description = "Comment UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentId") final UUID commentId,
-                                                         @Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand) {
+    public Response getCommentRoundCommentThreadComment(@Parameter(description = "CommentRound UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentRoundId") final UUID commentRoundId,
+                                                        @Parameter(description = "CommentThread UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentThreadId") final UUID commentThreadId,
+                                                        @Parameter(description = "Comment UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentId") final UUID commentId,
+                                                        @Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENT, expand)));
         final CommentDTO commentDto = commentService.findById(commentId);
         if (commentDto != null) {
@@ -311,6 +319,7 @@ public class CommentRoundResource implements AbstractBaseResource {
         @ApiResponse(responseCode = "401", description = "Not authorized for given action."),
         @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
     })
+    @Tag(name = "CommentRound")
     @Transactional
     public Response createOrUpdateCommentRounds(@Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand,
                                                 @Parameter(description = "Remove orphan CommentThread objects", in = ParameterIn.QUERY) @QueryParam("removeCommentThreadOrphans") @DefaultValue("false") final boolean removeCommentThreadOrphans,
@@ -333,6 +342,7 @@ public class CommentRoundResource implements AbstractBaseResource {
         @ApiResponse(responseCode = "404", description = "No CommentRound found with given UUID."),
         @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
     })
+    @Tag(name = "CommentRound")
     @Transactional
     @Path("{commentRoundId}")
     public Response updateCommentRound(@Parameter(description = "CommentRound UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentRoundId") final UUID commentRoundId,
@@ -365,6 +375,7 @@ public class CommentRoundResource implements AbstractBaseResource {
         @ApiResponse(responseCode = "401", description = "Not authorized for given action."),
         @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
     })
+    @Tag(name = "Comment")
     @Transactional
     @Path("{commentRoundId}/comments")
     public Response createOrUpdateCommentRoundComments(@Parameter(description = "CommentRound UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentRoundId") final UUID commentRoundId,
@@ -388,6 +399,7 @@ public class CommentRoundResource implements AbstractBaseResource {
         @ApiResponse(responseCode = "401", description = "Not authorized for given action."),
         @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
     })
+    @Tag(name = "CommentThread")
     @Transactional
     @Path("{commentRoundId}/commentthreads")
     public Response createOrUpdateCommentRoundCommentThreads(@Parameter(description = "CommentRound UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentRoundId") final UUID commentRoundId,
@@ -414,6 +426,7 @@ public class CommentRoundResource implements AbstractBaseResource {
         @ApiResponse(responseCode = "404", description = "No CommentRound found with given UUID."),
         @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
     })
+    @Tag(name = "CommentThread")
     @Transactional
     @Path("{commentRoundId}/commentthreads/{commentThreadId}")
     public Response updateCommentRoundCommentThread(@Parameter(description = "CommentRound UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentRoundId") final UUID commentRoundId,
@@ -441,6 +454,7 @@ public class CommentRoundResource implements AbstractBaseResource {
         @ApiResponse(responseCode = "401", description = "Not authorized for given action."),
         @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
     })
+    @Tag(name = "Comment")
     @Transactional
     @Path("{commentRoundId}/commentthreads/{commentThreadId}/comments")
     public Response createOrUpdateCommentRoundCommentThreadComments(@Parameter(description = "CommentRound UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentRoundId") final UUID commentRoundId,
@@ -466,6 +480,7 @@ public class CommentRoundResource implements AbstractBaseResource {
         @ApiResponse(responseCode = "404", description = "No Comment found with given UUID."),
         @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
     })
+    @Tag(name = "Comment")
     @Transactional
     @Path("{commentRoundId}/commentthreads/{commentThreadId}/comments/{commentId}")
     public Response updateCommentRoundCommentThreadComment(@Parameter(description = "CommentRound UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentRoundId") final UUID commentRoundId,
@@ -500,6 +515,7 @@ public class CommentRoundResource implements AbstractBaseResource {
         @ApiResponse(responseCode = "200", description = "CommentRound deleted.", content = { @Content(schema = @Schema(implementation = ResponseWrapper.class)) }),
         @ApiResponse(responseCode = "404", description = "CommentRound not found.")
     })
+    @Tag(name = "CommentRound")
     public Response deleteCommentRound(@Parameter(description = "CommentRound UUID", in = ParameterIn.PATH, required = true) @PathParam("commentRoundId") final String commentRoundId) {
         final UUID commentRoundUuid = StringUtils.parseUUIDFromString(commentRoundId);
         final CommentRound existingCommentRound = commentRoundDao.findById(commentRoundUuid);
@@ -524,6 +540,7 @@ public class CommentRoundResource implements AbstractBaseResource {
         @ApiResponse(responseCode = "200", description = "CommentThread deleted.", content = { @Content(schema = @Schema(implementation = ResponseWrapper.class)) }),
         @ApiResponse(responseCode = "404", description = "CommentThread not found.")
     })
+    @Tag(name = "CommentThread")
     public Response deleteCommentRoundCommentThread(@Parameter(description = "CommentRound UUID", in = ParameterIn.PATH, required = true) @PathParam("commentRoundId") final String commentRoundId,
                                                     @Parameter(description = "CommentThread UUID", in = ParameterIn.PATH, required = true) @PathParam("commentThreadId") final String commentThreadId) {
         final UUID commentRoundUuid = StringUtils.parseUUIDFromString(commentRoundId);
@@ -555,6 +572,7 @@ public class CommentRoundResource implements AbstractBaseResource {
         @ApiResponse(responseCode = "200", description = "Comment deleted.", content = { @Content(schema = @Schema(implementation = ResponseWrapper.class)) }),
         @ApiResponse(responseCode = "404", description = "Comment not found.")
     })
+    @Tag(name = "Comment")
     public Response deleteCommentRoundCommentThreadComment(@Parameter(description = "CommentRound UUID", in = ParameterIn.PATH, required = true) @PathParam("commentRoundId") final String commentRoundId,
                                                            @Parameter(description = "CommentThread UUID", in = ParameterIn.PATH, required = true) @PathParam("commentThreadId") final String commentThreadId,
                                                            @Parameter(description = "Comment UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentId") final UUID commentId) {

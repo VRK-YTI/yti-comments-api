@@ -41,12 +41,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import static fi.vm.yti.comments.api.constants.ApiConstants.API_BASE_PATH;
 import static fi.vm.yti.comments.api.constants.ApiConstants.API_VERSION_V1;
 import static fi.vm.yti.comments.api.exception.ErrorConstants.*;
 
 @Component
 @Path("/v1/messaging")
+@Tag(name = "Messaging")
 public class MessagingProxyResource implements AbstractBaseResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(MessagingProxyResource.class);

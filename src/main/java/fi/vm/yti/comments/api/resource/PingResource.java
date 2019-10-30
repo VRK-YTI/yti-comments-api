@@ -9,9 +9,11 @@ import org.springframework.stereotype.Component;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Component
 @Path("/ping")
+@Tag(name = "Health")
 public class PingResource {
 
     @GET

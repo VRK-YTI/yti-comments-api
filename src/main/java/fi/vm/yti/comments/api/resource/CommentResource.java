@@ -26,10 +26,12 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import static fi.vm.yti.comments.api.constants.ApiConstants.FILTER_NAME_COMMENT;
 
 @Component
 @Path("/v1/comments")
+@Tag(name = "Comment")
 public class CommentResource implements AbstractBaseResource {
 
     private final CommentService commentService;

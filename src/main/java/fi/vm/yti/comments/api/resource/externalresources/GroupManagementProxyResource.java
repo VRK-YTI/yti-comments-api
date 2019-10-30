@@ -33,11 +33,13 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import static fi.vm.yti.comments.api.constants.ApiConstants.GROUPMANAGEMENT_API_CONTEXT_PATH;
 import static fi.vm.yti.comments.api.constants.ApiConstants.GROUPMANAGEMENT_API_REQUESTS;
 
 @Component
 @Path("/v1/groupmanagement")
+@Tag(name = "GroupManagement")
 public class GroupManagementProxyResource implements AbstractBaseResource {
 
     private final AuthenticatedUserProvider authenticatedUserProvider;

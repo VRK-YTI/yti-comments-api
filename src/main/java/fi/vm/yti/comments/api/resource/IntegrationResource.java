@@ -36,10 +36,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Component
 @Path("/v1/integration")
 @Produces({ MediaType.APPLICATION_JSON + ";charset=UTF-8" })
+@Tag(name = "Integration")
 public class IntegrationResource {
 
     private final CommentRoundService commentRoundService;
