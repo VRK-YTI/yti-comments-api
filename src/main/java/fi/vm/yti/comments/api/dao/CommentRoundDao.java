@@ -57,8 +57,8 @@ public interface CommentRoundDao {
 
     Set<CommentRound> findByIds(final Set<UUID> uuids);
 
-    void updateModifiedAndContentModified(final UUID commentRoundId,
-                                          final LocalDateTime timeStamp);
+    void updateContentModified(final UUID commentRoundId,
+                               final LocalDateTime timeStamp);
 
     int getCommentRoundCount(final Set<UUID> commentRoundIds,
                              final LocalDateTime after,

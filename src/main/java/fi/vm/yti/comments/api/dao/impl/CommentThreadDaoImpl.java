@@ -184,7 +184,7 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
         } else {
             commentThread = createCommentThread(commentRound, fromCommentThread);
         }
-        commentRoundDao.updateModifiedAndContentModified(commentRound.getId(), LocalDateTime.now());
+        commentRoundDao.updateContentModified(commentRound.getId(), LocalDateTime.now());
         return commentThread;
 
     }

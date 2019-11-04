@@ -157,7 +157,7 @@ public class CommentDaoImpl implements CommentDao {
     private void updateTimeStamps(final UUID commentRoundId,
                                   final UUID commentThreadId) {
         final LocalDateTime now = LocalDateTime.now();
-        commentRoundDao.updateModifiedAndContentModified(commentRoundId, now);
+        commentRoundDao.updateContentModified(commentRoundId, now);
         commentThreadDao.updateCommentsModified(commentThreadId, now);
     }
 
