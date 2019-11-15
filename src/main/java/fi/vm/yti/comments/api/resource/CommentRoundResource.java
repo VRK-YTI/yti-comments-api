@@ -48,7 +48,6 @@ import fi.vm.yti.comments.api.security.AuthorizationManager;
 import fi.vm.yti.comments.api.service.CommentRoundService;
 import fi.vm.yti.comments.api.service.CommentService;
 import fi.vm.yti.comments.api.service.CommentThreadService;
-import fi.vm.yti.comments.api.utils.StringUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
