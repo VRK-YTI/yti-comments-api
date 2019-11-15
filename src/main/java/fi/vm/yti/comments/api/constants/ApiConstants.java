@@ -9,6 +9,7 @@ public abstract class ApiConstants {
     public static final String API_PATH_SOURCES = "sources";
     public static final String API_PATH_THREADS = "threads";
     public static final String API_PATH_COMMENTROUNDS = "commentrounds";
+    public static final String API_PATH_COMMENTTHREADS = "commentthreads";
     public static final String CODELIST_API_CONTEXT_PATH = "codelist-api";
     public static final String DATAMODEL_API_CONTEXT_PATH = "datamodel";
     public static final String CODELIST_API_PATH = "api";

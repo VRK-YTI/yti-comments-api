@@ -19,6 +19,9 @@ public interface CommentRepository extends PagingAndSortingRepository<Comment, S
 
     Comment findById(final UUID commentId);
 
+    Comment findByCommentThreadIdAndSequenceId(final UUID commentThreadId,
+                                               final Integer commentThreadSequenceId);
+
     Set<Comment> findByCommentThreadCommentRoundIdAndUserIdAndParentCommentIsNull(final UUID commentRoundId,
                                                                                   final UUID userId);
 
@@ -38,4 +41,7 @@ public interface CommentRepository extends PagingAndSortingRepository<Comment, S
 
     @Query(value = "SELECT COUNT(c) FROM comment AS c WHERE c.created >= :createdAfter", nativeQuery = true)
     long createdAfterCount(@Param("createdAfter") final Date createdAfter);
+
+    @Query(value = "SELECT nextval(:sequenceName)", nativeQuery = true)
+    Integer getNextSequenceId(@Param("sequenceName") final String sequenceName);
 }

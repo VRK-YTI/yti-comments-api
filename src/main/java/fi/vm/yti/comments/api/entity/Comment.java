@@ -27,6 +27,8 @@ public class Comment extends AbstractIdentifyableEntity implements Serializable 
     private String endStatus;
     private LocalDateTime created;
     private LocalDateTime modified;
+    private String uri;
+    private Integer sequenceId;
 
     @Column(name = "user_id")
     public UUID getUserId() {
@@ -100,5 +102,23 @@ public class Comment extends AbstractIdentifyableEntity implements Serializable 
 
     public void setModified(final LocalDateTime modified) {
         this.modified = modified;
+    }
+
+    @Column(name = "uri")
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(final String uri) {
+        this.uri = uri;
+    }
+
+    @Column(name = "sequence_id")
+    public Integer getSequenceId() {
+        return sequenceId;
+    }
+
+    public void setSequenceId(final Integer sequenceId) {
+        this.sequenceId = sequenceId;
     }
 }

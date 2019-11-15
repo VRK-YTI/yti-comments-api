@@ -17,7 +17,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonFilter("comment")
 @XmlRootElement
-@XmlType(propOrder = { "id", "url", "created", "user", "content", "proposedStatus", "endStatus", "parentComment", "commentThread" })
+@XmlType(propOrder = { "id", "url", "uri", "sequenceId", "created", "user", "content", "proposedStatus", "endStatus", "parentComment", "commentThread" })
 @Schema(name = "Comment", description = "Comment DTO that represents data for one single Comment in a CommentThread.")
 public class CommentDTO extends AbstractIdentifyableDTO implements Serializable {
 
@@ -32,6 +32,8 @@ public class CommentDTO extends AbstractIdentifyableDTO implements Serializable 
     private String endStatus;
     private LocalDateTime created;
     private LocalDateTime modified;
+    private String uri;
+    private Integer sequenceId;
 
     public UserDTO getUser() {
         return user;
@@ -111,5 +113,21 @@ public class CommentDTO extends AbstractIdentifyableDTO implements Serializable 
 
     public void setModified(final LocalDateTime modified) {
         this.modified = modified;
+    }
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(final String uri) {
+        this.uri = uri;
+    }
+
+    public Integer getSequenceId() {
+        return sequenceId;
+    }
+
+    public void setSequenceId(final Integer sequenceId) {
+        this.sequenceId = sequenceId;
     }
 }

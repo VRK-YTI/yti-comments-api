@@ -47,6 +47,10 @@ public interface CommentRoundDao {
 
     CommentRound findById(final UUID commentRoundId);
 
+    CommentRound findByIdentifier(final String commentRoundIdentifier);
+
+    CommentRound findBySequenceId(final Integer sequenceId);
+
     CommentRound addOrUpdateCommentRoundFromDto(final CommentRoundDTO commentRoundDto,
                                                 final boolean removeCommentThreadOrphans);
 
@@ -55,12 +59,12 @@ public interface CommentRoundDao {
 
     void deleteCommentRound(final CommentRound commentRound);
 
-    Set<CommentRound> findByIds(final Set<UUID> uuids);
+    Set<CommentRound> findByUris(final Set<String> uris);
 
     void updateContentModified(final UUID commentRoundId,
                                final LocalDateTime timeStamp);
 
-    int getCommentRoundCount(final Set<UUID> commentRoundIds,
+    int getCommentRoundCount(final Set<String> commentRoundUris,
                              final LocalDateTime after,
                              final LocalDateTime before);
 }

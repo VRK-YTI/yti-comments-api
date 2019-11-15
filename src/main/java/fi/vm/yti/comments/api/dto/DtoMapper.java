@@ -82,6 +82,8 @@ public class DtoMapper {
         commentDto.setUser(userService.getUserById(comment.getUserId()));
         commentDto.setProposedStatus(comment.getProposedStatus());
         commentDto.setEndStatus(comment.getEndStatus());
+        commentDto.setUri(comment.getUri());
+        commentDto.setSequenceId(comment.getSequenceId());
         if (deep) {
             commentDto.setParentComment(mapComment(comment.getParentComment(), false, false));
         }
@@ -137,6 +139,8 @@ public class DtoMapper {
         commentRoundDto.setLabel(commentRound.getLabel());
         commentRoundDto.setUser(userService.getUserById(commentRound.getUserId()));
         commentRoundDto.setStatus(commentRound.getStatus());
+        commentRoundDto.setUri(commentRound.getUri());
+        commentRoundDto.setSequenceId(commentRound.getSequenceId());
         if (deep) {
             commentRoundDto.setCommentThreads(mapCommentThreads(commentRound.getCommentThreads(), false));
         }
@@ -191,6 +195,8 @@ public class DtoMapper {
         commentThreadDto.setLocalName(commentThread.getLocalName());
         commentThreadDto.setUser(userService.getUserById(commentThread.getUserId()));
         commentThreadDto.setResults(resultService.getResultsForCommentThread(commentThread.getId()));
+        commentThreadDto.setUri(commentThread.getUri());
+        commentThreadDto.setSequenceId(commentThread.getSequenceId());
         if (commentThread.getComments() != null) {
             commentThreadDto.setCommentCount(commentThread.getComments().size());
         }
@@ -263,7 +269,8 @@ public class DtoMapper {
         final ResourceDTO resourceDto = new ResourceDTO();
         resourceDto.setPrefLabel(createUndLocalizable(commentRound.getLabel()));
         resourceDto.setDescription(createUndLocalizable(commentRound.getDescription()));
-        resourceDto.setUri(commentRound.getId().toString());
+        resourceDto.setUri(commentRound.getUri());
+        resourceDto.setLocalName(commentRound.getSequenceId().toString());
         resourceDto.setStatus(commentRound.getStatus());
         resourceDto.setModified(convertLocalDateTimeToDate(commentRound.getModified()));
         resourceDto.setStatusModified(convertLocalDateTimeToDate(commentRound.getStatusModified()));
@@ -284,7 +291,8 @@ public class DtoMapper {
         final ResourceDTO resourceDto = new ResourceDTO();
         resourceDto.setPrefLabel(commentThread.getLabel());
         resourceDto.setDescription(commentThread.getDescription());
-        resourceDto.setUri(commentThread.getId().toString());
+        resourceDto.setUri(commentThread.getUri());
+        resourceDto.setLocalName(commentThread.getSequenceId().toString());
         resourceDto.setModified(convertLocalDateTimeToDate(commentThread.getCommentsModified()));
         resourceDto.setType("commentthread");
         return resourceDto;

@@ -86,6 +86,11 @@ public class CommentRoundServiceImpl extends AbstractService implements CommentR
     }
 
     @Transactional
+    public CommentRoundDTO findByIdentifier(final String commentRoundIdentifier) {
+        return dtoMapper.mapDeepCommentRound(commentRoundDao.findByIdentifier(commentRoundIdentifier));
+    }
+
+    @Transactional
     public CommentRoundDTO addOrUpdateCommentRoundFromDto(final CommentRoundDTO fromCommentRound,
                                                           final boolean removeCommentThreadOrphans) {
         return dtoMapper.mapDeepCommentRound(commentRoundDao.addOrUpdateCommentRoundFromDto(fromCommentRound, removeCommentThreadOrphans));
@@ -103,25 +108,25 @@ public class CommentRoundServiceImpl extends AbstractService implements CommentR
     }
 
     @Transactional
-    public int getCommentRoundCount(final Set<UUID> commentRoundIds,
+    public int getCommentRoundCount(final Set<String> commentRoundUris,
                                     final LocalDateTime after,
                                     final LocalDateTime before) {
-        return commentRoundDao.getCommentRoundCount(commentRoundIds, after, before);
+        return commentRoundDao.getCommentRoundCount(commentRoundUris, after, before);
     }
 
     @Transactional
-    public Set<ResourceDTO> getContainers(final Set<UUID> commentRoundIds,
+    public Set<ResourceDTO> getContainers(final Set<String> commentRoundUris,
                                           final Meta meta) {
         final LocalDateTime after = convertDateToLocalDateTime(meta.getAfter());
         final LocalDateTime before = convertDateToLocalDateTime(meta.getBefore());
-        final int commentRoundCount = getCommentRoundCount(commentRoundIds, after, before);
+        final int commentRoundCount = getCommentRoundCount(commentRoundUris, after, before);
         meta.setTotalResults(commentRoundCount);
         if (meta != null) {
             int page = getPageIndex(meta);
             final PageRequest pageRequest = PageRequest.of(page, MAX_PAGE_COUNT, new Sort(Sort.Direction.ASC, "id"));
             return dtoMapper.mapCommentRoundsToResources(commentRoundDao.findAll(pageRequest));
-        } else if (commentRoundIds != null && !commentRoundIds.isEmpty()) {
-            return dtoMapper.mapCommentRoundsToResources(commentRoundDao.findByIds(commentRoundIds));
+        } else if (commentRoundUris != null && !commentRoundUris.isEmpty()) {
+            return dtoMapper.mapCommentRoundsToResources(commentRoundDao.findByUris(commentRoundUris));
         } else {
             return dtoMapper.mapCommentRoundsToResources(commentRoundDao.findAll());
         }

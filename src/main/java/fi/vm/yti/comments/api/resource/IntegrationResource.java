@@ -71,13 +71,13 @@ public class IntegrationResource {
                                   @Parameter(description = "Control boolean for returning all incomplete containers.", in = ParameterIn.QUERY) @QueryParam("includeIncomplete") @DefaultValue("false") final Boolean includeIncomplete,
                                   @Parameter(description = "Pretty format JSON output.", in = ParameterIn.QUERY) @QueryParam("pretty") final String pretty) {
         final Meta meta = new Meta(200, pageSize, from, after, before);
-        final Set<UUID> includedContainerUuids;
+        final Set<String> includedContainerUris;
         if (uri != null) {
-            includedContainerUuids = parseUuids(uri);
+            includedContainerUris = parseUris(uri);
         } else {
-            includedContainerUuids = null;
+            includedContainerUris = null;
         }
-        final Set<ResourceDTO> containers = commentRoundService.getContainers(includedContainerUuids, meta);
+        final Set<ResourceDTO> containers = commentRoundService.getContainers(includedContainerUris, meta);
         final ResponseWrapper<ResourceDTO> wrapper = new ResponseWrapper<>();
         wrapper.setResults(containers);
         wrapper.setMeta(meta);
@@ -95,7 +95,7 @@ public class IntegrationResource {
         final Integer from = request.getPageFrom();
         final String after = request.getAfter();
         final String before = request.getBefore();
-        final Set<UUID> includedContainerUuids = parseUuidsFromList(request.getUri());
+        final Set<String> includedContainerUuids = parseUrisFromList(request.getUri());
         final Meta meta = new Meta(200, pageSize, from, after, before);
         final Set<ResourceDTO> containers = commentRoundService.getContainers(includedContainerUuids, meta);
         final ResponseWrapper<ResourceDTO> wrapper = new ResponseWrapper<>();
@@ -115,27 +115,21 @@ public class IntegrationResource {
                                  @Parameter(description = "Status enumerations in CSL format.", in = ParameterIn.QUERY) @QueryParam("status") final String status,
                                  @Parameter(description = "After date filtering parameter, results will be codes with modified date after this ISO 8601 formatted date string.", in = ParameterIn.QUERY) @QueryParam("after") final String after,
                                  @Parameter(description = "Before date filtering parameter, results will be codes with modified date before this ISO 8601 formatted date string.", in = ParameterIn.QUERY) @QueryParam("before") final String before,
-                                 @Parameter(description = "Container URI.", in = ParameterIn.QUERY) @QueryParam("container") final String containerUri,
+                                 @Parameter(description = "Container URI.", in = ParameterIn.QUERY) @QueryParam("container") final String container,
                                  @Parameter(description = "Type for filtering resources.", in = ParameterIn.QUERY) @QueryParam("type") final String type,
                                  @Parameter(description = "Resource URIs.", in = ParameterIn.QUERY) @Encoded @QueryParam("uri") final String uri,
                                  @Parameter(description = "Search term used to filter results based on partial prefLabel or codeValue match.", in = ParameterIn.QUERY) @QueryParam("searchTerm") final String searchTerm,
                                  @Parameter(description = "User organizations filtering parameter, for filtering incomplete code lists", in = ParameterIn.QUERY) @QueryParam("includeIncompleteFrom") final String includeIncompleteFrom,
                                  @Parameter(description = "Control boolean for returning resources from incomplete code lists.", in = ParameterIn.QUERY) @QueryParam("includeIncomplete") @DefaultValue("false") final Boolean includeIncomplete,
                                  @Parameter(description = "Pretty format JSON output.", in = ParameterIn.QUERY) @QueryParam("pretty") final String pretty) {
-        final UUID containerId;
-        if (containerUri != null) {
-            containerId = parseUuidFromString(containerUri);
+        final Set<String> includedResourceUris;
+        if (uri != null && !uri.isEmpty()) {
+            includedResourceUris = parseUris(uri);
         } else {
-            containerId = null;
-        }
-        final Set<UUID> includedResourceUuids;
-        if (uri != null) {
-            includedResourceUuids = parseUuids(uri);
-        } else {
-            includedResourceUuids = null;
+            includedResourceUris = null;
         }
         final Meta meta = new Meta(200, pageSize, from, after, before);
-        final Set<ResourceDTO> resources = commentThreadService.getResources(includedResourceUuids, containerId, meta);
+        final Set<ResourceDTO> resources = commentThreadService.getResources(includedResourceUris, container, meta);
         final ResponseWrapper<ResourceDTO> wrapper = new ResponseWrapper<>();
         wrapper.setResults(resources);
         wrapper.setMeta(meta);
@@ -150,17 +144,13 @@ public class IntegrationResource {
     public Response getResources(@Parameter(description = "Integration resource request parameters as JSON payload.") @RequestBody final String integrationRequestData) {
         final IntegrationResourceRequestDTO request = parseIntegrationRequestDto(integrationRequestData);
         final String container = request.getContainer();
-        UUID containerId = null;
-        if (container != null) {
-            containerId = parseUuidFromString(container);
-        }
         final Integer pageSize = request.getPageSize();
         final Integer from = request.getPageFrom();
         final String after = request.getAfter();
         final String before = request.getBefore();
-        final Set<UUID> includedResourceUuids = parseUuidsFromList(request.getUri());
+        final Set<String> includedResourceUris = parseUrisFromList(request.getUri());
         final Meta meta = new Meta(200, pageSize, from, after, before);
-        final Set<ResourceDTO> resources = commentThreadService.getResources(includedResourceUuids, containerId, meta);
+        final Set<ResourceDTO> resources = commentThreadService.getResources(includedResourceUris, container, meta);
         final ResponseWrapper<ResourceDTO> wrapper = new ResponseWrapper<>();
         wrapper.setResults(resources);
         wrapper.setMeta(meta);
@@ -177,28 +167,20 @@ public class IntegrationResource {
         }
     }
 
-    private UUID parseUuidFromString(final String uuidString) {
-        try {
-            return UUID.fromString(uuidString);
-        } catch (final IllegalArgumentException e) {
-            throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), "String not mappable to UUID: " + uuidString));
-        }
-    }
-
-    private Set<UUID> parseUuidsFromList(final List<String> uuidSet) {
-        if (uuidSet != null) {
-            final Set<UUID> uuids = new HashSet<>();
-            uuidSet.forEach(uuid -> uuids.add(parseUuidFromString(uuid)));
+    private Set<String> parseUrisFromList(final List<String> uriSet) {
+        if (uriSet != null && !uriSet.isEmpty()) {
+            final Set<String> uuids = new HashSet<>();
+            uuids.addAll(uriSet);
             return uuids;
         }
         return null;
     }
 
-    private Set<UUID> parseUuids(final String uuidsCsl) {
-        if (uuidsCsl != null) {
-            final Set<UUID> uriSet = new HashSet<>();
-            for (final String uri : uuidsCsl.split(",")) {
-                uriSet.add(parseUuidFromString(uri.trim()));
+    private Set<String> parseUris(final String urisCsl) {
+        if (urisCsl != null) {
+            final Set<String> uriSet = new HashSet<>();
+            for (final String uri : urisCsl.split(",")) {
+                uriSet.add(uri.trim());
             }
             return uriSet;
         }

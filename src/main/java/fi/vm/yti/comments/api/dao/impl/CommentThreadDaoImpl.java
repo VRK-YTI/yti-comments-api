@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import fi.vm.yti.comments.api.api.ApiUtils;
 import fi.vm.yti.comments.api.constants.ApiConstants;
 import fi.vm.yti.comments.api.dao.CommentRoundDao;
 import fi.vm.yti.comments.api.dao.CommentThreadDao;
@@ -27,21 +28,28 @@ import fi.vm.yti.comments.api.jpa.CommentThreadRepository;
 import fi.vm.yti.comments.api.security.AuthorizationManager;
 import static fi.vm.yti.comments.api.exception.ErrorConstants.ERR_MSG_USER_CANNOT_MODIFY_EXISTING_COMMENTTHREAD;
 import static fi.vm.yti.comments.api.exception.ErrorConstants.ERR_MSG_USER_COMMENTTHREAD_HAS_INVALID_COMMENTROUND_ID;
+import static fi.vm.yti.comments.api.utils.StringUtils.parseIntegerFromString;
+import static fi.vm.yti.comments.api.utils.StringUtils.parseUuidFromString;
 
 @Component
 public class CommentThreadDaoImpl implements CommentThreadDao {
 
+    private final static String PREFIX_FOR_COMMENTTHREADS_SEQUENCE = "seq_round_threads_";
+
     private final CommentThreadRepository commentThreadRepository;
     private final AuthorizationManager authorizationManager;
     private final CommentRoundDao commentRoundDao;
+    private final ApiUtils apiUtils;
 
     @Inject
     public CommentThreadDaoImpl(final CommentThreadRepository commentThreadRepository,
                                 final AuthorizationManager authorizationManager,
-                                @Lazy final CommentRoundDao commentRoundDao) {
+                                @Lazy final CommentRoundDao commentRoundDao,
+                                final ApiUtils apiUtils) {
         this.commentThreadRepository = commentThreadRepository;
         this.authorizationManager = authorizationManager;
         this.commentRoundDao = commentRoundDao;
+        this.apiUtils = apiUtils;
     }
 
     @Transactional
@@ -70,6 +78,27 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
     }
 
     @Transactional
+    public CommentThread findByCommentRoundIdAndCommentThreadIdentifier(final UUID commentRoundId,
+                                                                        final String commentThreadIdentifier) {
+        final UUID commentThreadId = parseUuidFromString(commentThreadIdentifier);
+        if (commentThreadId != null) {
+            return findById(commentThreadId);
+        } else {
+            final Integer commentRoundSequenceId = parseIntegerFromString(commentThreadIdentifier);
+            if (commentThreadIdentifier != null) {
+                return findByCommentRoundIdAndSequenceId(commentRoundId, commentRoundSequenceId);
+            }
+        }
+        return null;
+    }
+
+    @Transactional
+    public CommentThread findByCommentRoundIdAndSequenceId(final UUID commentRoundId,
+                                                           final Integer commentThreadSequenceId) {
+        return commentThreadRepository.findByCommentRoundIdAndSequenceId(commentRoundId, commentThreadSequenceId);
+    }
+
+    @Transactional
     public CommentThread findByCommentRoundAndId(final CommentRound commentRound,
                                                  final UUID commentThreadId) {
         return commentThreadRepository.findByCommentRoundAndId(commentRound, commentThreadId);
@@ -81,8 +110,13 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
     }
 
     @Transactional
-    public Set<CommentThread> findByIds(final Set<UUID> uuids) {
-        return commentThreadRepository.findByIdIn(uuids);
+    public Set<CommentThread> findByCommentRoundUri(final String commentRoundUri) {
+        return commentThreadRepository.findByCommentRoundUri(commentRoundUri);
+    }
+
+    @Transactional
+    public Set<CommentThread> findByUris(final Set<String> uris) {
+        return commentThreadRepository.findByUriIn(uris);
     }
 
     @Transactional
@@ -133,24 +167,24 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
     }
 
     @Transactional
-    public int getCommentThreadCount(final Set<UUID> commentThreadIds,
-                                     final UUID commentRoundId,
+    public int getCommentThreadCount(final Set<String> commentThreadUris,
+                                     final String commentRoundUri,
                                      final LocalDateTime after,
                                      final LocalDateTime before) {
-        if (commentThreadIds != null && after != null && before != null) {
-            return commentThreadRepository.getCommentThreadCountWithIdsAndAfterAndBefore(commentThreadIds, after, before);
-        } else if (commentThreadIds != null && after != null) {
-            return commentThreadRepository.getCommentThreadCountWithIdsAndAfter(commentThreadIds, after);
-        } else if (commentThreadIds != null && after != null) {
-            return commentThreadRepository.getCommentThreadCountWithIdsAndBefore(commentThreadIds, before);
-        } else if (commentRoundId != null && after != null && before != null) {
-            return commentThreadRepository.getCommentThreadCountWithCommentRoundIdAndAfterAndBefore(commentRoundId, after, before);
-        } else if (commentRoundId != null && after != null) {
-            return commentThreadRepository.getCommentThreadCountWithCommentRoundIdAndAfter(commentRoundId, after);
-        } else if (commentRoundId != null && before != null) {
-            return commentThreadRepository.getCommentThreadCountWithCommentRoundIdAndBefore(commentRoundId, before);
-        } else if (commentRoundId != null) {
-            return commentThreadRepository.getCommentThreadCountWithCommentRoundId(commentRoundId);
+        if (commentThreadUris != null && after != null && before != null) {
+            return commentThreadRepository.getCommentThreadCountWithUrisAndAfterAndBefore(commentThreadUris, after, before);
+        } else if (commentThreadUris != null && after != null) {
+            return commentThreadRepository.getCommentThreadCountWithUrisAndAfter(commentThreadUris, after);
+        } else if (commentThreadUris != null && after != null) {
+            return commentThreadRepository.getCommentThreadCountWithUrisAndBefore(commentThreadUris, before);
+        } else if (commentRoundUri != null && after != null && before != null) {
+            return commentThreadRepository.getCommentThreadCountWithCommentRoundUriAndAfterAndBefore(commentRoundUri, after, before);
+        } else if (commentRoundUri != null && after != null) {
+            return commentThreadRepository.getCommentThreadCountWithCommentRoundIdAndAfter(commentRoundUri, after);
+        } else if (commentRoundUri != null && before != null) {
+            return commentThreadRepository.getCommentThreadCountWithCommentRoundIdAndBefore(commentRoundUri, before);
+        } else if (commentRoundUri != null) {
+            return commentThreadRepository.getCommentThreadCountWithCommentRoundId(commentRoundUri);
         } else {
             return commentThreadRepository.getCommentThreadCount();
         }
@@ -201,6 +235,9 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
         commentThread.setCurrentStatus(fromCommentThread.getCurrentStatus());
         commentThread.setProposedStatus(fromCommentThread.getProposedStatus());
         commentThread.setProposedText(fromCommentThread.getProposedText());
+        final Integer sequenceId = getNextSequenceId(commentRound.getId());
+        commentThread.setSequenceId(sequenceId);
+        commentThread.setUri(apiUtils.createCommentThreadUri(commentRound.getSequenceId(), sequenceId));
         final LocalDateTime timeStamp = LocalDateTime.now();
         commentThread.setCreated(timeStamp);
         commentThread.setCommentRound(commentRound);
@@ -216,5 +253,11 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
     public void updateCommentsModified(final UUID commentThreadId,
                                        final LocalDateTime timeStamp) {
         commentThreadRepository.updateCommentsModified(commentThreadId, timeStamp);
+    }
+
+    private Integer getNextSequenceId(final UUID commentRoundId) {
+        final String postfix = commentRoundId.toString().replaceAll("-", "_");
+        final String sequenceName = PREFIX_FOR_COMMENTTHREADS_SEQUENCE + postfix;
+        return commentThreadRepository.getNextSequenceId(sequenceName);
     }
 }

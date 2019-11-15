@@ -1,6 +1,7 @@
 package fi.vm.yti.comments.api.resource;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -32,6 +33,8 @@ import fi.vm.yti.comments.api.exception.YtiCommentsException;
 import static fi.vm.yti.comments.api.constants.ApiConstants.*;
 
 public interface AbstractBaseResource {
+
+    String SUOMI_URI_HOST = "http://uri.suomi.fi";
 
     String MESSAGE_TYPE_ADDED_OR_MODIFIED = "MESSAGE_TYPE_ADDED_OR_MODIFIED";
 
@@ -157,6 +160,20 @@ public interface AbstractBaseResource {
                                    final ObjectWriter w,
                                    final JsonGenerator g) {
             return w.with(provider);
+        }
+    }
+
+    default URI parseUriFromString(final String uriString) {
+        if (!uriString.isEmpty()) {
+            return URI.create(uriString.replace(" ", "%20"));
+        } else {
+            throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), "URI string was not valid!"));
+        }
+    }
+
+    default void ensureSuomiFiUriHost(final String host) {
+        if (!host.startsWith(SUOMI_URI_HOST)) {
+            throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), "This URI is not resolvable as a comments resource."));
         }
     }
 }

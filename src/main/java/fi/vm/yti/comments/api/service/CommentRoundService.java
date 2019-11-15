@@ -37,6 +37,8 @@ public interface CommentRoundService {
 
     CommentRoundDTO findById(final UUID commentRoundId);
 
+    CommentRoundDTO findByIdentifier(final String commentRoundIdentifier);
+
     CommentRoundDTO addOrUpdateCommentRoundFromDto(final CommentRoundDTO fromCommentRound,
                                                    final boolean removeCommentThreadOrphans);
 
@@ -45,6 +47,6 @@ public interface CommentRoundService {
 
     void deleteCommentRound(final CommentRound commentRound);
 
-    Set<ResourceDTO> getContainers(final Set<UUID> uuids,
+    Set<ResourceDTO> getContainers(final Set<String> commentRoundUris,
                                    final Meta meta);
 }

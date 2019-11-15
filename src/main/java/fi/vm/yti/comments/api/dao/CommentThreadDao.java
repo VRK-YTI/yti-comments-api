@@ -22,12 +22,20 @@ public interface CommentThreadDao {
 
     CommentThread findById(final UUID commentThreadId);
 
+    CommentThread findByCommentRoundIdAndCommentThreadIdentifier(final UUID commentRoundId,
+                                                                 final String commentThreadIdentifier);
+
+    CommentThread findByCommentRoundIdAndSequenceId(final UUID commentThreadId,
+                                                    final Integer commentThreadSequenceId);
+
     CommentThread findByCommentRoundAndId(final CommentRound commentRound,
                                           final UUID commentThreadId);
 
     Set<CommentThread> findByCommentRoundId(final UUID commentRoundId);
 
-    Set<CommentThread> findByIds(final Set<UUID> uuids);
+    Set<CommentThread> findByCommentRoundUri(final String commentRoundUri);
+
+    Set<CommentThread> findByUris(final Set<String> uris);
 
     CommentThread addOrUpdateCommentThreadFromDto(final CommentRound commentRound,
                                                   final CommentThreadDTO commentThreadDto);
@@ -44,8 +52,8 @@ public interface CommentThreadDao {
     void updateCommentsModified(final UUID commentThreadId,
                                 final LocalDateTime timeStamp);
 
-    int getCommentThreadCount(final Set<UUID> commentThreadIds,
-                              final UUID commentRoundId,
+    int getCommentThreadCount(final Set<String> commentThreadUris,
+                              final String commentRoundUri,
                               final LocalDateTime after,
                               final LocalDateTime before);
 }

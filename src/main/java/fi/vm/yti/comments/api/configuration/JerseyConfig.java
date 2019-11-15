@@ -22,6 +22,7 @@ import fi.vm.yti.comments.api.resource.OrganizationResource;
 import fi.vm.yti.comments.api.resource.PingResource;
 import fi.vm.yti.comments.api.resource.SourceResource;
 import fi.vm.yti.comments.api.resource.SystemResource;
+import fi.vm.yti.comments.api.resource.UriResolverResource;
 import fi.vm.yti.comments.api.resource.externalresources.CodelistProxyResource;
 import fi.vm.yti.comments.api.resource.externalresources.DatamodelProxyResource;
 import fi.vm.yti.comments.api.resource.externalresources.GroupManagementProxyResource;
@@ -109,5 +110,8 @@ public class JerseyConfig extends ResourceConfig {
         register(CommentRoundResource.class);
         register(CommentThreadResource.class);
         register(OrganizationResource.class);
+
+        // API: URI Resolver
+        register(UriResolverResource.class);
     }
 }

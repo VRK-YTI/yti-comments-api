@@ -19,7 +19,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonFilter("commentThread")
 @XmlRootElement
-@XmlType(propOrder = { "id", "url", "created", "user", "resourceUri", "label", "description", "localName", "proposedText", "currentStatus", "proposedStatus", "comments", "commentRound", "results", "commentCount" })
+@XmlType(propOrder = { "id", "url", "uri", "sequenceId", "created", "user", "resourceUri", "label", "description", "localName", "proposedText", "currentStatus", "proposedStatus", "comments", "commentRound", "results", "commentCount" })
 @Schema(name = "CommentThread", description = "CommentThread DTO that represents data for one single CommentThread.")
 public class CommentThreadDTO extends AbstractIdentifyableDTO implements Serializable {
 
@@ -39,6 +39,8 @@ public class CommentThreadDTO extends AbstractIdentifyableDTO implements Seriali
     private CommentRoundDTO commentRound;
     private Set<CommentThreadResultDTO> results;
     private Integer commentCount;
+    private String uri;
+    private Integer sequenceId;
 
     public String getUrl() {
         return url;
@@ -154,5 +156,21 @@ public class CommentThreadDTO extends AbstractIdentifyableDTO implements Seriali
 
     public void setCommentCount(final Integer commentCount) {
         this.commentCount = commentCount;
+    }
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(final String uri) {
+        this.uri = uri;
+    }
+
+    public Integer getSequenceId() {
+        return sequenceId;
+    }
+
+    public void setSequenceId(final Integer sequenceId) {
+        this.sequenceId = sequenceId;
     }
 }

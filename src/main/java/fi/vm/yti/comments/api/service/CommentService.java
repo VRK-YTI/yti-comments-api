@@ -12,6 +12,9 @@ public interface CommentService {
 
     CommentDTO findById(final UUID commentId);
 
+    CommentDTO findByCommentThreadIdAndCommentIdentifier(final UUID commentThreadId,
+                                                         final String commentIdentifier);
+
     Set<CommentDTO> findCommentRoundMainLevelCommentsForUserId(final UUID commentRoundId,
                                                                final UUID userId);
 

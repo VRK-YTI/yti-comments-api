@@ -22,6 +22,8 @@ public interface CommentRoundRepository extends PagingAndSortingRepository<Comme
 
     CommentRound findById(final UUID commentRoundId);
 
+    CommentRound findBySequenceId(final Integer commentRoundSequenceId);
+
     Set<CommentRound> findAll();
 
     Set<CommentRound> findByOrganizationsIdAndStatus(final UUID id,
@@ -49,7 +51,7 @@ public interface CommentRoundRepository extends PagingAndSortingRepository<Comme
     Set<CommentRound> findByStatusAndSourceContainerType(final String status,
                                                          final String containerType);
 
-    Set<CommentRound> findByIdIn(final Set<UUID> uuids);
+    Set<CommentRound> findByUriIn(final Set<String> uris);
 
     @Query(value = "SELECT COUNT(cr) FROM CommentRound AS cr WHERE cr.modified >= :modifiedAfter")
     long modifiedAfterCount(@Param("modifiedAfter") final Date modifiedAfter);
@@ -62,22 +64,22 @@ public interface CommentRoundRepository extends PagingAndSortingRepository<Comme
     int updateContentModified(@Param("commentRoundId") final UUID commentRoundId,
                               @Param("timeStamp") final LocalDateTime timeStamp);
 
-    @Query(value = "SELECT COUNT(cr) FROM CommentRound AS cr WHERE cr.id IN (:commentRoundIds) AND (cr.modified >= :after OR cr.contentModified >=: after) AND (cr.modified < :before OR cr.contentModified < :before)")
-    int getCommentRoundCountWithIdsAndAfterAndBefore(@Param("commentRoundIds") final Set<UUID> commentRoundIds,
-                                                     @Param("after") final LocalDateTime after,
-                                                     @Param("before") final LocalDateTime before);
+    @Query(value = "SELECT COUNT(cr) FROM CommentRound AS cr WHERE cr.uri IN (:commentRoundUris) AND (cr.modified >= :after OR cr.contentModified >=: after) AND (cr.modified < :before OR cr.contentModified < :before)")
+    int getCommentRoundCountWithUrisAndAfterAndBefore(@Param("commentRoundUris") final Set<String> commentRoundUris,
+                                                      @Param("after") final LocalDateTime after,
+                                                      @Param("before") final LocalDateTime before);
 
     @Query(value = "SELECT COUNT(cr) FROM CommentRound AS cr WHERE (cr.modified >= :after OR cr.contentModified >= :after) AND (cr.modified < :before OR cr.contentModified < :before)")
     int getCommentRoundCountWithAfterAndBefore(@Param("after") final LocalDateTime after,
                                                @Param("before") final LocalDateTime before);
 
-    @Query(value = "SELECT COUNT(cr) FROM CommentRound AS cr WHERE cr.id IN (:commentRoundIds) AND (cr.modified >= :after OR cr.contentModified >= :after)")
-    int getCommentRoundCountWithIdsAndAfter(@Param("commentRoundIds") final Set<UUID> commentRoundIds,
-                                            @Param("after") final LocalDateTime after);
+    @Query(value = "SELECT COUNT(cr) FROM CommentRound AS cr WHERE cr.uri IN (:commentRoundUris) AND (cr.modified >= :after OR cr.contentModified >= :after)")
+    int getCommentRoundCountWithUrisAndAfter(@Param("commentRoundUris") final Set<String> commentRoundUris,
+                                             @Param("after") final LocalDateTime after);
 
-    @Query(value = "SELECT COUNT(cr) FROM CommentRound AS cr WHERE cr.id IN (:commentRoundIds) AND (cr.modified < :before OR cr.contentModified < :before)")
-    int getCommentRoundCountWithIdsAndBefore(@Param("commentRoundIds") final Set<UUID> commentRoundIds,
-                                             @Param("before") final LocalDateTime before);
+    @Query(value = "SELECT COUNT(cr) FROM CommentRound AS cr WHERE cr.uri IN (:commentRoundUris) AND (cr.modified < :before OR cr.contentModified < :before)")
+    int getCommentRoundCountWithUrisAndBefore(@Param("commentRoundUris") final Set<String> commentRoundUris,
+                                              @Param("before") final LocalDateTime before);
 
     @Query(value = "SELECT COUNT(cr) FROM CommentRound AS cr WHERE (cr.modified >= :after OR cr.contentModified >= :after)")
     int getCommentRoundCountWithAfter(@Param("after") final LocalDateTime after);
@@ -87,4 +89,7 @@ public interface CommentRoundRepository extends PagingAndSortingRepository<Comme
 
     @Query(value = "SELECT COUNT(cr) FROM CommentRound AS cr")
     int getCommentThreadCount();
+
+    @Query(value = "SELECT nextval('seq_rounds')", nativeQuery = true)
+    Integer getNextSequenceId();
 }

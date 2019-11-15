@@ -11,6 +11,7 @@ import javax.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import fi.vm.yti.comments.api.api.ApiUtils;
 import fi.vm.yti.comments.api.dao.CommentDao;
 import fi.vm.yti.comments.api.dao.CommentRoundDao;
 import fi.vm.yti.comments.api.dao.CommentThreadDao;
@@ -23,24 +24,31 @@ import fi.vm.yti.comments.api.exception.YtiCommentsException;
 import fi.vm.yti.comments.api.jpa.CommentRepository;
 import fi.vm.yti.comments.api.security.AuthorizationManager;
 import static fi.vm.yti.comments.api.exception.ErrorConstants.*;
+import static fi.vm.yti.comments.api.utils.StringUtils.parseIntegerFromString;
+import static fi.vm.yti.comments.api.utils.StringUtils.parseUuidFromString;
 
 @Component
 public class CommentDaoImpl implements CommentDao {
+
+    private static final String PREFIX_FOR_COMMENTS_SEQUENCE = "seq_thread_comments_";
 
     private final CommentRepository commentRepository;
     private final CommentThreadDao commentThreadDao;
     private final CommentRoundDao commentRoundDao;
     private final AuthorizationManager authorizationManager;
+    private final ApiUtils apiUtils;
 
     @Inject
     public CommentDaoImpl(final CommentRepository commentRepository,
                           final CommentThreadDao commentThreadDao,
                           final CommentRoundDao commentRoundDao,
-                          final AuthorizationManager authorizationManager) {
+                          final AuthorizationManager authorizationManager,
+                          final ApiUtils apiUtils) {
         this.commentRepository = commentRepository;
         this.commentThreadDao = commentThreadDao;
         this.commentRoundDao = commentRoundDao;
         this.authorizationManager = authorizationManager;
+        this.apiUtils = apiUtils;
     }
 
     @Transactional
@@ -51,6 +59,27 @@ public class CommentDaoImpl implements CommentDao {
     @Transactional
     public Comment findById(final UUID commentId) {
         return commentRepository.findById(commentId);
+    }
+
+    @Transactional
+    public Comment findByCommentThreadIdAndCommentIdentifier(final UUID commentThreadId,
+                                                             final String commentIdentifier) {
+        final UUID commentId = parseUuidFromString(commentIdentifier);
+        if (commentId != null) {
+            return findById(commentId);
+        } else {
+            final Integer commentSequenceId = parseIntegerFromString(commentIdentifier);
+            if (commentSequenceId != null) {
+                return findByCommentThreadIdAndSequenceId(commentThreadId, commentSequenceId);
+            }
+        }
+        return null;
+    }
+
+    @Transactional
+    public Comment findByCommentThreadIdAndSequenceId(final UUID commentThreadId,
+                                                      final Integer commentSequenceId) {
+        return commentRepository.findByCommentThreadIdAndSequenceId(commentThreadId, commentSequenceId);
     }
 
     @Transactional
@@ -184,6 +213,9 @@ public class CommentDaoImpl implements CommentDao {
         final LocalDateTime timeStamp = LocalDateTime.now();
         comment.setCreated(timeStamp);
         comment.setModified(timeStamp);
+        final Integer sequenceId = getNextSequenceId(commentThread.getId());
+        comment.setSequenceId(sequenceId);
+        comment.setUri(apiUtils.createCommentUri(commentThread.getCommentRound().getSequenceId(), commentThread.getSequenceId(), sequenceId));
         return comment;
     }
 
@@ -230,5 +262,11 @@ public class CommentDaoImpl implements CommentDao {
         } else {
             return true;
         }
+    }
+
+    private Integer getNextSequenceId(final UUID commentRoundId) {
+        final String postfix = commentRoundId.toString().replaceAll("-", "_");
+        final String sequenceName = PREFIX_FOR_COMMENTS_SEQUENCE + postfix;
+        return commentRepository.getNextSequenceId(sequenceName);
     }
 }

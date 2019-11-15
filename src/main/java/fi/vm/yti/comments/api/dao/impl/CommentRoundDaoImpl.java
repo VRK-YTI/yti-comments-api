@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import fi.vm.yti.comments.api.api.ApiUtils;
 import fi.vm.yti.comments.api.constants.ApiConstants;
 import fi.vm.yti.comments.api.dao.CommentRoundDao;
 import fi.vm.yti.comments.api.dao.CommentThreadDao;
@@ -35,6 +36,8 @@ import fi.vm.yti.comments.api.jpa.CommentRoundRepository;
 import fi.vm.yti.comments.api.security.AuthorizationManager;
 import static fi.vm.yti.comments.api.constants.ApiConstants.*;
 import static fi.vm.yti.comments.api.exception.ErrorConstants.ERR_MSG_NO_RESOURCES_TO_COMMENT_STATUS_CHANGE_NOT_ALLOWED;
+import static fi.vm.yti.comments.api.utils.StringUtils.parseIntegerFromString;
+import static fi.vm.yti.comments.api.utils.StringUtils.parseUuidFromString;
 import static java.time.LocalDateTime.now;
 
 @Component
@@ -45,18 +48,21 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
     private final OrganizationDao organizationDao;
     private final AuthorizationManager authorizationManager;
     private final CommentThreadDao commentThreadDao;
+    private final ApiUtils apiUtils;
 
     @Inject
     public CommentRoundDaoImpl(final CommentRoundRepository commentRoundRepository,
                                final SourceDao sourceDao,
                                final OrganizationDao organizationDao,
                                final AuthorizationManager authorizationManager,
-                               final CommentThreadDao commentThreadDao) {
+                               final CommentThreadDao commentThreadDao,
+                               final ApiUtils apiUtils) {
         this.commentRoundRepository = commentRoundRepository;
         this.sourceDao = sourceDao;
         this.organizationDao = organizationDao;
         this.authorizationManager = authorizationManager;
         this.commentThreadDao = commentThreadDao;
+        this.apiUtils = apiUtils;
     }
 
     @Transactional
@@ -137,6 +143,25 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
     }
 
     @Transactional
+    public CommentRound findByIdentifier(final String commentRoundIdentifier) {
+        final UUID commentRoundId = parseUuidFromString(commentRoundIdentifier);
+        if (commentRoundId != null) {
+            return findById(commentRoundId);
+        } else {
+            final Integer commentRoundSequenceId = parseIntegerFromString(commentRoundIdentifier);
+            if (commentRoundSequenceId != null) {
+                return findBySequenceId(commentRoundSequenceId);
+            }
+        }
+        return null;
+    }
+
+    @Transactional
+    public CommentRound findBySequenceId(final Integer commentRoundSequenceId) {
+        return commentRoundRepository.findBySequenceId(commentRoundSequenceId);
+    }
+
+    @Transactional
     public CommentRound addOrUpdateCommentRoundFromDto(final CommentRoundDTO fromCommentRound,
                                                        final boolean removeCommentThreadOrphans) {
         final CommentRound commentRound = createOrUpdateCommentRound(fromCommentRound, removeCommentThreadOrphans);
@@ -178,8 +203,8 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
     }
 
     @Transactional
-    public Set<CommentRound> findByIds(final Set<UUID> uuids) {
-        return commentRoundRepository.findByIdIn(uuids);
+    public Set<CommentRound> findByUris(final Set<String> uris) {
+        return commentRoundRepository.findByUriIn(uris);
     }
 
     @Transactional
@@ -189,15 +214,15 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
     }
 
     @Transactional
-    public int getCommentRoundCount(final Set<UUID> commentRoundIds,
+    public int getCommentRoundCount(final Set<String> commentRoundUris,
                                     final LocalDateTime after,
                                     final LocalDateTime before) {
-        if (commentRoundIds != null && after != null && before != null) {
-            return commentRoundRepository.getCommentRoundCountWithIdsAndAfterAndBefore(commentRoundIds, after, before);
-        } else if (commentRoundIds != null && after != null) {
-            return commentRoundRepository.getCommentRoundCountWithIdsAndAfter(commentRoundIds, after);
-        } else if (commentRoundIds != null && before != null) {
-            return commentRoundRepository.getCommentRoundCountWithIdsAndBefore(commentRoundIds, before);
+        if (commentRoundUris != null && after != null && before != null) {
+            return commentRoundRepository.getCommentRoundCountWithUrisAndAfterAndBefore(commentRoundUris, after, before);
+        } else if (commentRoundUris != null && after != null) {
+            return commentRoundRepository.getCommentRoundCountWithUrisAndAfter(commentRoundUris, after);
+        } else if (commentRoundUris != null && before != null) {
+            return commentRoundRepository.getCommentRoundCountWithUrisAndBefore(commentRoundUris, before);
         } else if (after != null && before != null) {
             return commentRoundRepository.getCommentRoundCountWithAfterAndBefore(after, before);
         } else if (after != null) {
@@ -222,6 +247,9 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
         commentRound.setEndDate(fromCommentRound.getEndDate());
         commentRound.setSourceLocalName(fromCommentRound.getSourceLocalName());
         commentRound.setSourceLabel(fromCommentRound.getSourceLabel());
+        final Integer sequenceId = commentRoundRepository.getNextSequenceId();
+        commentRound.setSequenceId(sequenceId);
+        commentRound.setUri(apiUtils.createCommentRoundUri(sequenceId));
         final LocalDateTime timeStamp = now();
         commentRound.setCreated(timeStamp);
         commentRound.setModified(timeStamp);

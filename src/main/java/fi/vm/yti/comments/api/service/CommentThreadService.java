@@ -18,6 +18,9 @@ public interface CommentThreadService {
 
     CommentThreadDTO findById(final UUID commentThreadId);
 
+    CommentThreadDTO findByCommentRoundIdAndCommentThreadIdentifier(final UUID commentRoundId,
+                                                                    final String commentThreadIdentifier);
+
     Set<CommentThreadDTO> findByCommentRoundId(final UUID commentRoundId);
 
     CommentThreadDTO addOrUpdateCommentThreadFromDto(final UUID commentRoundId,
@@ -29,7 +32,7 @@ public interface CommentThreadService {
 
     void deleteCommentThread(final CommentThread commentThread);
 
-    Set<ResourceDTO> getResources(final Set<UUID> commentRoundId,
-                                  final UUID containerId,
+    Set<ResourceDTO> getResources(final Set<String> commentThreadUris,
+                                  final String containerUri,
                                   final Meta meta);
 }

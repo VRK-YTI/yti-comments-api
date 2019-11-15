@@ -52,6 +52,12 @@ public class CommentThreadServiceImpl extends AbstractService implements Comment
     }
 
     @Transactional
+    public CommentThreadDTO findByCommentRoundIdAndCommentThreadIdentifier(final UUID commentRoundId,
+                                                                           final String commentThreadIdentifier) {
+        return dtoMapper.mapDeepCommentThread(commentThreadDao.findByCommentRoundIdAndCommentThreadIdentifier(commentRoundId, commentThreadIdentifier));
+    }
+
+    @Transactional
     public Set<CommentThreadDTO> findByCommentRoundId(final UUID commentRoundId) {
         return dtoMapper.mapDeepCommentThreads(commentThreadDao.findByCommentRoundId(commentRoundId));
     }
@@ -85,29 +91,29 @@ public class CommentThreadServiceImpl extends AbstractService implements Comment
     }
 
     @Transactional
-    public int getCommentThreadCount(final Set<UUID> commentThreadIds,
-                                     final UUID containerId,
+    public int getCommentThreadCount(final Set<String> commentThreadUris,
+                                     final String containerUri,
                                      final LocalDateTime after,
                                      final LocalDateTime before) {
-        return commentThreadDao.getCommentThreadCount(commentThreadIds, containerId, after, before);
+        return commentThreadDao.getCommentThreadCount(commentThreadUris, containerUri, after, before);
     }
 
     @Transactional
-    public Set<ResourceDTO> getResources(final Set<UUID> commentThreadIds,
-                                         final UUID containerId,
+    public Set<ResourceDTO> getResources(final Set<String> commentThreadUris,
+                                         final String containerId,
                                          final Meta meta) {
         final LocalDateTime after = convertDateToLocalDateTime(meta.getAfter());
         final LocalDateTime before = convertDateToLocalDateTime(meta.getBefore());
-        final int commentThreadCount = getCommentThreadCount(commentThreadIds, containerId, after, before);
+        final int commentThreadCount = getCommentThreadCount(commentThreadUris, containerId, after, before);
         meta.setTotalResults(commentThreadCount);
         if (meta != null) {
             int page = getPageIndex(meta);
             final PageRequest pageRequest = PageRequest.of(page, MAX_PAGE_COUNT, new Sort(Sort.Direction.ASC, "id"));
             return dtoMapper.mapCommentThreadsToResources(commentThreadDao.findAll(pageRequest));
         } else if (containerId != null) {
-            return dtoMapper.mapCommentThreadsToResources(commentThreadDao.findByCommentRoundId(containerId));
-        } else if (commentThreadIds != null && !commentThreadIds.isEmpty()) {
-            return dtoMapper.mapCommentThreadsToResources(commentThreadDao.findByIds(commentThreadIds));
+            return dtoMapper.mapCommentThreadsToResources(commentThreadDao.findByCommentRoundUri(containerId));
+        } else if (commentThreadUris != null && !commentThreadUris.isEmpty()) {
+            return dtoMapper.mapCommentThreadsToResources(commentThreadDao.findByUris(commentThreadUris));
         }
         return dtoMapper.mapCommentThreadsToResources(commentThreadDao.findAll());
     }

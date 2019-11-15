@@ -14,6 +14,12 @@ public interface CommentDao {
 
     Comment findById(final UUID commentId);
 
+    Comment findByCommentThreadIdAndCommentIdentifier(final UUID commentThreadId,
+                                                      final String commentIdentifier);
+
+    Comment findByCommentThreadIdAndSequenceId(final UUID commentRoundId,
+                                               final Integer sequenceId);
+
     Set<Comment> findCommentRoundMainLevelCommentsForUserId(final UUID commentRoundId,
                                                             final UUID userId);
 
