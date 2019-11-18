@@ -65,10 +65,10 @@ public class TerminologyProxyResource implements AbstractIntegrationResource {
     }
 
     private String createTerminologyContainerApiUrl() {
-        return terminologyProperties.getUrl() + "/" + API_INTEGRATION + "/" + API_CONTAINERS;
+        return terminologyProperties.getUrl() + "/" + TERMINOLOGY_API_CONTEXT_PATH + "/" + TERMINOLOGY_API_PATH + "/" + TERMINOLOGY_API_VERSION + "/" + API_INTEGRATION + "/" + API_CONTAINERS;
     }
 
     private String createTerminologyResourcesApiUrl() {
-        return terminologyProperties.getUrl() + "/" + API_INTEGRATION + "/" + API_RESOURCES;
+        return terminologyProperties.getUrl() + "/" + TERMINOLOGY_API_CONTEXT_PATH + "/" + TERMINOLOGY_API_PATH + "/" + TERMINOLOGY_API_VERSION + "/" + API_INTEGRATION + "/" + API_RESOURCES;
     }
 }
