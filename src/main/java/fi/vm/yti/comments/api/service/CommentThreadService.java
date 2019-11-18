@@ -33,6 +33,6 @@ public interface CommentThreadService {
     void deleteCommentThread(final CommentThread commentThread);
 
     Set<ResourceDTO> getResources(final Set<String> commentThreadUris,
-                                  final String containerUri,
+                                  final Set<String> containerUri,
                                   final Meta meta);
 }

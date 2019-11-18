@@ -35,7 +35,7 @@ public interface CommentThreadRepository extends PagingAndSortingRepository<Comm
 
     Set<CommentThread> findByCommentRoundId(final UUID commentRoundId);
 
-    Set<CommentThread> findByCommentRoundUri(final String commentRoundUri);
+    Set<CommentThread> findByCommentRoundUriIn(final Set<String> commentRoundUris);
 
     Set<CommentThread> findAll();
 
@@ -64,21 +64,21 @@ public interface CommentThreadRepository extends PagingAndSortingRepository<Comm
     int getCommentThreadCountWithUrisAndBefore(@Param("uris") final Set<String> uris,
                                                @Param("before") final LocalDateTime before);
 
-    @Query(value = "SELECT COUNT(ct) FROM CommentThread AS ct WHERE ct.commentRound.uri = :commentRoundUri AND ((ct.commentsModified >= :after AND ct.commentsModified < :before) OR (ct.created >= :after AND ct.created < :before))")
-    int getCommentThreadCountWithCommentRoundUriAndAfterAndBefore(@Param("commentRoundUri") final String commentRoundUri,
+    @Query(value = "SELECT COUNT(ct) FROM CommentThread AS ct WHERE ct.commentRound.uri IN (:commentRoundUris) AND ((ct.commentsModified >= :after AND ct.commentsModified < :before) OR (ct.created >= :after AND ct.created < :before))")
+    int getCommentThreadCountWithCommentRoundUrisAndAfterAndBefore(@Param("commentRoundUris") final Set<String> commentRoundUris,
                                                                   @Param("after") final LocalDateTime after,
                                                                   @Param("before") final LocalDateTime before);
 
-    @Query(value = "SELECT COUNT(ct) FROM CommentThread AS ct WHERE ct.commentRound.uri = :commentRoundUri AND (ct.commentsModified >= :after OR ct.created >= :after)")
-    int getCommentThreadCountWithCommentRoundIdAndAfter(@Param("commentRoundUri") final String commentRoundUri,
+    @Query(value = "SELECT COUNT(ct) FROM CommentThread AS ct WHERE ct.commentRound.uri IN (:commentRoundUris) AND (ct.commentsModified >= :after OR ct.created >= :after)")
+    int getCommentThreadCountWithCommentRoundIdAndAfter(@Param("commentRoundUris") final Set<String> commentRoundUris,
                                                         @Param("after") final LocalDateTime after);
 
-    @Query(value = "SELECT COUNT(ct) FROM CommentThread AS ct WHERE ct.commentRound.uri = :commentRoundUri AND (ct.commentsModified < :before OR ct.created < :before)")
-    int getCommentThreadCountWithCommentRoundIdAndBefore(@Param("commentRoundUri") final String commentRoundUri,
+    @Query(value = "SELECT COUNT(ct) FROM CommentThread AS ct WHERE ct.commentRound.uri IN (:commentRoundUris) AND (ct.commentsModified < :before OR ct.created < :before)")
+    int getCommentThreadCountWithCommentRoundIdAndBefore(@Param("commentRoundUris") final Set<String> commentRoundUris,
                                                          @Param("before") final LocalDateTime before);
 
-    @Query(value = "SELECT COUNT(ct) FROM CommentThread AS ct WHERE ct.commentRound.uri = :commentRoundUri")
-    int getCommentThreadCountWithCommentRoundId(@Param("commentRoundUri") final String commentRoundUri);
+    @Query(value = "SELECT COUNT(ct) FROM CommentThread AS ct WHERE ct.commentRound.uri IN (:commentRoundUris)")
+    int getCommentThreadCountWithCommentRoundId(@Param("commentRoundUris") final Set<String> commentRoundUris);
 
     @Query(value = "SELECT COUNT(ct) FROM CommentThread AS ct")
     int getCommentThreadCount();

@@ -110,8 +110,8 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
     }
 
     @Transactional
-    public Set<CommentThread> findByCommentRoundUri(final String commentRoundUri) {
-        return commentThreadRepository.findByCommentRoundUri(commentRoundUri);
+    public Set<CommentThread> findByCommentRoundUriIn(final Set<String> commentRoundUris) {
+        return commentThreadRepository.findByCommentRoundUriIn(commentRoundUris);
     }
 
     @Transactional
@@ -168,7 +168,7 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
 
     @Transactional
     public int getCommentThreadCount(final Set<String> commentThreadUris,
-                                     final String commentRoundUri,
+                                     final Set<String> commentRoundUris,
                                      final LocalDateTime after,
                                      final LocalDateTime before) {
         if (commentThreadUris != null && after != null && before != null) {
@@ -177,14 +177,14 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
             return commentThreadRepository.getCommentThreadCountWithUrisAndAfter(commentThreadUris, after);
         } else if (commentThreadUris != null && after != null) {
             return commentThreadRepository.getCommentThreadCountWithUrisAndBefore(commentThreadUris, before);
-        } else if (commentRoundUri != null && after != null && before != null) {
-            return commentThreadRepository.getCommentThreadCountWithCommentRoundUriAndAfterAndBefore(commentRoundUri, after, before);
-        } else if (commentRoundUri != null && after != null) {
-            return commentThreadRepository.getCommentThreadCountWithCommentRoundIdAndAfter(commentRoundUri, after);
-        } else if (commentRoundUri != null && before != null) {
-            return commentThreadRepository.getCommentThreadCountWithCommentRoundIdAndBefore(commentRoundUri, before);
-        } else if (commentRoundUri != null) {
-            return commentThreadRepository.getCommentThreadCountWithCommentRoundId(commentRoundUri);
+        } else if (commentRoundUris != null && after != null && before != null) {
+            return commentThreadRepository.getCommentThreadCountWithCommentRoundUrisAndAfterAndBefore(commentRoundUris, after, before);
+        } else if (commentRoundUris != null && after != null) {
+            return commentThreadRepository.getCommentThreadCountWithCommentRoundIdAndAfter(commentRoundUris, after);
+        } else if (commentRoundUris != null && before != null) {
+            return commentThreadRepository.getCommentThreadCountWithCommentRoundIdAndBefore(commentRoundUris, before);
+        } else if (commentRoundUris != null) {
+            return commentThreadRepository.getCommentThreadCountWithCommentRoundId(commentRoundUris);
         } else {
             return commentThreadRepository.getCommentThreadCount();
         }

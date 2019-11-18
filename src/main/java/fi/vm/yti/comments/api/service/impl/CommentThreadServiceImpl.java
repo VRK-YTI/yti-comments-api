@@ -92,26 +92,26 @@ public class CommentThreadServiceImpl extends AbstractService implements Comment
 
     @Transactional
     public int getCommentThreadCount(final Set<String> commentThreadUris,
-                                     final String containerUri,
+                                     final Set<String> containerUris,
                                      final LocalDateTime after,
                                      final LocalDateTime before) {
-        return commentThreadDao.getCommentThreadCount(commentThreadUris, containerUri, after, before);
+        return commentThreadDao.getCommentThreadCount(commentThreadUris, containerUris, after, before);
     }
 
     @Transactional
     public Set<ResourceDTO> getResources(final Set<String> commentThreadUris,
-                                         final String containerId,
+                                         final Set<String> containerUris,
                                          final Meta meta) {
         final LocalDateTime after = convertDateToLocalDateTime(meta.getAfter());
         final LocalDateTime before = convertDateToLocalDateTime(meta.getBefore());
-        final int commentThreadCount = getCommentThreadCount(commentThreadUris, containerId, after, before);
+        final int commentThreadCount = getCommentThreadCount(commentThreadUris, containerUris, after, before);
         meta.setTotalResults(commentThreadCount);
         if (meta != null) {
             int page = getPageIndex(meta);
             final PageRequest pageRequest = PageRequest.of(page, MAX_PAGE_COUNT, new Sort(Sort.Direction.ASC, "id"));
             return dtoMapper.mapCommentThreadsToResources(commentThreadDao.findAll(pageRequest));
-        } else if (containerId != null) {
-            return dtoMapper.mapCommentThreadsToResources(commentThreadDao.findByCommentRoundUri(containerId));
+        } else if (containerUris != null) {
+            return dtoMapper.mapCommentThreadsToResources(commentThreadDao.findByCommentRoundUriIn(containerUris));
         } else if (commentThreadUris != null && !commentThreadUris.isEmpty()) {
             return dtoMapper.mapCommentThreadsToResources(commentThreadDao.findByUris(commentThreadUris));
         }

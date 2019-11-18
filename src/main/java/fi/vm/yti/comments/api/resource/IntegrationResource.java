@@ -127,8 +127,14 @@ public class IntegrationResource {
         } else {
             includedResourceUris = null;
         }
+        final Set<String> containerUris;
+        if (container != null && !container.isEmpty()) {
+            containerUris = parseUris(container);
+        } else {
+            containerUris = null;
+        }
         final Meta meta = new Meta(200, pageSize, from, after, before);
-        final Set<ResourceDTO> resources = commentThreadService.getResources(includedResourceUris, container, meta);
+        final Set<ResourceDTO> resources = commentThreadService.getResources(includedResourceUris, containerUris, meta);
         final ResponseWrapper<ResourceDTO> wrapper = new ResponseWrapper<>();
         wrapper.setResults(resources);
         wrapper.setMeta(meta);
@@ -142,7 +148,7 @@ public class IntegrationResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     public Response getResources(@Parameter(description = "Integration resource request parameters as JSON payload.") @RequestBody final String integrationRequestData) {
         final IntegrationResourceRequestDTO request = parseIntegrationRequestDto(integrationRequestData);
-        final String container = request.getContainer();
+        final Set<String> container = parseUrisFromList(request.getContainer());
         final Integer pageSize = request.getPageSize();
         final Integer from = request.getPageFrom();
         final String after = request.getAfter();

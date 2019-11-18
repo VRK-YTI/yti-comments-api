@@ -33,7 +33,7 @@ public interface CommentThreadDao {
 
     Set<CommentThread> findByCommentRoundId(final UUID commentRoundId);
 
-    Set<CommentThread> findByCommentRoundUri(final String commentRoundUri);
+    Set<CommentThread> findByCommentRoundUriIn(final Set<String> commentRoundUri);
 
     Set<CommentThread> findByUris(final Set<String> uris);
 
@@ -53,7 +53,7 @@ public interface CommentThreadDao {
                                 final LocalDateTime timeStamp);
 
     int getCommentThreadCount(final Set<String> commentThreadUris,
-                              final String commentRoundUri,
+                              final Set<String> commentRoundUris,
                               final LocalDateTime after,
                               final LocalDateTime before);
 }

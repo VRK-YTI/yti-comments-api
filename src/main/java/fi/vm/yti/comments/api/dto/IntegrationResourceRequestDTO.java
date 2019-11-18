@@ -4,16 +4,16 @@ import java.util.List;
 
 public class IntegrationResourceRequestDTO extends AbstractBaseIntegrationRequestDTO {
 
-    private String container;
+    private List<String> container;
     private boolean includeIncomplete;
     private List<String> includeIncompleteFrom;
     private List<String> uri;
 
-    public String getContainer() {
+    public List<String> getContainer() {
         return container;
     }
 
-    public void setContainer(final String container) {
+    public void setContainer(final List<String> container) {
         this.container = container;
     }
 
