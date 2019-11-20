@@ -121,14 +121,13 @@ public class CommentRoundServiceImpl extends AbstractService implements CommentR
         final LocalDateTime before = convertDateToLocalDateTime(meta.getBefore());
         final int commentRoundCount = getCommentRoundCount(commentRoundUris, after, before);
         meta.setTotalResults(commentRoundCount);
-        if (meta != null) {
-            int page = getPageIndex(meta);
-            final PageRequest pageRequest = PageRequest.of(page, MAX_PAGE_COUNT, new Sort(Sort.Direction.ASC, "id"));
-            return dtoMapper.mapCommentRoundsToResources(commentRoundDao.findAll(pageRequest));
-        } else if (commentRoundUris != null && !commentRoundUris.isEmpty()) {
-            return dtoMapper.mapCommentRoundsToResources(commentRoundDao.findByUris(commentRoundUris));
+        int page = getPageIndex(meta);
+        final int pageSize = meta.getPageSize() != null ? meta.getPageSize() : MAX_PAGE_SIZE;
+        final PageRequest pageRequest = PageRequest.of(page, pageSize, new Sort(Sort.Direction.ASC, FIELD_SEQUENCE_ID));
+        if (commentRoundUris != null && !commentRoundUris.isEmpty()) {
+            return dtoMapper.mapCommentRoundsToResources(commentRoundDao.findByUriIn(commentRoundUris, after, before, pageRequest));
         } else {
-            return dtoMapper.mapCommentRoundsToResources(commentRoundDao.findAll());
+            return dtoMapper.mapCommentRoundsToResources(commentRoundDao.findAll(pageRequest));
         }
     }
 }

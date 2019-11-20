@@ -59,7 +59,10 @@ public interface CommentRoundDao {
 
     void deleteCommentRound(final CommentRound commentRound);
 
-    Set<CommentRound> findByUris(final Set<String> uris);
+    Set<CommentRound> findByUriIn(final Set<String> uris,
+                                  final LocalDateTime after,
+                                  final LocalDateTime before,
+                                  final PageRequest pageRequest);
 
     void updateContentModified(final UUID commentRoundId,
                                final LocalDateTime timeStamp);

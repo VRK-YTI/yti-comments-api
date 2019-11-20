@@ -8,12 +8,13 @@ import fi.vm.yti.comments.api.error.Meta;
 
 public class AbstractService {
 
-    static final int MAX_PAGE_COUNT = 50000;
+    static final int MAX_PAGE_SIZE = 50000;
+    static final String FIELD_SEQUENCE_ID = "sequenceId";
 
     int getPageIndex(final Meta meta) {
         final Integer from = meta.getFrom();
         final Integer pageSize = meta.getPageSize();
-        if (from != null && pageSize != null) {
+        if (from != null && from > 0 && pageSize != null) {
             return from / pageSize;
         }
         return 0;

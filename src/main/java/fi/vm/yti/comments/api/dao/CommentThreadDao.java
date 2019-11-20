@@ -33,9 +33,15 @@ public interface CommentThreadDao {
 
     Set<CommentThread> findByCommentRoundId(final UUID commentRoundId);
 
-    Set<CommentThread> findByCommentRoundUriIn(final Set<String> commentRoundUri);
+    Set<CommentThread> findByCommentRoundUriIn(final Set<String> commentRoundUris,
+                                               final LocalDateTime after,
+                                               final LocalDateTime before,
+                                               final PageRequest pageRequest);
 
-    Set<CommentThread> findByUris(final Set<String> uris);
+    Set<CommentThread> findByUriIn(final Set<String> uris,
+                                   final LocalDateTime after,
+                                   final LocalDateTime before,
+                                   final PageRequest pageRequest);
 
     CommentThread addOrUpdateCommentThreadFromDto(final CommentRound commentRound,
                                                   final CommentThreadDTO commentThreadDto);

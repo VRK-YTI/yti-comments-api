@@ -35,13 +35,45 @@ public interface CommentThreadRepository extends PagingAndSortingRepository<Comm
 
     Set<CommentThread> findByCommentRoundId(final UUID commentRoundId);
 
-    Set<CommentThread> findByCommentRoundUriIn(final Set<String> commentRoundUris);
+    Page<CommentThread> findByCommentRoundUriInAndCreatedBetween(final Set<String> commentRoundUris,
+                                                                 final LocalDateTime after,
+                                                                 final LocalDateTime before,
+                                                                 final Pageable pageable);
+
+    Page<CommentThread> findByCommentRoundUriInAndCreatedAfter(final Set<String> commentRoundUris,
+                                                               final LocalDateTime after,
+                                                               final Pageable pageable);
+
+    Page<CommentThread> findByCommentRoundUriInAndCreatedBefore(final Set<String> commentRoundUris,
+                                                                final LocalDateTime before,
+                                                                final Pageable pageable);
+
+    Page<CommentThread> findByCommentRoundUriIn(final Set<String> commentRoundUris,
+                                                final Pageable pageable);
 
     Set<CommentThread> findAll();
 
     Page<CommentThread> findAll(final Pageable pageable);
 
-    Set<CommentThread> findByUriIn(final Set<String> uris);
+    Page<CommentThread> findByUriInAndCreatedBetweenOrCommentsModifiedBetween(final Set<String> uris,
+                                                                              final LocalDateTime after,
+                                                                              final LocalDateTime before,
+                                                                              final LocalDateTime commentsModifiedAfter,
+                                                                              final LocalDateTime commentsModifiedBefore,
+                                                                              final Pageable pageable);
+
+    Page<CommentThread> findByUriInAndCreatedAfterOrCommentsModifiedAfter(final Set<String> uris,
+                                                                          final LocalDateTime after,
+                                                                          final LocalDateTime commentsModifiedAfter,
+                                                                          final Pageable pageable);
+
+    Page<CommentThread> findByUriInAndCreatedBeforeOrCommentsModifiedBefore(final Set<String> uris,
+                                                                            final LocalDateTime before,
+                                                                            final LocalDateTime commentsModifiedBefore,
+                                                                            final Pageable pageable);
+
+    Page<CommentThread> findByUriIn(final Set<String> uris,
+                                    final Pageable pageable);
 
     @Query(value = "SELECT COUNT(ct) FROM CommentThread AS ct WHERE ct.created >= :createdAfter")
     long createdAfterCount(@Param("createdAfter") final Date createdAfter);
@@ -66,8 +98,8 @@ public interface CommentThreadRepository extends PagingAndSortingRepository<Comm
 
     @Query(value = "SELECT COUNT(ct) FROM CommentThread AS ct WHERE ct.commentRound.uri IN (:commentRoundUris) AND ((ct.commentsModified >= :after AND ct.commentsModified < :before) OR (ct.created >= :after AND ct.created < :before))")
     int getCommentThreadCountWithCommentRoundUrisAndAfterAndBefore(@Param("commentRoundUris") final Set<String> commentRoundUris,
-                                                                  @Param("after") final LocalDateTime after,
-                                                                  @Param("before") final LocalDateTime before);
+                                                                   @Param("after") final LocalDateTime after,
+                                                                   @Param("before") final LocalDateTime before);
 
     @Query(value = "SELECT COUNT(ct) FROM CommentThread AS ct WHERE ct.commentRound.uri IN (:commentRoundUris) AND (ct.commentsModified >= :after OR ct.created >= :after)")
     int getCommentThreadCountWithCommentRoundIdAndAfter(@Param("commentRoundUris") final Set<String> commentRoundUris,

@@ -73,6 +73,22 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
     }
 
     @Transactional
+    public Set<CommentThread> findByCommentRoundUriIn(final Set<String> commentRoundUris,
+                                                      final LocalDateTime after,
+                                                      final LocalDateTime before,
+                                                      final PageRequest pageRequest) {
+        if (after != null && before != null) {
+            return new HashSet<>(commentThreadRepository.findByCommentRoundUriInAndCreatedBetween(commentRoundUris, after, before, pageRequest).getContent());
+        } else if (after != null) {
+            return new HashSet<>(commentThreadRepository.findByCommentRoundUriInAndCreatedAfter(commentRoundUris, after, pageRequest).getContent());
+        } else if (before != null) {
+            return new HashSet<>(commentThreadRepository.findByCommentRoundUriInAndCreatedBefore(commentRoundUris, before, pageRequest).getContent());
+        } else {
+            return new HashSet<>(commentThreadRepository.findByCommentRoundUriIn(commentRoundUris, pageRequest).getContent());
+        }
+    }
+
+    @Transactional
     public CommentThread findById(final UUID commentThreadId) {
         return commentThreadRepository.findById(commentThreadId);
     }
@@ -110,13 +126,19 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
     }
 
     @Transactional
-    public Set<CommentThread> findByCommentRoundUriIn(final Set<String> commentRoundUris) {
-        return commentThreadRepository.findByCommentRoundUriIn(commentRoundUris);
-    }
-
-    @Transactional
-    public Set<CommentThread> findByUris(final Set<String> uris) {
-        return commentThreadRepository.findByUriIn(uris);
+    public Set<CommentThread> findByUriIn(final Set<String> uris,
+                                          final LocalDateTime after,
+                                          final LocalDateTime before,
+                                          final PageRequest pageRequest) {
+        if (after != null && before != null) {
+            return new HashSet<>(commentThreadRepository.findByUriInAndCreatedBetweenOrCommentsModifiedBetween(uris, after, before, after, before, pageRequest).getContent());
+        } else if (after != null) {
+            return new HashSet<>(commentThreadRepository.findByUriInAndCreatedAfterOrCommentsModifiedAfter(uris, after, after, pageRequest).getContent());
+        } else if (before != null) {
+            return new HashSet<>(commentThreadRepository.findByUriInAndCreatedBeforeOrCommentsModifiedBefore(uris, before, before, pageRequest).getContent());
+        } else {
+            return new HashSet<>(commentThreadRepository.findByUriIn(uris, pageRequest).getContent());
+        }
     }
 
     @Transactional

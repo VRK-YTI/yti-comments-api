@@ -8,6 +8,8 @@ import java.util.UUID;
 
 import javax.transaction.Transactional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -51,7 +53,25 @@ public interface CommentRoundRepository extends PagingAndSortingRepository<Comme
     Set<CommentRound> findByStatusAndSourceContainerType(final String status,
                                                          final String containerType);
 
-    Set<CommentRound> findByUriIn(final Set<String> uris);
+    Page<CommentRound> findByUriInAndModifiedBetweenOrContentModifiedBetween(final Set<String> uris,
+                                                                             final LocalDateTime after,
+                                                                             final LocalDateTime before,
+                                                                             final LocalDateTime contentModifiedAfter,
+                                                                             final LocalDateTime contentModifiedBefore,
+                                                                             final Pageable pageable);
+
+    Page<CommentRound> findByUriInAndModifiedAfterOrContentModifiedAfter(final Set<String> uris,
+                                                                         final LocalDateTime after,
+                                                                         final LocalDateTime contentModifiedAfter,
+                                                                         final Pageable pageable);
+
+    Page<CommentRound> findByUriInAndModifiedBeforeOrContentModifiedBefore(final Set<String> uris,
+                                                                           final LocalDateTime before,
+                                                                           final LocalDateTime contentModifiedBefore,
+                                                                           final Pageable pageable);
+
+    Page<CommentRound> findByUriIn(final Set<String> uris,
+                                   final Pageable pageable);
 
     @Query(value = "SELECT COUNT(cr) FROM CommentRound AS cr WHERE cr.modified >= :modifiedAfter")
     long modifiedAfterCount(@Param("modifiedAfter") final Date modifiedAfter);

@@ -1,5 +1,6 @@
 package fi.vm.yti.comments.api.dto;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -293,7 +294,8 @@ public class DtoMapper {
         resourceDto.setDescription(commentThread.getDescription());
         resourceDto.setUri(commentThread.getUri());
         resourceDto.setLocalName(commentThread.getSequenceId().toString());
-        resourceDto.setModified(convertLocalDateTimeToDate(commentThread.getCommentsModified()));
+        resourceDto.setModified(convertLocalDateTimeToDate(commentThread.getCreated()));
+        resourceDto.setContentModified(convertLocalDateTimeToDate(commentThread.getCommentsModified()));
         resourceDto.setType("commentthread");
         return resourceDto;
     }

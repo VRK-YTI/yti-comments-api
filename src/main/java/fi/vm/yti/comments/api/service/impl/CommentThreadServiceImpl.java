@@ -106,15 +106,15 @@ public class CommentThreadServiceImpl extends AbstractService implements Comment
         final LocalDateTime before = convertDateToLocalDateTime(meta.getBefore());
         final int commentThreadCount = getCommentThreadCount(commentThreadUris, containerUris, after, before);
         meta.setTotalResults(commentThreadCount);
-        if (meta != null) {
-            int page = getPageIndex(meta);
-            final PageRequest pageRequest = PageRequest.of(page, MAX_PAGE_COUNT, new Sort(Sort.Direction.ASC, "id"));
-            return dtoMapper.mapCommentThreadsToResources(commentThreadDao.findAll(pageRequest));
-        } else if (containerUris != null) {
-            return dtoMapper.mapCommentThreadsToResources(commentThreadDao.findByCommentRoundUriIn(containerUris));
+        final int page = getPageIndex(meta);
+        final int pageSize = meta.getPageSize() != null ? meta.getPageSize() : MAX_PAGE_SIZE;
+        final PageRequest pageRequest = PageRequest.of(page, pageSize, new Sort(Sort.Direction.ASC, FIELD_SEQUENCE_ID));
+        if (containerUris != null && !containerUris.isEmpty()) {
+            return dtoMapper.mapCommentThreadsToResources(commentThreadDao.findByCommentRoundUriIn(containerUris, after, before, pageRequest));
         } else if (commentThreadUris != null && !commentThreadUris.isEmpty()) {
-            return dtoMapper.mapCommentThreadsToResources(commentThreadDao.findByUris(commentThreadUris));
+            return dtoMapper.mapCommentThreadsToResources(commentThreadDao.findByUriIn(commentThreadUris, after, before, pageRequest));
+        } else {
+            return dtoMapper.mapCommentThreadsToResources(commentThreadDao.findAll(pageRequest));
         }
-        return dtoMapper.mapCommentThreadsToResources(commentThreadDao.findAll());
     }
 }
