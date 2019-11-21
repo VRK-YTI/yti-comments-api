@@ -15,7 +15,6 @@ import fi.vm.yti.comments.api.resource.AuthenticatedUserResource;
 import fi.vm.yti.comments.api.resource.CommentResource;
 import fi.vm.yti.comments.api.resource.CommentRoundResource;
 import fi.vm.yti.comments.api.resource.CommentThreadResource;
-import fi.vm.yti.comments.api.resource.ConfigurationResource;
 import fi.vm.yti.comments.api.resource.ImpersonateUserResource;
 import fi.vm.yti.comments.api.resource.IntegrationResource;
 import fi.vm.yti.comments.api.resource.OrganizationResource;
@@ -92,9 +91,6 @@ public class JerseyConfig extends ResourceConfig {
         // Authentication
         register(AuthenticatedUserResource.class);
         register(ImpersonateUserResource.class);
-
-        // Configuration
-        register(ConfigurationResource.class);
 
         // Integrations
         register(CodelistProxyResource.class);
