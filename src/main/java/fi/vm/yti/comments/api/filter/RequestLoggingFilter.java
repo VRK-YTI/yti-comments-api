@@ -58,10 +58,15 @@ public class RequestLoggingFilter implements ContainerRequestFilter, ContainerRe
         LOG.debug("*** Start header section of request ***");
         LOG.debug("Method type: {}", requestContext.getMethod());
         requestContext.getHeaders().keySet().forEach(headerName -> {
-            String headerValue = requestContext.getHeaderString(headerName);
-            if (headerName.equalsIgnoreCase("User-Agent")) {
+            final String headerValue;
+            if ("Authorization".equalsIgnoreCase(headerName) || "cookie".equalsIgnoreCase(headerName)) {
+                headerValue = "[PROTECTED]";
+            } else {
+                headerValue = requestContext.getHeaderString(headerName);
+            }
+            if ("User-Agent".equalsIgnoreCase(headerName)) {
                 MDC.put("userAgent", headerValue);
-            } else if (headerName.equalsIgnoreCase("Host")) {
+            } else if ("Host".equalsIgnoreCase(headerName)) {
                 MDC.put("host", headerValue);
             }
             LOG.debug("Header: {}, Value: {} ", headerName, headerValue);
