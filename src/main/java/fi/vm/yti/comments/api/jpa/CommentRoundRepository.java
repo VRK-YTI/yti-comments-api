@@ -73,6 +73,20 @@ public interface CommentRoundRepository extends PagingAndSortingRepository<Comme
     Page<CommentRound> findByUriIn(final Set<String> uris,
                                    final Pageable pageable);
 
+    Page<CommentRound> findByModifiedBetweenOrContentModifiedBetween(final LocalDateTime after,
+                                                                     final LocalDateTime before,
+                                                                     final LocalDateTime contentModifiedAfter,
+                                                                     final LocalDateTime contentModifiedBefore,
+                                                                     final Pageable pageable);
+
+    Page<CommentRound> findByModifiedAfterOrContentModifiedAfter(final LocalDateTime after,
+                                                                 final LocalDateTime contentModifiedAfter,
+                                                                 final Pageable pageable);
+
+    Page<CommentRound> findByModifiedBeforeOrContentModifiedBefore(final LocalDateTime before,
+                                                                   final LocalDateTime contentModifiedBefore,
+                                                                   final Pageable pageable);
+
     @Query(value = "SELECT COUNT(cr) FROM CommentRound AS cr WHERE cr.modified >= :modifiedAfter")
     long modifiedAfterCount(@Param("modifiedAfter") final Date modifiedAfter);
 

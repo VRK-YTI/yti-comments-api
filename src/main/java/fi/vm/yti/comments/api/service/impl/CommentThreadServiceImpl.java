@@ -114,7 +114,7 @@ public class CommentThreadServiceImpl extends AbstractService implements Comment
         } else if (commentThreadUris != null && !commentThreadUris.isEmpty()) {
             return dtoMapper.mapCommentThreadsToResources(commentThreadDao.findByUriIn(commentThreadUris, after, before, pageRequest));
         } else {
-            return dtoMapper.mapCommentThreadsToResources(commentThreadDao.findAll(pageRequest));
+            return dtoMapper.mapCommentThreadsToResources(commentThreadDao.findAll(after, before, pageRequest));
         }
     }
 }

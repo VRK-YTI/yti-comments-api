@@ -38,6 +38,10 @@ public interface CommentThreadDao {
                                                final LocalDateTime before,
                                                final PageRequest pageRequest);
 
+    Set<CommentThread> findAll(final LocalDateTime after,
+                               final LocalDateTime before,
+                               final PageRequest pageRequest);
+
     Set<CommentThread> findByUriIn(final Set<String> uris,
                                    final LocalDateTime after,
                                    final LocalDateTime before,

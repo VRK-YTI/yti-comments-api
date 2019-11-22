@@ -127,7 +127,7 @@ public class CommentRoundServiceImpl extends AbstractService implements CommentR
         if (commentRoundUris != null && !commentRoundUris.isEmpty()) {
             return dtoMapper.mapCommentRoundsToResources(commentRoundDao.findByUriIn(commentRoundUris, after, before, pageRequest));
         } else {
-            return dtoMapper.mapCommentRoundsToResources(commentRoundDao.findAll(pageRequest));
+            return dtoMapper.mapCommentRoundsToResources(commentRoundDao.findAll(after, before, pageRequest));
         }
     }
 }

@@ -142,6 +142,21 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
     }
 
     @Transactional
+    public Set<CommentThread> findAll(final LocalDateTime after,
+                                      final LocalDateTime before,
+                                      final PageRequest pageRequest) {
+        if (after != null && before != null) {
+            return new HashSet<>(commentThreadRepository.findByCreatedBetweenOrCommentsModifiedBetween(after, before, after, before, pageRequest).getContent());
+        } else if (after != null) {
+            return new HashSet<>(commentThreadRepository.findByCreatedAfterOrCommentsModifiedAfter(after, after, pageRequest).getContent());
+        } else if (before != null) {
+            return new HashSet<>(commentThreadRepository.findByCreatedBeforeOrCommentsModifiedBefore(before, before, pageRequest).getContent());
+        } else {
+            return new HashSet<>(commentThreadRepository.findAll(pageRequest).getContent());
+        }
+    }
+
+    @Transactional
     public CommentThread addOrUpdateCommentThreadFromDto(final CommentRound commentRound,
                                                          final CommentThreadDTO fromCommentThread) {
         final CommentThread commentThread = createOrUpdateCommentThread(commentRound, fromCommentThread);

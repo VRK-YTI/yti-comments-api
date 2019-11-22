@@ -219,6 +219,21 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
     }
 
     @Transactional
+    public Set<CommentRound> findAll(final LocalDateTime after,
+                                     final LocalDateTime before,
+                                     final PageRequest pageRequest) {
+        if (after != null && before != null) {
+            return new HashSet<>(commentRoundRepository.findByModifiedBetweenOrContentModifiedBetween(after, before, after, before, pageRequest).getContent());
+        } else if (after != null) {
+            return new HashSet<>(commentRoundRepository.findByModifiedAfterOrContentModifiedAfter(after, after, pageRequest).getContent());
+        } else if (before != null) {
+            return new HashSet<>(commentRoundRepository.findByModifiedBeforeOrContentModifiedBefore(before, before, pageRequest).getContent());
+        } else {
+            return new HashSet<>(commentRoundRepository.findAll(pageRequest).getContent());
+        }
+    }
+
+    @Transactional
     public void updateContentModified(final UUID commentRoundId,
                                       final LocalDateTime timeStamp) {
         commentRoundRepository.updateContentModified(commentRoundId, timeStamp);

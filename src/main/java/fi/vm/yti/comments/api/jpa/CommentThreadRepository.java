@@ -72,6 +72,20 @@ public interface CommentThreadRepository extends PagingAndSortingRepository<Comm
                                                                             final LocalDateTime commentsModifiedBefore,
                                                                             final Pageable pageable);
 
+    Page<CommentThread> findByCreatedBetweenOrCommentsModifiedBetween(final LocalDateTime after,
+                                                                      final LocalDateTime before,
+                                                                      final LocalDateTime commentsModifiedAfter,
+                                                                      final LocalDateTime commentsModifiedBefore,
+                                                                      final Pageable pageable);
+
+    Page<CommentThread> findByCreatedAfterOrCommentsModifiedAfter(final LocalDateTime after,
+                                                                  final LocalDateTime commentsModifiedAfter,
+                                                                  final Pageable pageable);
+
+    Page<CommentThread> findByCreatedBeforeOrCommentsModifiedBefore(final LocalDateTime before,
+                                                                    final LocalDateTime commentsModifiedBefore,
+                                                                    final Pageable pageable);
+
     Page<CommentThread> findByUriIn(final Set<String> uris,
                                     final Pageable pageable);
 

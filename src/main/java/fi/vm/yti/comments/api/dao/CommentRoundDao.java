@@ -20,6 +20,10 @@ public interface CommentRoundDao {
 
     Set<CommentRound> findAll(final PageRequest pageRequest);
 
+    Set<CommentRound> findAll(final LocalDateTime after,
+                              final LocalDateTime before,
+                              final PageRequest pageRequest);
+
     Set<CommentRound> findByOrganizationsIdAndStatus(final UUID organizationId,
                                                      final String status);
 
