@@ -109,7 +109,9 @@ public class CommentThreadServiceImpl extends AbstractService implements Comment
         final int page = getPageIndex(meta);
         final int pageSize = meta.getPageSize() != null ? meta.getPageSize() : MAX_PAGE_SIZE;
         final PageRequest pageRequest = PageRequest.of(page, pageSize, new Sort(Sort.Direction.ASC, FIELD_SEQUENCE_ID));
-        if (containerUris != null && !containerUris.isEmpty()) {
+        if (containerUris != null && !containerUris.isEmpty() && commentThreadUris != null && !commentThreadUris.isEmpty()) {
+            return dtoMapper.mapCommentThreadsToResources(commentThreadDao.findByCommentRoundUriInAndUriIn(containerUris, commentThreadUris, after, before, pageRequest));
+        } else if (containerUris != null && !containerUris.isEmpty()) {
             return dtoMapper.mapCommentThreadsToResources(commentThreadDao.findByCommentRoundUriIn(containerUris, after, before, pageRequest));
         } else if (commentThreadUris != null && !commentThreadUris.isEmpty()) {
             return dtoMapper.mapCommentThreadsToResources(commentThreadDao.findByUriIn(commentThreadUris, after, before, pageRequest));

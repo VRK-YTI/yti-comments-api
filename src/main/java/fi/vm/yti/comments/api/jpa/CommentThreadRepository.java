@@ -35,6 +35,26 @@ public interface CommentThreadRepository extends PagingAndSortingRepository<Comm
 
     Set<CommentThread> findByCommentRoundId(final UUID commentRoundId);
 
+    Page<CommentThread> findByCommentRoundUriInAndUriInAndCreatedBetween(final Set<String> commentRoundUris,
+                                                                         final Set<String> uris,
+                                                                         final LocalDateTime after,
+                                                                         final LocalDateTime before,
+                                                                         final Pageable pageable);
+
+    Page<CommentThread> findByCommentRoundUriInAndUriInAndCreatedAfter(final Set<String> commentRoundUris,
+                                                                       final Set<String> uris,
+                                                                       final LocalDateTime after,
+                                                                       final Pageable pageable);
+
+    Page<CommentThread> findByCommentRoundUriInAndUriInAndCreatedBefore(final Set<String> commentRoundUris,
+                                                                        final Set<String> uris,
+                                                                        final LocalDateTime before,
+                                                                        final Pageable pageable);
+
+    Page<CommentThread> findByCommentRoundUriInAndUriIn(final Set<String> commentRoundUris,
+                                                        final Set<String> uris,
+                                                        final Pageable pageable);
+
     Page<CommentThread> findByCommentRoundUriInAndCreatedBetween(final Set<String> commentRoundUris,
                                                                  final LocalDateTime after,
                                                                  final LocalDateTime before,

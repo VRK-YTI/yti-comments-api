@@ -1,6 +1,8 @@
 package fi.vm.yti.comments.api.resource;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -95,9 +97,9 @@ public class IntegrationResource {
         final Integer from = request.getPageFrom();
         final String after = request.getAfter();
         final String before = request.getBefore();
-        final Set<String> includedContainerUuids = parseUrisFromList(request.getUri());
+        final Set<String> containerUris = parseUrisFromList(request.getUri());
         final Meta meta = new Meta(200, pageSize, from, after, before);
-        final Set<ResourceDTO> containers = commentRoundService.getContainers(includedContainerUuids, meta);
+        final Set<ResourceDTO> containers = commentRoundService.getContainers(containerUris, meta);
         meta.setResultCount(containers.size());
         final ResponseWrapper<ResourceDTO> wrapper = new ResponseWrapper<>();
         wrapper.setResults(containers);
@@ -123,6 +125,7 @@ public class IntegrationResource {
                                  @Parameter(description = "User organizations filtering parameter, for filtering incomplete code lists", in = ParameterIn.QUERY) @QueryParam("includeIncompleteFrom") final String includeIncompleteFrom,
                                  @Parameter(description = "Control boolean for returning resources from incomplete code lists.", in = ParameterIn.QUERY) @QueryParam("includeIncomplete") @DefaultValue("false") final Boolean includeIncomplete,
                                  @Parameter(description = "Pretty format JSON output.", in = ParameterIn.QUERY) @QueryParam("pretty") final String pretty) {
+        final Meta meta = new Meta(200, pageSize, from, after, before);
         final Set<String> includedResourceUris;
         if (uri != null && !uri.isEmpty()) {
             includedResourceUris = parseUris(uri);
@@ -135,7 +138,6 @@ public class IntegrationResource {
         } else {
             containerUris = null;
         }
-        final Meta meta = new Meta(200, pageSize, from, after, before);
         final Set<ResourceDTO> resources = commentThreadService.getResources(includedResourceUris, containerUris, meta);
         meta.setResultCount(resources.size());
         final ResponseWrapper<ResourceDTO> wrapper = new ResponseWrapper<>();
@@ -178,17 +180,23 @@ public class IntegrationResource {
 
     private Set<String> parseUrisFromList(final List<String> uriSet) {
         if (uriSet != null && !uriSet.isEmpty()) {
-            final Set<String> uuids = new HashSet<>();
-            uuids.addAll(uriSet);
-            return uuids;
+            final Set<String> uris = new HashSet<>();
+            uris.addAll(uriSet);
+            return uris;
         }
         return null;
     }
 
     private Set<String> parseUris(final String urisCsl) {
         if (urisCsl != null) {
+            final String decodedCsl;
+            try {
+                decodedCsl = URLDecoder.decode(urisCsl, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                throw new YtiCommentsException(new ErrorModel(HttpStatus.NOT_ACCEPTABLE.value(), "Malformed uris in request: " + urisCsl));
+            }
             final Set<String> uriSet = new HashSet<>();
-            for (final String uri : urisCsl.split(",")) {
+            for (final String uri : decodedCsl.split(",")) {
                 uriSet.add(uri.trim());
             }
             return uriSet;

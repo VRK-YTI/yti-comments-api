@@ -73,6 +73,46 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
     }
 
     @Transactional
+    public Set<CommentThread> findByCommentRoundUriInAndUriIn(final Set<String> commentRoundUris,
+                                                              final Set<String> uris,
+                                                              final LocalDateTime after,
+                                                              final LocalDateTime before,
+                                                              final PageRequest pageRequest) {
+        if (commentRoundUris != null && !commentRoundUris.isEmpty() && uris != null && !uris.isEmpty()) {
+            if (after != null && before != null) {
+                return new HashSet<>(commentThreadRepository.findByCommentRoundUriInAndUriInAndCreatedBetween(commentRoundUris, uris, after, before, pageRequest).getContent());
+            } else if (after != null) {
+                return new HashSet<>(commentThreadRepository.findByCommentRoundUriInAndUriInAndCreatedAfter(commentRoundUris, uris, after, pageRequest).getContent());
+            } else if (before != null) {
+                return new HashSet<>(commentThreadRepository.findByCommentRoundUriInAndUriInAndCreatedBefore(commentRoundUris, uris, before, pageRequest).getContent());
+            } else {
+                return new HashSet<>(commentThreadRepository.findByCommentRoundUriInAndUriIn(commentRoundUris, uris, pageRequest).getContent());
+            }
+        } else if (commentRoundUris != null && !commentRoundUris.isEmpty()) {
+            if (after != null && before != null) {
+                return new HashSet<>(commentThreadRepository.findByCommentRoundUriInAndCreatedBetween(commentRoundUris, after, before, pageRequest).getContent());
+            } else if (after != null) {
+                return new HashSet<>(commentThreadRepository.findByCommentRoundUriInAndCreatedAfter(commentRoundUris, after, pageRequest).getContent());
+            } else if (before != null) {
+                return new HashSet<>(commentThreadRepository.findByCommentRoundUriInAndCreatedBefore(commentRoundUris, before, pageRequest).getContent());
+            } else {
+                return new HashSet<>(commentThreadRepository.findByCommentRoundUriIn(commentRoundUris, pageRequest).getContent());
+            }
+        } else if (uris != null && !uris.isEmpty()) {
+            if (after != null && before != null) {
+                return new HashSet<>(commentThreadRepository.findByUriInAndCreatedBetweenOrCommentsModifiedBetween(uris, after, before, after, before, pageRequest).getContent());
+            } else if (after != null) {
+                return new HashSet<>(commentThreadRepository.findByUriInAndCreatedAfterOrCommentsModifiedAfter(uris, after, after, pageRequest).getContent());
+            } else if (before != null) {
+                return new HashSet<>(commentThreadRepository.findByUriInAndCreatedBeforeOrCommentsModifiedBefore(uris, before, before, pageRequest).getContent());
+            } else {
+                return new HashSet<>(commentThreadRepository.findByUriIn(uris, pageRequest).getContent());
+            }
+        }
+        return new HashSet<>(commentThreadRepository.findAll(pageRequest).getContent());
+    }
+
+    @Transactional
     public Set<CommentThread> findByCommentRoundUriIn(final Set<String> commentRoundUris,
                                                       final LocalDateTime after,
                                                       final LocalDateTime before,
