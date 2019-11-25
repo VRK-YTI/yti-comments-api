@@ -11,12 +11,8 @@ public abstract class ApiConstants {
     public static final String API_PATH_COMMENTROUNDS = "commentrounds";
     public static final String API_PATH_COMMENTTHREADS = "commentthreads";
     public static final String CODELIST_API_CONTEXT_PATH = "codelist-api";
-    public static final String DATAMODEL_API_CONTEXT_PATH = "datamodel";
-    public static final String CODELIST_API_PATH = "api";
-    public static final String CODELIST_API_VERSION = "v1";
+    public static final String DATAMODEL_API_CONTEXT_PATH = "datamodel-api";
     public static final String TERMINOLOGY_API_CONTEXT_PATH = "terminology-api";
-    public static final String TERMINOLOGY_API_PATH = "api";
-    public static final String TERMINOLOGY_API_VERSION = "v1";
     public static final String API_INTEGRATION = "integration";
     public static final String API_CONTAINERS = "containers";
     public static final String API_RESOURCES = "resources";

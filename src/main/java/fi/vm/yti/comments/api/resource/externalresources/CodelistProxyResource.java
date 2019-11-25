@@ -65,10 +65,10 @@ public class CodelistProxyResource implements AbstractIntegrationResource {
     }
 
     private String createCodelistContainerApiUrl() {
-        return codelistProperties.getUrl() + "/" + CODELIST_API_CONTEXT_PATH + "/" + CODELIST_API_PATH + "/" + CODELIST_API_VERSION + "/" + API_INTEGRATION + "/" + API_CONTAINERS;
+        return codelistProperties.getUrl() + "/" + CODELIST_API_CONTEXT_PATH + "/" + API_BASE_PATH + "/" + API_VERSION_V1 + "/" + API_INTEGRATION + "/" + API_CONTAINERS;
     }
 
     private String createCodelistResourcesApiUrl() {
-        return codelistProperties.getUrl() + "/" + CODELIST_API_CONTEXT_PATH + "/" + CODELIST_API_PATH + "/" + CODELIST_API_VERSION + "/" + API_INTEGRATION + "/" + API_RESOURCES;
+        return codelistProperties.getUrl() + "/" + CODELIST_API_CONTEXT_PATH + "/" + API_BASE_PATH + "/" + API_VERSION_V1 + "/" + API_INTEGRATION + "/" + API_RESOURCES;
     }
 }
