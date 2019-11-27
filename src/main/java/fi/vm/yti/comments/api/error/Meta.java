@@ -7,10 +7,12 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.util.StdDateFormat;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
+import fi.vm.yti.comments.api.exception.YtiCommentsException;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @XmlType(propOrder = { "code", "message", "pageSize", "from", "resultCount", "totalResults", "after", "afterResourceUrl", "nextPage" })
@@ -63,11 +65,12 @@ public class Meta {
 
     public static Date parseDateFromString(final String dateString) {
         if (dateString != null) {
-            final StdDateFormat dateFormat = new StdDateFormat();
+            final ISO8601DateFormat dateFormat = new ISO8601DateFormat();
             try {
                 return dateFormat.parse(dateString);
             } catch (ParseException e) {
-                LOG.error(String.format("Parsing date from string failed: %s", e.getMessage()));
+                LOG.error(String.format("Parsing date from string failed: " + dateString));
+                throw new YtiCommentsException(new ErrorModel(HttpStatus.BAD_REQUEST.value(), "Date input not valid: " + dateString));
             }
         }
         return null;
