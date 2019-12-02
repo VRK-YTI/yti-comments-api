@@ -1,6 +1,7 @@
 package fi.vm.yti.comments.api.scheduler;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Set;
@@ -56,7 +57,9 @@ public class CommentRoundScheduler {
         }
         commentRounds.forEach(commentRound -> {
             commentRound.setStatus(endStatus);
-            commentRound.setModified(runTime.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
+            final LocalDateTime modifiedTimeStamp = runTime.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
+            commentRound.setModified(modifiedTimeStamp);
+            commentRound.setStatusModified(modifiedTimeStamp);
         });
         commentRoundDao.saveAll(commentRounds);
         if (commentRounds.size() > 0) {
