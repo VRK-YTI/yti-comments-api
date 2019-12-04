@@ -267,6 +267,7 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
         commentRound.setLabel(fromCommentRound.getLabel());
         commentRound.setDescription(fromCommentRound.getDescription());
         commentRound.setStatus(STATUS_INCOMPLETE);
+        commentRound.setStatusModified(now());
         commentRound.setOpenThreads(fromCommentRound.getOpenThreads());
         commentRound.setFixedThreads(fromCommentRound.getFixedThreads());
         commentRound.setStartDate(fromCommentRound.getStartDate());
