@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.google.common.base.Stopwatch;
 
-import fi.vm.yti.comments.api.dto.DtoMapper;
+import fi.vm.yti.comments.api.dto.DtoMapperService;
 import fi.vm.yti.comments.api.dto.GroupManagementOrganizationDTO;
 import fi.vm.yti.comments.api.dto.OrganizationDTO;
 import fi.vm.yti.comments.api.entity.Organization;
@@ -31,18 +31,18 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     private static final Logger LOG = LoggerFactory.getLogger(OrganizationServiceImpl.class);
     private final OrganizationRepository organizationRepository;
-    private final DtoMapper dtoMapper;
+    private final DtoMapperService dtoMapperService;
 
     @Inject
     public OrganizationServiceImpl(final OrganizationRepository organizationRepository,
-                                   final DtoMapper dtoMapper) {
+                                   final DtoMapperService dtoMapperService) {
         this.organizationRepository = organizationRepository;
-        this.dtoMapper = dtoMapper;
+        this.dtoMapperService = dtoMapperService;
     }
 
     @Transactional
     public Set<OrganizationDTO> findAll() {
-        return dtoMapper.mapOrganizations(organizationRepository.findAll(), true);
+        return dtoMapperService.mapOrganizations(organizationRepository.findAll(), true);
     }
 
     @Transactional
@@ -53,12 +53,12 @@ public class OrganizationServiceImpl implements OrganizationService {
         } else {
             organizations = organizationRepository.findByRemovedIsFalse();
         }
-        return dtoMapper.mapOrganizations(organizations, true);
+        return dtoMapperService.mapOrganizations(organizations, true);
     }
 
     @Transactional
     public OrganizationDTO findById(final UUID organizationId) {
-        return dtoMapper.mapOrganization(organizationRepository.findById(organizationId), true);
+        return dtoMapperService.mapOrganization(organizationRepository.findById(organizationId), true);
     }
 
     @Transactional
@@ -83,7 +83,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         if (!organizations.isEmpty()) {
             organizationRepository.saveAll(organizations);
         }
-        return dtoMapper.mapOrganizations(organizations, true);
+        return dtoMapperService.mapOrganizations(organizations, true);
     }
 
     private Organization createOrUpdateOrganizationFromGroupManagementOrganizationDto(final GroupManagementOrganizationDTO groupManagementOrganizationDto) {

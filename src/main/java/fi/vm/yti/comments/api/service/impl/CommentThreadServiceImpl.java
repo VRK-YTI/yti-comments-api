@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import fi.vm.yti.comments.api.dao.CommentRoundDao;
 import fi.vm.yti.comments.api.dao.CommentThreadDao;
 import fi.vm.yti.comments.api.dto.CommentThreadDTO;
-import fi.vm.yti.comments.api.dto.DtoMapper;
+import fi.vm.yti.comments.api.dto.DtoMapperService;
 import fi.vm.yti.comments.api.dto.ResourceDTO;
 import fi.vm.yti.comments.api.entity.CommentRound;
 import fi.vm.yti.comments.api.entity.CommentThread;
@@ -24,42 +24,42 @@ import fi.vm.yti.comments.api.service.CommentThreadService;
 @Component
 public class CommentThreadServiceImpl extends AbstractService implements CommentThreadService {
 
-    private final DtoMapper dtoMapper;
+    private final DtoMapperService dtoMapperService;
     private final CommentThreadDao commentThreadDao;
     private final CommentRoundDao commentRoundDao;
 
-    public CommentThreadServiceImpl(final DtoMapper dtoMapper,
+    public CommentThreadServiceImpl(final DtoMapperService dtoMapperService,
                                     final CommentThreadDao commentThreadDao,
                                     final CommentRoundDao commentRoundDao) {
-        this.dtoMapper = dtoMapper;
+        this.dtoMapperService = dtoMapperService;
         this.commentThreadDao = commentThreadDao;
         this.commentRoundDao = commentRoundDao;
     }
 
     @Transactional
     public Set<CommentThreadDTO> findAll() {
-        return dtoMapper.mapDeepCommentThreads(commentThreadDao.findAll());
+        return dtoMapperService.mapDeepCommentThreads(commentThreadDao.findAll());
     }
 
     @Override
     public Set<CommentThreadDTO> findAll(final PageRequest pageable) {
-        return dtoMapper.mapDeepCommentThreads(commentThreadDao.findAll(pageable));
+        return dtoMapperService.mapDeepCommentThreads(commentThreadDao.findAll(pageable));
     }
 
     @Transactional
     public CommentThreadDTO findById(final UUID commentThreadId) {
-        return dtoMapper.mapDeepCommentThread(commentThreadDao.findById(commentThreadId));
+        return dtoMapperService.mapDeepCommentThread(commentThreadDao.findById(commentThreadId));
     }
 
     @Transactional
     public CommentThreadDTO findByCommentRoundIdAndCommentThreadIdentifier(final UUID commentRoundId,
                                                                            final String commentThreadIdentifier) {
-        return dtoMapper.mapDeepCommentThread(commentThreadDao.findByCommentRoundIdAndCommentThreadIdentifier(commentRoundId, commentThreadIdentifier));
+        return dtoMapperService.mapDeepCommentThread(commentThreadDao.findByCommentRoundIdAndCommentThreadIdentifier(commentRoundId, commentThreadIdentifier));
     }
 
     @Transactional
     public Set<CommentThreadDTO> findByCommentRoundId(final UUID commentRoundId) {
-        return dtoMapper.mapDeepCommentThreads(commentThreadDao.findByCommentRoundId(commentRoundId));
+        return dtoMapperService.mapDeepCommentThreads(commentThreadDao.findByCommentRoundId(commentRoundId));
     }
 
     @Transactional
@@ -67,7 +67,7 @@ public class CommentThreadServiceImpl extends AbstractService implements Comment
                                                             final CommentThreadDTO fromCommentThread) {
         final CommentRound commentRound = commentRoundDao.findById(commentRoundId);
         if (commentRound != null) {
-            return dtoMapper.mapDeepCommentThread(commentThreadDao.addOrUpdateCommentThreadFromDto(commentRound, fromCommentThread));
+            return dtoMapperService.mapDeepCommentThread(commentThreadDao.addOrUpdateCommentThreadFromDto(commentRound, fromCommentThread));
         } else {
             throw new NotFoundException();
         }
@@ -79,7 +79,7 @@ public class CommentThreadServiceImpl extends AbstractService implements Comment
                                                                    final boolean removeOrphans) {
         final CommentRound commentRound = commentRoundDao.findById(commentRoundId);
         if (commentRound != null) {
-            return dtoMapper.mapDeepCommentThreads(commentThreadDao.addOrUpdateCommentThreadsFromDtos(commentRound, fromCommentThreads, removeOrphans));
+            return dtoMapperService.mapDeepCommentThreads(commentThreadDao.addOrUpdateCommentThreadsFromDtos(commentRound, fromCommentThreads, removeOrphans));
         } else {
             throw new NotFoundException();
         }
@@ -110,13 +110,13 @@ public class CommentThreadServiceImpl extends AbstractService implements Comment
         final int pageSize = meta.getPageSize() != null ? meta.getPageSize() : MAX_PAGE_SIZE;
         final PageRequest pageRequest = PageRequest.of(page, pageSize, new Sort(Sort.Direction.ASC, FIELD_SEQUENCE_ID));
         if (containerUris != null && !containerUris.isEmpty() && commentThreadUris != null && !commentThreadUris.isEmpty()) {
-            return dtoMapper.mapCommentThreadsToResources(commentThreadDao.findByCommentRoundUriInAndUriIn(containerUris, commentThreadUris, after, before, pageRequest));
+            return dtoMapperService.mapCommentThreadsToResources(commentThreadDao.findByCommentRoundUriInAndUriIn(containerUris, commentThreadUris, after, before, pageRequest));
         } else if (containerUris != null && !containerUris.isEmpty()) {
-            return dtoMapper.mapCommentThreadsToResources(commentThreadDao.findByCommentRoundUriIn(containerUris, after, before, pageRequest));
+            return dtoMapperService.mapCommentThreadsToResources(commentThreadDao.findByCommentRoundUriIn(containerUris, after, before, pageRequest));
         } else if (commentThreadUris != null && !commentThreadUris.isEmpty()) {
-            return dtoMapper.mapCommentThreadsToResources(commentThreadDao.findByUriIn(commentThreadUris, after, before, pageRequest));
+            return dtoMapperService.mapCommentThreadsToResources(commentThreadDao.findByUriIn(commentThreadUris, after, before, pageRequest));
         } else {
-            return dtoMapper.mapCommentThreadsToResources(commentThreadDao.findAll(after, before, pageRequest));
+            return dtoMapperService.mapCommentThreadsToResources(commentThreadDao.findAll(after, before, pageRequest));
         }
     }
 }

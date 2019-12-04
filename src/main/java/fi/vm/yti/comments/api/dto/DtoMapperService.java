@@ -23,16 +23,16 @@ import static fi.vm.yti.comments.api.constants.ApiConstants.*;
 import static fi.vm.yti.comments.api.utils.DateUtils.convertLocalDateTimeToDate;
 
 @Component
-public class DtoMapper {
+public class DtoMapperService {
 
     private final UserService userService;
     private final UrlGenerator urlGenerator;
     private final ResultService resultService;
 
     @Inject
-    public DtoMapper(final UserService userService,
-                     final UrlGenerator urlGenerator,
-                     final ResultService resultService) {
+    public DtoMapperService(final UserService userService,
+                            final UrlGenerator urlGenerator,
+                            final ResultService resultService) {
         this.userService = userService;
         this.urlGenerator = urlGenerator;
         this.resultService = resultService;
@@ -135,7 +135,7 @@ public class DtoMapper {
         commentRoundDto.setOpenThreads(commentRound.getOpenThreads());
         commentRoundDto.setFixedThreads(commentRound.getFixedThreads());
         commentRoundDto.setSourceLocalName(commentRound.getSourceLocalName());
-        commentRoundDto.setSourceLabel(commentRound.getSourceLabel());
+        commentRoundDto.setSourceLabel(copyStringMap(commentRound.getSourceLabel()));
         commentRoundDto.setLabel(commentRound.getLabel());
         commentRoundDto.setUser(userService.getUserById(commentRound.getUserId()));
         commentRoundDto.setStatus(commentRound.getStatus());
@@ -190,8 +190,8 @@ public class DtoMapper {
         commentThreadDto.setProposedStatus(commentThread.getProposedStatus());
         commentThreadDto.setProposedText(commentThread.getProposedText());
         commentThreadDto.setCreated(commentThread.getCreated());
-        commentThreadDto.setLabel(commentThread.getLabel());
-        commentThreadDto.setDescription(commentThread.getDescription());
+        commentThreadDto.setLabel(copyStringMap(commentThread.getLabel()));
+        commentThreadDto.setDescription(copyStringMap(commentThread.getDescription()));
         commentThreadDto.setLocalName(commentThread.getLocalName());
         commentThreadDto.setUser(userService.getUserById(commentThread.getUserId()));
         commentThreadDto.setResults(resultService.getResultsForCommentThread(commentThread.getId()));
@@ -239,8 +239,8 @@ public class DtoMapper {
         organizationDto.setId(organization.getId());
         organizationDto.setRemoved(organization.getRemoved());
         organizationDto.setUrl(organization.getUrl());
-        organizationDto.setDescription(organization.getDescription());
-        organizationDto.setPrefLabel(organization.getPrefLabel());
+        organizationDto.setDescription(copyStringMap(organization.getDescription()));
+        organizationDto.setPrefLabel(copyStringMap(organization.getPrefLabel()));
         if (deep && organization.getCommentRounds() != null) {
             organizationDto.setCommentRounds(mapCommentRounds(organization.getCommentRounds(), false));
         }
@@ -289,8 +289,8 @@ public class DtoMapper {
     @Transactional
     public ResourceDTO mapCommentThreadToResource(final CommentThread commentThread) {
         final ResourceDTO resourceDto = new ResourceDTO();
-        resourceDto.setPrefLabel(commentThread.getLabel());
-        resourceDto.setDescription(commentThread.getDescription());
+        resourceDto.setPrefLabel(copyStringMap(commentThread.getLabel()));
+        resourceDto.setDescription(copyStringMap(commentThread.getDescription()));
         resourceDto.setUri(commentThread.getUri());
         resourceDto.setLocalName(commentThread.getSequenceId().toString());
         resourceDto.setModified(convertLocalDateTimeToDate(commentThread.getCreated()));
@@ -307,5 +307,12 @@ public class DtoMapper {
         } else {
             return null;
         }
+    }
+
+    private Map copyStringMap(final Map<String, String> map) {
+        if (map != null && map.size() > 0) {
+            return new HashMap<>(map);
+        }
+        return null;
     }
 }
