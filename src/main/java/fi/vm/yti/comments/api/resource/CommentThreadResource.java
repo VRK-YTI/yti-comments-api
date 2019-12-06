@@ -3,7 +3,6 @@ package fi.vm.yti.comments.api.resource;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.transaction.Transactional;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -14,6 +13,7 @@ import javax.ws.rs.core.Response;
 
 import org.glassfish.jersey.jackson.internal.jackson.jaxrs.cfg.ObjectWriterInjector;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import fi.vm.yti.comments.api.dto.CommentDTO;
 import fi.vm.yti.comments.api.dto.CommentRoundDTO;
