@@ -5,8 +5,6 @@ import java.util.Date;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.transaction.Transactional;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
@@ -14,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import fi.vm.yti.comments.api.entity.CommentRound;
 import fi.vm.yti.comments.api.entity.CommentThread;
@@ -35,38 +34,55 @@ public interface CommentThreadRepository extends PagingAndSortingRepository<Comm
 
     Set<CommentThread> findByCommentRoundId(final UUID commentRoundId);
 
-    Page<CommentThread> findByCommentRoundUriInAndUriInAndCreatedBetween(final Set<String> commentRoundUris,
-                                                                         final Set<String> uris,
-                                                                         final LocalDateTime after,
-                                                                         final LocalDateTime before,
-                                                                         final Pageable pageable);
+    Page<CommentThread> findByCommentRoundUriInAndUriInAndCreatedBetweenOrCommentRoundUriInAndUriInAndCommentsModifiedBetween(final Set<String> commentRoundUris,
+                                                                                                                              final Set<String> uris,
+                                                                                                                              final LocalDateTime after,
+                                                                                                                              final LocalDateTime before,
+                                                                                                                              final Set<String> commentRoundUrisSecondary,
+                                                                                                                              final Set<String> urisSecondary,
+                                                                                                                              final LocalDateTime commentsModifiedAfter,
+                                                                                                                              final LocalDateTime commentsModifiedBefore,
+                                                                                                                              final Pageable pageable);
 
-    Page<CommentThread> findByCommentRoundUriInAndUriInAndCreatedAfter(final Set<String> commentRoundUris,
-                                                                       final Set<String> uris,
-                                                                       final LocalDateTime after,
-                                                                       final Pageable pageable);
+    Page<CommentThread> findByCommentRoundUriInAndUriInAndCreatedAfterOrCommentRoundUriInAndUriInAndCommentsModifiedAfter(final Set<String> commentRoundUris,
+                                                                                                                          final Set<String> uris,
+                                                                                                                          final LocalDateTime after,
+                                                                                                                          final Set<String> commentRoundUrisSecondary,
+                                                                                                                          final Set<String> urisSecondary,
+                                                                                                                          final LocalDateTime commentsModifiedAfter,
+                                                                                                                          final Pageable pageable);
 
-    Page<CommentThread> findByCommentRoundUriInAndUriInAndCreatedBefore(final Set<String> commentRoundUris,
-                                                                        final Set<String> uris,
-                                                                        final LocalDateTime before,
-                                                                        final Pageable pageable);
+    Page<CommentThread> findByCommentRoundUriInAndUriInAndCreatedBeforeOrCommentRoundUriInAndUriInAndCommentsModifiedAfter(final Set<String> commentRoundUris,
+                                                                                                                           final Set<String> uris,
+                                                                                                                           final LocalDateTime before,
+                                                                                                                           final Set<String> commentRoundUrisSecondary,
+                                                                                                                           final Set<String> urisSecondary,
+                                                                                                                           final LocalDateTime commentsModifiedBefore,
+                                                                                                                           final Pageable pageable);
 
     Page<CommentThread> findByCommentRoundUriInAndUriIn(final Set<String> commentRoundUris,
                                                         final Set<String> uris,
                                                         final Pageable pageable);
 
-    Page<CommentThread> findByCommentRoundUriInAndCreatedBetween(final Set<String> commentRoundUris,
-                                                                 final LocalDateTime after,
-                                                                 final LocalDateTime before,
-                                                                 final Pageable pageable);
+    Page<CommentThread> findByCommentRoundUriInAndCreatedBetweenOrCommentRoundUriInAndCommentsModifiedBetween(final Set<String> commentRoundUris,
+                                                                                                              final LocalDateTime after,
+                                                                                                              final LocalDateTime before,
+                                                                                                              final Set<String> commentRoundUrisSecondary,
+                                                                                                              final LocalDateTime commentsModifiedAfter,
+                                                                                                              final LocalDateTime commentsModifiedBefore,
+                                                                                                              final Pageable pageable);
 
-    Page<CommentThread> findByCommentRoundUriInAndCreatedAfter(final Set<String> commentRoundUris,
-                                                               final LocalDateTime after,
-                                                               final Pageable pageable);
+    Page<CommentThread> findByCommentRoundUriInAndCreatedAfterOrCommentRoundUriInAndCommentsModifiedAfter(final Set<String> commentRoundUris,
+                                                                                                          final LocalDateTime after,
+                                                                                                          final Set<String> commentRoundUrisSecondary,
+                                                                                                          final LocalDateTime commentsModifiedAfter,
+                                                                                                          final Pageable pageable);
 
-    Page<CommentThread> findByCommentRoundUriInAndCreatedBefore(final Set<String> commentRoundUris,
-                                                                final LocalDateTime before,
-                                                                final Pageable pageable);
+    Page<CommentThread> findByCommentRoundUriInAndCreatedBeforeOrCommentRoundUriInAndCommentsModifiedBefore(final Set<String> commentRoundUris,
+                                                                                                            final LocalDateTime before,
+                                                                                                            final Set<String> commentRoundUrisSecondary,
+                                                                                                            final LocalDateTime commentsModifiedBefore,
+                                                                                                            final Pageable pageable);
 
     Page<CommentThread> findByCommentRoundUriIn(final Set<String> commentRoundUris,
                                                 final Pageable pageable);
@@ -75,22 +91,25 @@ public interface CommentThreadRepository extends PagingAndSortingRepository<Comm
 
     Page<CommentThread> findAll(final Pageable pageable);
 
-    Page<CommentThread> findByUriInAndCreatedBetweenOrCommentsModifiedBetween(final Set<String> uris,
-                                                                              final LocalDateTime after,
-                                                                              final LocalDateTime before,
-                                                                              final LocalDateTime commentsModifiedAfter,
-                                                                              final LocalDateTime commentsModifiedBefore,
-                                                                              final Pageable pageable);
+    Page<CommentThread> findByUriInAndCreatedBetweenOrUriInAndCommentsModifiedBetween(final Set<String> uris,
+                                                                                      final LocalDateTime after,
+                                                                                      final LocalDateTime before,
+                                                                                      final Set<String> urisSecondary,
+                                                                                      final LocalDateTime commentsModifiedAfter,
+                                                                                      final LocalDateTime commentsModifiedBefore,
+                                                                                      final Pageable pageable);
 
-    Page<CommentThread> findByUriInAndCreatedAfterOrCommentsModifiedAfter(final Set<String> uris,
-                                                                          final LocalDateTime after,
-                                                                          final LocalDateTime commentsModifiedAfter,
-                                                                          final Pageable pageable);
+    Page<CommentThread> findByUriInAndCreatedAfterOrUriInAndCommentsModifiedAfter(final Set<String> uris,
+                                                                                  final LocalDateTime after,
+                                                                                  final Set<String> urisSecondary,
+                                                                                  final LocalDateTime commentsModifiedAfter,
+                                                                                  final Pageable pageable);
 
-    Page<CommentThread> findByUriInAndCreatedBeforeOrCommentsModifiedBefore(final Set<String> uris,
-                                                                            final LocalDateTime before,
-                                                                            final LocalDateTime commentsModifiedBefore,
-                                                                            final Pageable pageable);
+    Page<CommentThread> findByUriInAndCreatedBeforeOrUriInAndCommentsModifiedBefore(final Set<String> uris,
+                                                                                    final LocalDateTime before,
+                                                                                    final Set<String> urisSecondary,
+                                                                                    final LocalDateTime commentsModifiedBefore,
+                                                                                    final Pageable pageable);
 
     Page<CommentThread> findByCreatedBetweenOrCommentsModifiedBetween(final LocalDateTime after,
                                                                       final LocalDateTime before,

@@ -7,10 +7,10 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.inject.Inject;
-import javax.transaction.Transactional;
 
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import fi.vm.yti.comments.api.dao.CommentDao;
 import fi.vm.yti.comments.api.dao.CommentThreadDao;
@@ -61,7 +61,6 @@ public class ResultServiceImpl implements ResultService {
         });
         return commentThreadResults;
     }
-
 
     @Transactional
     public String getResultsForCommentThreadAsText(final UUID commentThreadId) {

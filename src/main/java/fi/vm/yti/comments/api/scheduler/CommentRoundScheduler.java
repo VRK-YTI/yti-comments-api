@@ -1,17 +1,18 @@
 package fi.vm.yti.comments.api.scheduler;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Set;
 
 import javax.inject.Inject;
-import javax.transaction.Transactional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import fi.vm.yti.comments.api.dao.CommentRoundDao;
 import fi.vm.yti.comments.api.entity.CommentRound;
@@ -56,7 +57,9 @@ public class CommentRoundScheduler {
         }
         commentRounds.forEach(commentRound -> {
             commentRound.setStatus(endStatus);
-            commentRound.setModified(runTime.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
+            final LocalDateTime modifiedTimeStamp = runTime.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
+            commentRound.setModified(modifiedTimeStamp);
+            commentRound.setStatusModified(modifiedTimeStamp);
         });
         commentRoundDao.saveAll(commentRounds);
         if (commentRounds.size() > 0) {

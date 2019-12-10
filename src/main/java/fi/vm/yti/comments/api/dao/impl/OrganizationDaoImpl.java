@@ -3,9 +3,9 @@ package fi.vm.yti.comments.api.dao.impl;
 import java.util.UUID;
 
 import javax.inject.Inject;
-import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import fi.vm.yti.comments.api.dao.OrganizationDao;
 import fi.vm.yti.comments.api.entity.Organization;

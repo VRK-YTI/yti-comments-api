@@ -8,12 +8,12 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
-import javax.transaction.Transactional;
 
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import fi.vm.yti.comments.api.api.ApiUtils;
 import fi.vm.yti.comments.api.constants.ApiConstants;
@@ -80,31 +80,31 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
                                                               final PageRequest pageRequest) {
         if (commentRoundUris != null && !commentRoundUris.isEmpty() && uris != null && !uris.isEmpty()) {
             if (after != null && before != null) {
-                return new HashSet<>(commentThreadRepository.findByCommentRoundUriInAndUriInAndCreatedBetween(commentRoundUris, uris, after, before, pageRequest).getContent());
+                return new HashSet<>(commentThreadRepository.findByCommentRoundUriInAndUriInAndCreatedBetweenOrCommentRoundUriInAndUriInAndCommentsModifiedBetween(commentRoundUris, uris, after, before, commentRoundUris, uris, after, before, pageRequest).getContent());
             } else if (after != null) {
-                return new HashSet<>(commentThreadRepository.findByCommentRoundUriInAndUriInAndCreatedAfter(commentRoundUris, uris, after, pageRequest).getContent());
+                return new HashSet<>(commentThreadRepository.findByCommentRoundUriInAndUriInAndCreatedAfterOrCommentRoundUriInAndUriInAndCommentsModifiedAfter(commentRoundUris, uris, after, commentRoundUris, uris, after, pageRequest).getContent());
             } else if (before != null) {
-                return new HashSet<>(commentThreadRepository.findByCommentRoundUriInAndUriInAndCreatedBefore(commentRoundUris, uris, before, pageRequest).getContent());
+                return new HashSet<>(commentThreadRepository.findByCommentRoundUriInAndUriInAndCreatedBeforeOrCommentRoundUriInAndUriInAndCommentsModifiedAfter(commentRoundUris, uris, before, commentRoundUris, uris, before, pageRequest).getContent());
             } else {
                 return new HashSet<>(commentThreadRepository.findByCommentRoundUriInAndUriIn(commentRoundUris, uris, pageRequest).getContent());
             }
         } else if (commentRoundUris != null && !commentRoundUris.isEmpty()) {
             if (after != null && before != null) {
-                return new HashSet<>(commentThreadRepository.findByCommentRoundUriInAndCreatedBetween(commentRoundUris, after, before, pageRequest).getContent());
+                return new HashSet<>(commentThreadRepository.findByCommentRoundUriInAndCreatedBetweenOrCommentRoundUriInAndCommentsModifiedBetween(commentRoundUris, after, before, commentRoundUris, after, before, pageRequest).getContent());
             } else if (after != null) {
-                return new HashSet<>(commentThreadRepository.findByCommentRoundUriInAndCreatedAfter(commentRoundUris, after, pageRequest).getContent());
+                return new HashSet<>(commentThreadRepository.findByCommentRoundUriInAndCreatedAfterOrCommentRoundUriInAndCommentsModifiedAfter(commentRoundUris, after, commentRoundUris, after, pageRequest).getContent());
             } else if (before != null) {
-                return new HashSet<>(commentThreadRepository.findByCommentRoundUriInAndCreatedBefore(commentRoundUris, before, pageRequest).getContent());
+                return new HashSet<>(commentThreadRepository.findByCommentRoundUriInAndCreatedBeforeOrCommentRoundUriInAndCommentsModifiedBefore(commentRoundUris, before, commentRoundUris, before, pageRequest).getContent());
             } else {
                 return new HashSet<>(commentThreadRepository.findByCommentRoundUriIn(commentRoundUris, pageRequest).getContent());
             }
         } else if (uris != null && !uris.isEmpty()) {
             if (after != null && before != null) {
-                return new HashSet<>(commentThreadRepository.findByUriInAndCreatedBetweenOrCommentsModifiedBetween(uris, after, before, after, before, pageRequest).getContent());
+                return new HashSet<>(commentThreadRepository.findByUriInAndCreatedBetweenOrUriInAndCommentsModifiedBetween(uris, after, before, uris, after, before, pageRequest).getContent());
             } else if (after != null) {
-                return new HashSet<>(commentThreadRepository.findByUriInAndCreatedAfterOrCommentsModifiedAfter(uris, after, after, pageRequest).getContent());
+                return new HashSet<>(commentThreadRepository.findByUriInAndCreatedAfterOrUriInAndCommentsModifiedAfter(uris, after, uris, after, pageRequest).getContent());
             } else if (before != null) {
-                return new HashSet<>(commentThreadRepository.findByUriInAndCreatedBeforeOrCommentsModifiedBefore(uris, before, before, pageRequest).getContent());
+                return new HashSet<>(commentThreadRepository.findByUriInAndCreatedBeforeOrUriInAndCommentsModifiedBefore(uris, before, uris, before, pageRequest).getContent());
             } else {
                 return new HashSet<>(commentThreadRepository.findByUriIn(uris, pageRequest).getContent());
             }
@@ -118,11 +118,11 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
                                                       final LocalDateTime before,
                                                       final PageRequest pageRequest) {
         if (after != null && before != null) {
-            return new HashSet<>(commentThreadRepository.findByCommentRoundUriInAndCreatedBetween(commentRoundUris, after, before, pageRequest).getContent());
+            return new HashSet<>(commentThreadRepository.findByCommentRoundUriInAndCreatedBetweenOrCommentRoundUriInAndCommentsModifiedBetween(commentRoundUris, after, before, commentRoundUris, after, before, pageRequest).getContent());
         } else if (after != null) {
-            return new HashSet<>(commentThreadRepository.findByCommentRoundUriInAndCreatedAfter(commentRoundUris, after, pageRequest).getContent());
+            return new HashSet<>(commentThreadRepository.findByCommentRoundUriInAndCreatedAfterOrCommentRoundUriInAndCommentsModifiedAfter(commentRoundUris, after, commentRoundUris, after, pageRequest).getContent());
         } else if (before != null) {
-            return new HashSet<>(commentThreadRepository.findByCommentRoundUriInAndCreatedBefore(commentRoundUris, before, pageRequest).getContent());
+            return new HashSet<>(commentThreadRepository.findByCommentRoundUriInAndCreatedBeforeOrCommentRoundUriInAndCommentsModifiedBefore(commentRoundUris, before, commentRoundUris, before, pageRequest).getContent());
         } else {
             return new HashSet<>(commentThreadRepository.findByCommentRoundUriIn(commentRoundUris, pageRequest).getContent());
         }
@@ -171,11 +171,11 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
                                           final LocalDateTime before,
                                           final PageRequest pageRequest) {
         if (after != null && before != null) {
-            return new HashSet<>(commentThreadRepository.findByUriInAndCreatedBetweenOrCommentsModifiedBetween(uris, after, before, after, before, pageRequest).getContent());
+            return new HashSet<>(commentThreadRepository.findByUriInAndCreatedBetweenOrUriInAndCommentsModifiedBetween(uris, after, before, uris, after, before, pageRequest).getContent());
         } else if (after != null) {
-            return new HashSet<>(commentThreadRepository.findByUriInAndCreatedAfterOrCommentsModifiedAfter(uris, after, after, pageRequest).getContent());
+            return new HashSet<>(commentThreadRepository.findByUriInAndCreatedAfterOrUriInAndCommentsModifiedAfter(uris, after, uris, after, pageRequest).getContent());
         } else if (before != null) {
-            return new HashSet<>(commentThreadRepository.findByUriInAndCreatedBeforeOrCommentsModifiedBefore(uris, before, before, pageRequest).getContent());
+            return new HashSet<>(commentThreadRepository.findByUriInAndCreatedBeforeOrUriInAndCommentsModifiedBefore(uris, before, uris, before, pageRequest).getContent());
         } else {
             return new HashSet<>(commentThreadRepository.findByUriIn(uris, pageRequest).getContent());
         }

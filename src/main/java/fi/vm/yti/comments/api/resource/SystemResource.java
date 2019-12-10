@@ -1,8 +1,6 @@
 package fi.vm.yti.comments.api.resource;
 
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.ws.rs.DefaultValue;
@@ -20,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
 import fi.vm.yti.comments.api.api.ApiUtils;
 import fi.vm.yti.comments.api.dto.SystemMetaCountDTO;
@@ -119,11 +118,14 @@ public class SystemResource implements AbstractBaseResource {
     }
 
     private Date parseDateFromString(final String dateString) {
-        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-        try {
-            return df.parse(dateString);
-        } catch (final ParseException e) {
-            LOG.error("Error parsing date from string in meta api: " + dateString);
+        if (dateString != null) {
+            try {
+                final ISO8601DateFormat dateFormat = new ISO8601DateFormat();
+                return dateFormat.parse(dateString);
+            } catch (final ParseException e) {
+                LOG.error("Error parsing date from string in meta api: " + dateString);
+                throw new YtiCommentsException(new ErrorModel(HttpStatus.BAD_REQUEST.value(), "Date input not valid: " + dateString));
+            }
         }
         return null;
     }
