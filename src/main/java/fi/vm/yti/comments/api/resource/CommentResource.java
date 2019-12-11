@@ -25,7 +25,6 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import static fi.vm.yti.comments.api.constants.ApiConstants.FILTER_NAME_COMMENT;
 
@@ -43,9 +42,7 @@ public class CommentResource implements AbstractBaseResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Operation(summary = "Comment API for requesting all comments.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Returns all comments from the system as a list.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDTO.class))) })
-    })
+    @ApiResponse(responseCode = "200", description = "Returns all comments from the system as a list.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDTO.class))) })
     @Transactional
     public Response getComments(@Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENT, expand)));
@@ -56,10 +53,8 @@ public class CommentResource implements AbstractBaseResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Operation(summary = "Comment API for requesting single comment.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Returns single comment.", content = { @Content(schema = @Schema(implementation = CommentDTO.class)) }),
-        @ApiResponse(responseCode = "404", description = "No comment found with given UUID.")
-    })
+    @ApiResponse(responseCode = "200", description = "Returns single comment.", content = { @Content(schema = @Schema(implementation = CommentDTO.class)) })
+    @ApiResponse(responseCode = "404", description = "No comment found with given UUID.")
     @Transactional
     @Path("{commentId}")
     public Response getComment(@Parameter(description = "Comment UUID.", in = ParameterIn.PATH, required = true) @PathParam("commentId") final UUID commentId,
