@@ -252,7 +252,7 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
             return commentThreadRepository.getCommentThreadCountWithUrisAndAfterAndBefore(commentThreadUris, after, before);
         } else if (commentThreadUris != null && after != null) {
             return commentThreadRepository.getCommentThreadCountWithUrisAndAfter(commentThreadUris, after);
-        } else if (commentThreadUris != null && after != null) {
+        } else if (commentThreadUris != null && before != null) {
             return commentThreadRepository.getCommentThreadCountWithUrisAndBefore(commentThreadUris, before);
         } else if (commentRoundUris != null && after != null && before != null) {
             return commentThreadRepository.getCommentThreadCountWithCommentRoundUrisAndAfterAndBefore(commentRoundUris, after, before);
