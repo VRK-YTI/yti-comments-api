@@ -139,10 +139,15 @@ public class DtoMapperService {
         commentRoundDto.setLabel(commentRound.getLabel());
         commentRoundDto.setUser(userService.getUserById(commentRound.getUserId()));
         commentRoundDto.setStatus(commentRound.getStatus());
-        commentRoundDto.setUri(commentRound.getUri());
+        final String commentRoundUri = commentRound.getUri();
+        commentRoundDto.setUri(commentRoundUri);
         commentRoundDto.setSequenceId(commentRound.getSequenceId());
         if (deep) {
             commentRoundDto.setCommentThreads(mapCommentThreads(commentRound.getCommentThreads(), false));
+            final Set<UserDTO> tempUsers = userService.getUsersByCommentRoundUri(commentRoundUri);
+            if (tempUsers != null && !tempUsers.isEmpty()) {
+                commentRoundDto.setTempUsers(tempUsers);
+            }
         }
         if (deep || mapSource) {
             commentRoundDto.setSource(mapSource(commentRound.getSource()));

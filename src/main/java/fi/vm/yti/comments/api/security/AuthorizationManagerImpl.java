@@ -27,6 +27,7 @@ public class AuthorizationManagerImpl implements AuthorizationManager {
 
     private final AuthenticatedUserProvider userProvider;
     private final UserService userService;
+    private static final String TOKEN_ROLE_MEMBER = "MEMBER";
 
     @Inject
     AuthorizationManagerImpl(final AuthenticatedUserProvider userProvider,
@@ -41,6 +42,10 @@ public class AuthorizationManagerImpl implements AuthorizationManager {
 
     public UUID getUserId() {
         return userProvider.getUser().getId();
+    }
+
+    public String getContainerUri() {
+        return userProvider.getUser().getContainerUri();
     }
 
     public String getUserEmail() {
@@ -90,15 +95,19 @@ public class AuthorizationManagerImpl implements AuthorizationManager {
     public boolean canUserAddCommentsToCommentRound(final CommentRound commentRound) {
         final YtiUser user = userProvider.getUser();
         final Collection<UUID> organizationIds = commentRound.getOrganizations().stream().map(AbstractIdentifyableEntity::getId).collect(Collectors.toList());
-        return user.isSuperuser() || (user.isInAnyRole(EnumSet.of(ADMIN, CODE_LIST_EDITOR, TERMINOLOGY_EDITOR, DATA_MODEL_EDITOR, MEMBER), organizationIds) && STATUS_INPROGRESS.equalsIgnoreCase(commentRound.getStatus()));
+        return user.isSuperuser() ||
+            (user.getContainerUri() != null && user.getContainerUri().equalsIgnoreCase(commentRound.getUri())) ||
+            (user.getTokenRole().equalsIgnoreCase(TOKEN_ROLE_MEMBER) && user.getContainerUri().equalsIgnoreCase(commentRound.getUri())) ||
+            (user.isInAnyRole(EnumSet.of(ADMIN, CODE_LIST_EDITOR, TERMINOLOGY_EDITOR, DATA_MODEL_EDITOR, MEMBER), organizationIds) && STATUS_INPROGRESS.equalsIgnoreCase(commentRound.getStatus()));
     }
 
     public boolean canUserAddCommentThreadsToCommentRound(final CommentRound commentRound) {
         final YtiUser user = userProvider.getUser();
         final Collection<UUID> organizationIds = commentRound.getOrganizations().stream().map(AbstractIdentifyableEntity::getId).collect(Collectors.toList());
         return user.isSuperuser() ||
+            (user.getContainerUri() != null && user.getContainerUri().equalsIgnoreCase(commentRound.getUri())) ||
             (user.getId().equals(commentRound.getUserId()) && STATUS_INCOMPLETE.equalsIgnoreCase(commentRound.getStatus())) ||
-            ((user.getId().equals(commentRound.getUserId()) || user.isInAnyRole(EnumSet.of(ADMIN, CODE_LIST_EDITOR, TERMINOLOGY_EDITOR, DATA_MODEL_EDITOR, MEMBER), organizationIds)) &&
+            ((user.getId().equals(commentRound.getUserId()) || (user.getTokenRole().equalsIgnoreCase(TOKEN_ROLE_MEMBER) && user.getContainerUri().equalsIgnoreCase(commentRound.getUri())) || user.isInAnyRole(EnumSet.of(ADMIN, CODE_LIST_EDITOR, TERMINOLOGY_EDITOR, DATA_MODEL_EDITOR, MEMBER), organizationIds)) &&
                 (STATUS_INPROGRESS.equalsIgnoreCase(commentRound.getStatus()) && !commentRound.getFixedThreads()));
     }
 }

@@ -52,6 +52,7 @@ public class UriResolverResource implements AbstractBaseResource {
     private static final String PATH_COMMENTROUND = "round";
     private static final String PATH_THREAD = "thread";
     private static final String PATH_COMMENT = "comment";
+    private static final String HEADER_YTITOKEN = "YTITOKEN";
 
     private final CommentRoundDao commentRoundDao;
     private final CommentThreadDao commentThreadDao;
@@ -101,6 +102,7 @@ public class UriResolverResource implements AbstractBaseResource {
     public Response redirectUri(@HeaderParam("Accept") String accept,
                                 @Parameter(description = "Format for returning content.", in = ParameterIn.QUERY) @QueryParam("format") final String format,
                                 @Parameter(description = "Filter string (csl) for expanding specific child resources.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand,
+                                @Parameter(description = "Filter string (csl) for expanding specific child resources.", in = ParameterIn.QUERY) @QueryParam("token") final String token,
                                 @Parameter(description = "Resource URI.", required = true, in = ParameterIn.QUERY) @QueryParam("uri") final String uri) {
         ensureSuomiFiUriHost(uri);
         final String uriPath = uri.substring((SUOMI_URI_HOST).length());
@@ -108,21 +110,42 @@ public class UriResolverResource implements AbstractBaseResource {
         final String resourcePath = uriPath.substring(API_PATH_COMMENTS.length() + 1);
         final List<String> resourcePathParams = parseResourcePathIdentifiers(resourcePath);
         final List<String> acceptHeaders = parseAcceptHeaderValues(accept);
+        final URI redirectUri;
         if (format != null && !format.isEmpty()) {
-            final URI redirectUrl;
-            if (expand != null && !expand.isEmpty()) {
-                redirectUrl = URI.create(resolveResourceApiUrl(resourcePathParams) + "?format=" + format + "&expand=" + expand);
-            } else {
-                redirectUrl = URI.create(resolveResourceApiUrl(resourcePathParams) + "?format=" + format);
-            }
-            return Response.seeOther(redirectUrl).build();
+            redirectUri = constructUri(resolveResourceApiUrl(resourcePathParams), format, expand);
         } else if (acceptHeaders.contains(MediaType.APPLICATION_JSON)) {
-            final URI redirectUrl = URI.create(resolveResourceApiUrl(resourcePathParams));
-            return Response.seeOther(redirectUrl).build();
+            redirectUri = URI.create(resolveResourceApiUrl(resourcePathParams));
         } else {
-            final URI redirectUrl = URI.create(resolveResourceWebUrl(resourcePathParams));
-            return Response.seeOther(redirectUrl).build();
+            redirectUri = URI.create(resolveResourceWebUrl(resourcePathParams));
         }
+        if (token != null && token.isEmpty()) {
+            return Response.seeOther(redirectUri).build();
+        } else {
+            return Response.seeOther(redirectUri).header("Set-Cookie", HEADER_YTITOKEN + "=" + token + ";path=/;HttpOnly;").build();
+        }
+    }
+
+    private URI constructUri(final String uri,
+                             final String format,
+                             final String expand) {
+        final StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append(uri);
+        boolean firstParameter = true;
+        if (format != null && !format.isEmpty()) {
+            stringBuffer.append("?format=");
+            stringBuffer.append(format);
+            firstParameter = false;
+        }
+        if (expand != null && !expand.isEmpty()) {
+            if (firstParameter) {
+                stringBuffer.append("?");
+            } else {
+                stringBuffer.append("&");
+            }
+            stringBuffer.append("expand=");
+            stringBuffer.append(expand);
+        }
+        return URI.create(stringBuffer.toString());
     }
 
     private List<String> parseResourcePathIdentifiers(final String resourcePath) {

@@ -19,7 +19,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonFilter("commentRound")
 @XmlRootElement
-@XmlType(propOrder = { "id", "url", "uri", "sequenceId", "created", "modified", "user", "startDate", "endDate", "status", "sourceLocalName", "sourceLabel", "fixedThreads", "openThreads", "organizations", "commentThreads" })
+@XmlType(propOrder = { "id", "url", "uri", "sequenceId", "created", "modified", "user", "startDate", "endDate", "status", "sourceLocalName", "sourceLabel", "fixedThreads", "openThreads", "organizations", "commentThreads", "tempUsers" })
 @Schema(name = "CommentRound", description = "CommentRound DTO that represents data for one single CommentRound.")
 public class CommentRoundDTO extends AbstractTimeStampedIdentifyableDTO implements Serializable {
 
@@ -41,6 +41,7 @@ public class CommentRoundDTO extends AbstractTimeStampedIdentifyableDTO implemen
     private Set<CommentThreadDTO> commentThreads;
     private String uri;
     private Integer sequenceId;
+    private Set<UserDTO> tempUsers;
 
     @Schema(format = "dateTime")
     @JsonSerialize(using = LocalDateSerializer.class)
@@ -176,5 +177,13 @@ public class CommentRoundDTO extends AbstractTimeStampedIdentifyableDTO implemen
 
     public void setSequenceId(final Integer sequenceId) {
         this.sequenceId = sequenceId;
+    }
+
+    public Set<UserDTO> getTempUsers() {
+        return tempUsers;
+    }
+
+    public void setTempUsers(final Set<UserDTO> tempUsers) {
+        this.tempUsers = tempUsers;
     }
 }
