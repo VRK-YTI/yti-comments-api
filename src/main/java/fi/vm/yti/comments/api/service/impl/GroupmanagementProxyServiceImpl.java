@@ -53,7 +53,11 @@ public class GroupmanagementProxyServiceImpl implements GroupmanagementProxyServ
         mapper.setFilterProvider(new SimpleFilterProvider().setFailOnUnknownId(false));
         final HttpEntity<String> request;
         try {
-            request = new HttpEntity<>(mapper.writeValueAsString(tempUsers), headers);
+            if (tempUsers != null) {
+                request = new HttpEntity<>(mapper.writeValueAsString(tempUsers), headers);
+            } else {
+                request = new HttpEntity<>(headers);
+            }
         } catch (final JsonProcessingException e) {
             LOG.error("Cannot map tempUsers for addOrUpdateTempUsers request.", e);
             throw new YtiCommentsException(new ErrorModel(HttpStatus.INTERNAL_SERVER_ERROR.value(), ErrorConstants.ERR_MSG_USER_500));

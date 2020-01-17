@@ -108,7 +108,9 @@ public class CommentRoundServiceImpl extends AbstractService implements CommentR
     }
 
     private void addOrUpdateGroupmanagementTempUsers(final CommentRoundDTO commentRoundDto) {
-        groupmanagementProxyService.addOrUpdateTempUsers(commentRoundDto.getUri(), commentRoundDto.getTempUsers());
+        if (commentRoundDto.getUri() != null) {
+            groupmanagementProxyService.addOrUpdateTempUsers(commentRoundDto.getUri(), commentRoundDto.getTempUsers());
+        }
     }
 
     @Transactional
