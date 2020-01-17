@@ -23,6 +23,7 @@ public abstract class ApiConstants {
     public static final String GROUPMANAGEMENT_API_REQUEST = "/request";
     public static final String GROUPMANAGEMENT_API_ORGANIZATIONS = "organizations";
     public static final String GROUPMANAGEMENT_API_TEMPUSERS = "tempusers";
+    public static final String GROUPMANAGEMENT_API_SENDCONTAINEREMAILS = "sendcontaineremails";
     public static final String FILTER_NAME_COMMENT = "comment";
     public static final String FILTER_NAME_SOURCE = "source";
     public static final String FILTER_NAME_COMMENTROUND = "commentRound";

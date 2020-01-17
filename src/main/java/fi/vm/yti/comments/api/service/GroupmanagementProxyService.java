@@ -8,4 +8,6 @@ public interface GroupmanagementProxyService {
 
     void addOrUpdateTempUsers(final String containerUri,
                               final Set<UserDTO> tempUsers);
+
+    void sendInvitationEmailsToRound(final String containerUri);
 }

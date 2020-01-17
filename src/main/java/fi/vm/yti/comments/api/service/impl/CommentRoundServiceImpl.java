@@ -13,7 +13,6 @@ import fi.vm.yti.comments.api.dao.CommentRoundDao;
 import fi.vm.yti.comments.api.dto.CommentRoundDTO;
 import fi.vm.yti.comments.api.dto.DtoMapperService;
 import fi.vm.yti.comments.api.dto.ResourceDTO;
-import fi.vm.yti.comments.api.dto.UserDTO;
 import fi.vm.yti.comments.api.entity.CommentRound;
 import fi.vm.yti.comments.api.error.Meta;
 import fi.vm.yti.comments.api.service.CommentRoundService;
@@ -109,10 +108,7 @@ public class CommentRoundServiceImpl extends AbstractService implements CommentR
     }
 
     private void addOrUpdateGroupmanagementTempUsers(final CommentRoundDTO commentRoundDto) {
-        final Set<UserDTO> tempUsers = commentRoundDto.getTempUsers();
-        if (tempUsers != null && !tempUsers.isEmpty()) {
-            groupmanagementProxyService.addOrUpdateTempUsers(commentRoundDto.getUri(), commentRoundDto.getTempUsers());
-        }
+        groupmanagementProxyService.addOrUpdateTempUsers(commentRoundDto.getUri(), commentRoundDto.getTempUsers());
     }
 
     @Transactional

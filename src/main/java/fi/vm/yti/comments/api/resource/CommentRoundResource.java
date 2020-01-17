@@ -48,6 +48,7 @@ import fi.vm.yti.comments.api.security.AuthorizationManager;
 import fi.vm.yti.comments.api.service.CommentRoundService;
 import fi.vm.yti.comments.api.service.CommentService;
 import fi.vm.yti.comments.api.service.CommentThreadService;
+import fi.vm.yti.comments.api.service.GroupmanagementProxyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -75,6 +76,7 @@ public class CommentRoundResource implements AbstractBaseResource {
     private final CommentParser commentParser;
     private final AuthorizationManager authorizationManager;
     private final ExportService exportService;
+    private final GroupmanagementProxyService groupManagementProxyService;
 
     @Inject
     public CommentRoundResource(final CommentRoundService commentRoundService,
@@ -87,7 +89,8 @@ public class CommentRoundResource implements AbstractBaseResource {
                                 final CommentThreadParser commentThreadParser,
                                 final CommentParser commentParser,
                                 final AuthorizationManager authorizationManager,
-                                final ExportService exportService) {
+                                final ExportService exportService,
+                                final GroupmanagementProxyService groupManagementProxyService) {
         this.commentRoundService = commentRoundService;
         this.commentRoundDao = commentRoundDao;
         this.commentThreadDao = commentThreadDao;
@@ -99,6 +102,7 @@ public class CommentRoundResource implements AbstractBaseResource {
         this.commentParser = commentParser;
         this.authorizationManager = authorizationManager;
         this.exportService = exportService;
+        this.groupManagementProxyService = groupManagementProxyService;
     }
 
     @GET
@@ -333,6 +337,7 @@ public class CommentRoundResource implements AbstractBaseResource {
         if (authorizationManager.canUserAddCommentRound()) {
             ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTROUND, expand)));
             final Set<CommentRoundDTO> commentRoundDtos = commentRoundService.addOrUpdateCommentRoundsFromDtos(commentRoundParser.parseCommentRoundsFromJson(jsonPayload), removeCommentThreadOrphans);
+            commentRoundDtos.forEach(this::sendInvitationEmails);
             return createResponse("CommentRounds", MESSAGE_TYPE_ADDED_OR_MODIFIED, commentRoundDtos);
         } else {
             throw new UnauthorizedException();
@@ -358,6 +363,7 @@ public class CommentRoundResource implements AbstractBaseResource {
             if (authorizationManager.canUserModifyCommentRound(commentRound)) {
                 ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTROUND, expand)));
                 final CommentRoundDTO commentRoundDto = commentRoundService.addOrUpdateCommentRoundFromDto(commentRoundParser.parseCommentRoundFromJson(jsonPayload), removeCommentThreadOrphans);
+                sendInvitationEmails(commentRoundDto);
                 if (commentRoundDto != null) {
                     return Response.ok(commentRoundDto).build();
                 } else {
@@ -594,5 +600,11 @@ public class CommentRoundResource implements AbstractBaseResource {
             }
         }
         throw new NotFoundException();
+    }
+
+    private void sendInvitationEmails(final CommentRoundDTO commentRoundDto) {
+        if (commentRoundDto.getStatus().equalsIgnoreCase("INPROGRESS") && commentRoundDto.getTempUsers() != null && commentRoundDto.getTempUsers().size() > 0) {
+            groupManagementProxyService.sendInvitationEmailsToRound(commentRoundDto.getUri());
+        }
     }
 }
