@@ -79,35 +79,57 @@ public class AuthorizationManagerImpl implements AuthorizationManager {
 
     public boolean canUserDeleteCommentRound(final CommentRound commentRound) {
         final YtiUser user = userProvider.getUser();
-        return user.isSuperuser() || (userService.getUserEmailById(commentRound.getUserId()).equalsIgnoreCase(user.getEmail()));
+        return user.isSuperuser() || (commentRound.getUserId() == user.getId());
     }
 
     public boolean canUserDeleteCommentThread(final CommentRound commentRound) {
         final YtiUser user = userProvider.getUser();
-        return (user.isSuperuser() || (userService.getUserEmailById(commentRound.getUserId()).equalsIgnoreCase(user.getEmail()))) && commentRound.getStatus().equalsIgnoreCase(STATUS_INPROGRESS);
+        return user.isSuperuser() || (commentRound.getUserId() == user.getId() && commentRound.getStatus().equalsIgnoreCase(STATUS_INPROGRESS));
     }
 
     public boolean canUserModifyCommentRound(final CommentRound commentRound) {
         final YtiUser user = userProvider.getUser();
-        return user.isSuperuser() || user.getId().equals(commentRound.getUserId());
+        return user.isSuperuser() || commentRound.getUserId() == user.getId();
     }
 
     public boolean canUserAddCommentsToCommentRound(final CommentRound commentRound) {
         final YtiUser user = userProvider.getUser();
         final Collection<UUID> organizationIds = commentRound.getOrganizations().stream().map(AbstractIdentifyableEntity::getId).collect(Collectors.toList());
-        return user.isSuperuser() ||
-            (user.getContainerUri() != null && user.getContainerUri().equalsIgnoreCase(commentRound.getUri())) ||
-            (user.getTokenRole().equalsIgnoreCase(TOKEN_ROLE_MEMBER) && user.getContainerUri().equalsIgnoreCase(commentRound.getUri())) ||
-            (user.isInAnyRole(EnumSet.of(ADMIN, CODE_LIST_EDITOR, TERMINOLOGY_EDITOR, DATA_MODEL_EDITOR, MEMBER), organizationIds) && STATUS_INPROGRESS.equalsIgnoreCase(commentRound.getStatus()));
+        if (STATUS_INPROGRESS.equalsIgnoreCase(commentRound.getStatus())) {
+            if (user.isSuperuser()) {
+                return true;
+            } else if (user.getId().equals(commentRound.getUserId())) {
+                return true;
+            } else if (user.isInAnyRole(EnumSet.of(ADMIN, CODE_LIST_EDITOR, TERMINOLOGY_EDITOR, DATA_MODEL_EDITOR, MEMBER), organizationIds)) {
+                return true;
+            } else if (user.getTokenRole() != null && TOKEN_ROLE_MEMBER.equalsIgnoreCase(user.getTokenRole()) && user.getContainerUri() != null && user.getContainerUri().equalsIgnoreCase(commentRound.getUri())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean canUserAddCommentThreadsToCommentRound(final CommentRound commentRound) {
         final YtiUser user = userProvider.getUser();
         final Collection<UUID> organizationIds = commentRound.getOrganizations().stream().map(AbstractIdentifyableEntity::getId).collect(Collectors.toList());
-        return user.isSuperuser() ||
-            (user.getContainerUri() != null && user.getContainerUri().equalsIgnoreCase(commentRound.getUri())) ||
-            (user.getId().equals(commentRound.getUserId()) && STATUS_INCOMPLETE.equalsIgnoreCase(commentRound.getStatus())) ||
-            ((user.getId().equals(commentRound.getUserId()) || (user.getTokenRole().equalsIgnoreCase(TOKEN_ROLE_MEMBER) && user.getContainerUri().equalsIgnoreCase(commentRound.getUri())) || user.isInAnyRole(EnumSet.of(ADMIN, CODE_LIST_EDITOR, TERMINOLOGY_EDITOR, DATA_MODEL_EDITOR, MEMBER), organizationIds)) &&
-                (STATUS_INPROGRESS.equalsIgnoreCase(commentRound.getStatus()) && !commentRound.getFixedThreads()));
+        if (STATUS_INCOMPLETE.equalsIgnoreCase(commentRound.getStatus())) {
+            if (user.isSuperuser()) {
+                return true;
+            } else if (user.getId().equals(commentRound.getUserId())) {
+                return true;
+            }
+        }
+        if (STATUS_INPROGRESS.equalsIgnoreCase(commentRound.getStatus()) && !commentRound.getFixedThreads()) {
+            if (user.isSuperuser()) {
+                return true;
+            } else if (user.getId().equals(commentRound.getUserId())) {
+                return true;
+            } else if (user.isInAnyRole(EnumSet.of(ADMIN, CODE_LIST_EDITOR, TERMINOLOGY_EDITOR, DATA_MODEL_EDITOR, MEMBER), organizationIds)) {
+                return true;
+            } else if (user.getTokenRole() != null && TOKEN_ROLE_MEMBER.equalsIgnoreCase(user.getTokenRole()) && user.getContainerUri() != null && user.getContainerUri().equalsIgnoreCase(commentRound.getUri())) {
+                return true;
+            }
+        }
+        return false;
     }
 }
