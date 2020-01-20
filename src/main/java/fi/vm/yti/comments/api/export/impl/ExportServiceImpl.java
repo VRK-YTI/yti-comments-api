@@ -257,7 +257,7 @@ public class ExportServiceImpl implements ExportService {
             }
             addCellToRow(row, style, cellIndex++, formatDateToExportWithMinutes(comment.getCreated()));
             addCellToRow(row, style, cellIndex++, formatDateToExportWithMinutes(comment.getModified()));
-            addCellToRow(row, style, cellIndex, checkEmptyValue(localizeResourceStatusToFinnish(comment.getUri())));
+            addCellToRow(row, style, cellIndex, checkEmptyValue(comment.getUri()));
             final Set<Comment> childComments = childCommentMap.get(comment.getId());
             if (childComments != null && !childComments.isEmpty()) {
                 rowIndex = addCommentRows(sheet, rowIndex, level + 1, maxLevel, childComments, style, childCommentMap);
