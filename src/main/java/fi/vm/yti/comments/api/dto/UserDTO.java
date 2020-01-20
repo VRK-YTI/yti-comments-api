@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @JsonFilter("user")
 @XmlRootElement
 @XmlType(propOrder = { "id", "email", "firstName", "lastName", "tokenRole", "containerUri" })
-//@JsonIgnoreProperties({ "displayName", "creationDateTime", "removalDateTime", "tokenCreatedAt", "tokenInvalidationAt", "superuser" })
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Schema(name = "User", description = "User DTO for a single Groupmanagement User.")
 public class UserDTO implements Serializable {
@@ -60,8 +59,8 @@ public class UserDTO implements Serializable {
         this.lastName = lastName;
     }
 
-    public String getDisplayNameWithEmail() {
-        return firstName + " " + lastName + " (" + email + ")";
+    public String getDisplayName() {
+        return firstName + " " + lastName;
     }
 
     public String getTokenRole() {

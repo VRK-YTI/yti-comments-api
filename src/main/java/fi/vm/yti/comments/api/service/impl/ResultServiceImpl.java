@@ -63,11 +63,11 @@ public class ResultServiceImpl implements ResultService {
     }
 
     @Transactional
-    public String getResultsForCommentThreadAsText(final UUID commentThreadId) {
+    public String getResultsForCommentThreadAsTextInFinnish(final UUID commentThreadId) {
         final StringBuilder results = new StringBuilder();
         final Set<CommentThreadResultDTO> commentThreadResults = getResultsForCommentThread(commentThreadId);
         for (final CommentThreadResultDTO result : commentThreadResults) {
-            results.append(result.getStatus());
+            results.append(localizeResourceStatusToFinnish(result.getStatus()));
             results.append(": ");
             results.append(result.getCount());
             results.append(" (");
@@ -75,5 +75,31 @@ public class ResultServiceImpl implements ResultService {
             results.append(" %)\n");
         }
         return results.toString();
+    }
+
+    private String localizeResourceStatusToFinnish(final String status) {
+        switch (status) {
+            case "VALID": {
+                return "Voimassa oleva";
+            }
+            case "DRAFT": {
+                return "Luonnos";
+            }
+            case "SUPERSEDED": {
+                return "Korvattu";
+            }
+            case "INVALID": {
+                return "Virheellinen";
+            }
+            case "RETIRED": {
+                return "Poistettu käytöstä";
+            }
+            case "INCOMPLETE": {
+                return "Keskeneräinen";
+            }
+            default: {
+                return status;
+            }
+        }
     }
 }
