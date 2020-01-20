@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import fi.vm.yti.comments.api.entity.AbstractIdentifyableEntity;
 import fi.vm.yti.comments.api.entity.Comment;
 import fi.vm.yti.comments.api.entity.CommentRound;
-import fi.vm.yti.comments.api.service.UserService;
 import fi.vm.yti.security.AuthenticatedUserProvider;
 import fi.vm.yti.security.Role;
 import fi.vm.yti.security.YtiUser;
@@ -26,14 +25,11 @@ import static fi.vm.yti.security.Role.*;
 public class AuthorizationManagerImpl implements AuthorizationManager {
 
     private final AuthenticatedUserProvider userProvider;
-    private final UserService userService;
     private static final String TOKEN_ROLE_MEMBER = "MEMBER";
 
     @Inject
-    AuthorizationManagerImpl(final AuthenticatedUserProvider userProvider,
-                             final UserService userService) {
+    AuthorizationManagerImpl(final AuthenticatedUserProvider userProvider) {
         this.userProvider = userProvider;
-        this.userService = userService;
     }
 
     public boolean isSuperUser() {
