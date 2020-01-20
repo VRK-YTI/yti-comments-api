@@ -75,17 +75,17 @@ public class AuthorizationManagerImpl implements AuthorizationManager {
 
     public boolean canUserDeleteCommentRound(final CommentRound commentRound) {
         final YtiUser user = userProvider.getUser();
-        return user.isSuperuser() || (commentRound.getUserId() == user.getId());
+        return user.isSuperuser() || (commentRound.getUserId().equals(user.getId()));
     }
 
     public boolean canUserDeleteCommentThread(final CommentRound commentRound) {
         final YtiUser user = userProvider.getUser();
-        return user.isSuperuser() || (commentRound.getUserId() == user.getId() && commentRound.getStatus().equalsIgnoreCase(STATUS_INPROGRESS));
+        return user.isSuperuser() || (commentRound.getUserId().equals(user.getId()) && commentRound.getStatus().equalsIgnoreCase(STATUS_INPROGRESS));
     }
 
     public boolean canUserModifyCommentRound(final CommentRound commentRound) {
         final YtiUser user = userProvider.getUser();
-        return user.isSuperuser() || commentRound.getUserId() == user.getId();
+        return user.isSuperuser() || commentRound.getUserId().equals(user.getId());
     }
 
     public boolean canUserAddCommentsToCommentRound(final CommentRound commentRound) {
@@ -111,14 +111,14 @@ public class AuthorizationManagerImpl implements AuthorizationManager {
         if (STATUS_INCOMPLETE.equalsIgnoreCase(commentRound.getStatus())) {
             if (user.isSuperuser()) {
                 return true;
-            } else if (user.getId().equals(commentRound.getUserId())) {
+            } else if (commentRound.getUserId().equals(user.getId())) {
                 return true;
             }
         }
         if (STATUS_INPROGRESS.equalsIgnoreCase(commentRound.getStatus()) && !commentRound.getFixedThreads()) {
             if (user.isSuperuser()) {
                 return true;
-            } else if (user.getId().equals(commentRound.getUserId())) {
+            } else if (commentRound.getUserId().equals(user.getId())) {
                 return true;
             } else if (user.isInAnyRole(EnumSet.of(ADMIN, CODE_LIST_EDITOR, TERMINOLOGY_EDITOR, DATA_MODEL_EDITOR, MEMBER), organizationIds)) {
                 return true;
