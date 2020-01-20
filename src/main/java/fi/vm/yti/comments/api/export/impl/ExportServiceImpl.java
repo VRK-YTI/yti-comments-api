@@ -42,6 +42,7 @@ public class ExportServiceImpl implements ExportService {
     private static final String LANGUAGE_FI = "fi";
     private static final String LANGUAGE_EN = "en";
     private static final String LANGUAGE_SV = "sv";
+    private static final String LANGUAGE_UND = "und";
 
     private final UserService userService;
     private final ResultService resultService;
@@ -110,10 +111,12 @@ public class ExportServiceImpl implements ExportService {
         addCellToRow(rowhead, style, headerCellIndex++, EXPORT_HEADER_SOURCE_LABEL_FI);
         addCellToRow(rowhead, style, headerCellIndex++, EXPORT_HEADER_SOURCE_LABEL_EN);
         addCellToRow(rowhead, style, headerCellIndex++, EXPORT_HEADER_SOURCE_LABEL_SV);
+        addCellToRow(rowhead, style, headerCellIndex++, EXPORT_HEADER_SOURCE_LABEL_UND);
         addCellToRow(rowhead, style, headerCellIndex++, EXPORT_HEADER_SOURCE_LABEL_LOCALNAME);
         addCellToRow(rowhead, style, headerCellIndex++, EXPORT_HEADER_DESCRIPTION_FI);
         addCellToRow(rowhead, style, headerCellIndex++, EXPORT_HEADER_DESCRIPTION_EN);
         addCellToRow(rowhead, style, headerCellIndex++, EXPORT_HEADER_DESCRIPTION_SV);
+        addCellToRow(rowhead, style, headerCellIndex++, EXPORT_HEADER_DESCRIPTION_UND);
         addCellToRow(rowhead, style, headerCellIndex++, EXPORT_HEADER_RESOURCE_URI);
         addCellToRow(rowhead, style, headerCellIndex++, EXPORT_HEADER_MAIN_COMMENTS_COUNT);
         addCellToRow(rowhead, style, headerCellIndex++, EXPORT_HEADER_STATUSCHANGES);
@@ -128,10 +131,12 @@ public class ExportServiceImpl implements ExportService {
             addCellToRow(row, style, cellIndex++, checkEmptyValue(commentThread.getLabel().get(LANGUAGE_FI)));
             addCellToRow(row, style, cellIndex++, checkEmptyValue(commentThread.getLabel().get(LANGUAGE_EN)));
             addCellToRow(row, style, cellIndex++, checkEmptyValue(commentThread.getLabel().get(LANGUAGE_SV)));
+            addCellToRow(row, style, cellIndex++, checkEmptyValue(commentThread.getLabel().get(LANGUAGE_UND)));
             addCellToRow(row, style, cellIndex++, checkEmptyValue(commentThread.getLocalName()));
             addCellToRow(row, style, cellIndex++, checkEmptyValue(commentThread.getDescription().get(LANGUAGE_FI)));
             addCellToRow(row, style, cellIndex++, checkEmptyValue(commentThread.getDescription().get(LANGUAGE_EN)));
             addCellToRow(row, style, cellIndex++, checkEmptyValue(commentThread.getDescription().get(LANGUAGE_SV)));
+            addCellToRow(row, style, cellIndex++, checkEmptyValue(commentThread.getDescription().get(LANGUAGE_UND)));
             addCellToRow(row, style, cellIndex++, checkEmptyValue(commentThread.getResourceUri()));
             addCellToRow(row, style, cellIndex++, Long.toString(commentDao.getCommentThreadMainCommentCount(commentThread.getId())));
             addCellToRow(row, style, cellIndex++, resultService.getResultsForCommentThreadAsTextInFinnish(commentThread.getId()));
@@ -246,13 +251,13 @@ public class ExportServiceImpl implements ExportService {
             addCellToRow(row, style, cellIndex, checkEmptyValue(comment.getContent()));
             cellIndex = 2 + maxLevel;
             if (level == 1) {
-                addCellToRow(row, style, cellIndex++, localizeResourceStatusToFinnish(comment.getProposedStatus()));
+                addCellToRow(row, style, cellIndex++, checkEmptyValue(localizeResourceStatusToFinnish(comment.getProposedStatus())));
             } else {
                 cellIndex++;
             }
             addCellToRow(row, style, cellIndex++, formatDateToExportWithMinutes(comment.getCreated()));
             addCellToRow(row, style, cellIndex++, formatDateToExportWithMinutes(comment.getModified()));
-            addCellToRow(row, style, cellIndex, localizeResourceStatusToFinnish(comment.getUri()));
+            addCellToRow(row, style, cellIndex, checkEmptyValue(localizeResourceStatusToFinnish(comment.getUri())));
             final Set<Comment> childComments = childCommentMap.get(comment.getId());
             if (childComments != null && !childComments.isEmpty()) {
                 rowIndex = addCommentRows(sheet, rowIndex, level + 1, maxLevel, childComments, style, childCommentMap);
@@ -404,28 +409,35 @@ public class ExportServiceImpl implements ExportService {
     }
 
     private String localizeResourceStatusToFinnish(final String status) {
-        switch (status) {
-            case "VALID": {
-                return "Voimassa oleva";
+        if (status != null) {
+            switch (status) {
+                case "VALID": {
+                    return "Voimassa oleva";
+                }
+                case "DRAFT": {
+                    return "Luonnos";
+                }
+                case "SUPERSEDED": {
+                    return "Korvattu";
+                }
+                case "INVALID": {
+                    return "Virheellinen";
+                }
+                case "RETIRED": {
+                    return "Poistettu käytöstä";
+                }
+                case "INCOMPLETE": {
+                    return "Keskeneräinen";
+                }
+                case "SUGGESTED": {
+                    return "Ehdotus";
+                }
+                default: {
+                    return status;
+                }
             }
-            case "DRAFT": {
-                return "Luonnos";
-            }
-            case "SUPERSEDED": {
-                return "Korvattu";
-            }
-            case "INVALID": {
-                return "Virheellinen";
-            }
-            case "RETIRED": {
-                return "Poistettu käytöstä";
-            }
-            case "INCOMPLETE": {
-                return "Keskeneräinen";
-            }
-            default: {
-                return status;
-            }
+        } else {
+            return null;
         }
     }
 
@@ -435,11 +447,17 @@ public class ExportServiceImpl implements ExportService {
         final String labelFi = checkEmptyValue(label.get(LANGUAGE_FI));
         final String labelEn = checkEmptyValue(label.get(LANGUAGE_EN));
         final String labelSv = checkEmptyValue(label.get(LANGUAGE_SV));
+        final String labelUnd = checkEmptyValue(label.get(LANGUAGE_UND));
         buffer.append("FI: " + labelFi);
         buffer.append(" EN: " + labelEn);
         buffer.append(" SV: " + labelSv);
         if (labelFi.isEmpty() && labelEn.isEmpty() && labelSv.isEmpty()) {
-            buffer.append(" localName: " + localName);
+            if (!labelUnd.isEmpty()) {
+                buffer.append(" UND: " + labelUnd);
+            }
+            if (localName != null) {
+                buffer.append(" localName: " + localName);
+            }
         }
         return buffer.toString();
     }
