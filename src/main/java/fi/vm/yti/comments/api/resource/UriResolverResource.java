@@ -118,10 +118,10 @@ public class UriResolverResource implements AbstractBaseResource {
         } else {
             redirectUri = URI.create(resolveResourceWebUrl(resourcePathParams));
         }
-        if (token != null && token.isEmpty()) {
-            return Response.seeOther(redirectUri).build();
-        } else {
+        if (token != null && !token.isEmpty()) {
             return Response.seeOther(redirectUri).header("Set-Cookie", HEADER_YTITOKEN + "=" + token + ";path=/;HttpOnly;").build();
+        } else {
+            return Response.seeOther(redirectUri).build();
         }
     }
 
