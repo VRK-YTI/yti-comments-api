@@ -2,6 +2,8 @@ package fi.vm.yti.comments.api.export.impl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -97,8 +99,8 @@ public class ExportServiceImpl implements ExportService {
         addCellToRow(row, style, cellIndex++, checkEmptyValue(commentRound.getSource().getContainerUri()));
         addCellToRow(row, style, cellIndex++, formatDateToExport(commentRound.getStartDate()));
         addCellToRow(row, style, cellIndex++, formatDateToExport(commentRound.getEndDate()));
-        addCellToRow(row, style, cellIndex++, formatDateToExportWithMinutes(commentRound.getCreated()));
-        addCellToRow(row, style, cellIndex, formatDateToExportWithMinutes(commentRound.getModified()));
+        addCellToRow(row, style, cellIndex++, formatDateToExportWithMinutesInHelsinkiTimezone(commentRound.getCreated()));
+        addCellToRow(row, style, cellIndex, formatDateToExportWithMinutesInHelsinkiTimezone(commentRound.getModified()));
         autoSizeColumns(sheet, headerCellIndex);
     }
 
@@ -143,7 +145,7 @@ public class ExportServiceImpl implements ExportService {
             addCellToRow(row, style, cellIndex++, checkEmptyValue(localizeResourceStatusToFinnish(commentThread.getCurrentStatus())));
             addCellToRow(row, style, cellIndex++, checkEmptyValue(localizeResourceStatusToFinnish(commentThread.getProposedStatus())));
             addCellToRow(row, style, cellIndex++, checkEmptyValue(commentThread.getProposedText()));
-            addCellToRow(row, style, cellIndex, formatDateToExportWithMinutes(commentThread.getCreated()));
+            addCellToRow(row, style, cellIndex, formatDateToExportWithMinutesInHelsinkiTimezone(commentThread.getCreated()));
         }
         autoSizeColumns(sheet, headerCellIndex);
     }
@@ -255,8 +257,8 @@ public class ExportServiceImpl implements ExportService {
             } else {
                 cellIndex++;
             }
-            addCellToRow(row, style, cellIndex++, formatDateToExportWithMinutes(comment.getCreated()));
-            addCellToRow(row, style, cellIndex++, formatDateToExportWithMinutes(comment.getModified()));
+            addCellToRow(row, style, cellIndex++, formatDateToExportWithMinutesInHelsinkiTimezone(comment.getCreated()));
+            addCellToRow(row, style, cellIndex++, formatDateToExportWithMinutesInHelsinkiTimezone(comment.getModified()));
             addCellToRow(row, style, cellIndex, checkEmptyValue(comment.getUri()));
             final Set<Comment> childComments = childCommentMap.get(comment.getId());
             if (childComments != null && !childComments.isEmpty()) {
@@ -319,10 +321,13 @@ public class ExportServiceImpl implements ExportService {
         }
     }
 
-    private String formatDateToExportWithMinutes(final LocalDateTime dateTime) {
+    private String formatDateToExportWithMinutesInHelsinkiTimezone(final LocalDateTime dateTime) {
         if (dateTime != null) {
-            final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATEFORMAT_WITH_MINUTES);
-            return dateTime.format(formatter);
+            final ZoneId utcZoneId = ZoneId.of("UTC");
+            final ZonedDateTime zonedDateTime = dateTime.atZone(utcZoneId);
+            final ZoneId helsinkiZoneId = ZoneId.of("Europe/Helsinki");
+            final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATEFORMAT_WITH_MINUTES).withZone(helsinkiZoneId);
+            return zonedDateTime.format(formatter);
         } else {
             return "";
         }
