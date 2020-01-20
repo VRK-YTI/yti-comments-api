@@ -193,7 +193,8 @@ public class CommentRoundResource implements AbstractBaseResource {
         if (FORMAT_EXCEL.equalsIgnoreCase(format)) {
             final CommentRound commentRound = commentRoundDao.findByIdentifier(commentRoundIdentifier);
             if (commentRound != null) {
-                return streamExcelOutput(exportService.exportCommentRoundToExcel(commentRound), "commentround.xlsx");
+                final String fileName = commentRound.getLabel() + ".xlsx";
+                return streamExcelOutput(exportService.exportCommentRoundToExcel(commentRound), fileName);
             } else {
                 throw new NotFoundException();
             }
