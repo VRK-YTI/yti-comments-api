@@ -18,6 +18,7 @@ import fi.vm.yti.comments.api.dto.CommentThreadResultDTO;
 import fi.vm.yti.comments.api.entity.Comment;
 import fi.vm.yti.comments.api.entity.CommentThread;
 import fi.vm.yti.comments.api.service.ResultService;
+import static fi.vm.yti.comments.api.utils.StatusUtils.localizeResourceStatusToFinnish;
 
 @Component
 public class ResultServiceImpl implements ResultService {
@@ -75,31 +76,5 @@ public class ResultServiceImpl implements ResultService {
             results.append(" %)\n");
         }
         return results.toString();
-    }
-
-    private String localizeResourceStatusToFinnish(final String status) {
-        switch (status) {
-            case "VALID": {
-                return "Voimassa oleva";
-            }
-            case "DRAFT": {
-                return "Luonnos";
-            }
-            case "SUPERSEDED": {
-                return "Korvattu";
-            }
-            case "INVALID": {
-                return "Virheellinen";
-            }
-            case "RETIRED": {
-                return "Poistettu käytöstä";
-            }
-            case "INCOMPLETE": {
-                return "Keskeneräinen";
-            }
-            default: {
-                return status;
-            }
-        }
     }
 }

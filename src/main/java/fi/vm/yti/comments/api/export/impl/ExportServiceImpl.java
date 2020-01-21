@@ -35,6 +35,7 @@ import fi.vm.yti.comments.api.export.ExportService;
 import fi.vm.yti.comments.api.service.ResultService;
 import fi.vm.yti.comments.api.service.UserService;
 import static fi.vm.yti.comments.api.constants.ApiConstants.*;
+import static fi.vm.yti.comments.api.utils.StatusUtils.localizeResourceStatusToFinnish;
 
 @Component
 public class ExportServiceImpl implements ExportService {
@@ -428,39 +429,6 @@ public class ExportServiceImpl implements ExportService {
             default: {
                 return status;
             }
-        }
-    }
-
-    private String localizeResourceStatusToFinnish(final String status) {
-        if (status != null) {
-            switch (status) {
-                case "VALID": {
-                    return "Voimassa oleva";
-                }
-                case "DRAFT": {
-                    return "Luonnos";
-                }
-                case "SUPERSEDED": {
-                    return "Korvattu";
-                }
-                case "INVALID": {
-                    return "Virheellinen";
-                }
-                case "RETIRED": {
-                    return "Poistettu käytöstä";
-                }
-                case "INCOMPLETE": {
-                    return "Keskeneräinen";
-                }
-                case "SUGGESTED": {
-                    return "Ehdotus";
-                }
-                default: {
-                    return status;
-                }
-            }
-        } else {
-            return null;
         }
     }
 
