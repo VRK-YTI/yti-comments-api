@@ -216,9 +216,9 @@ public class ExportServiceImpl implements ExportService {
             int level = 1;
             for (final Comment mainLevelComment : mainLevelComments) {
                 level = hasChildComments(childCommentMap, mainLevelComment.getId(), level);
-            }
-            if (level > maxLevel) {
-                maxLevel = level;
+                if (level > maxLevel) {
+                    maxLevel = level;
+                }
             }
         }
         return maxLevel;
@@ -229,7 +229,7 @@ public class ExportServiceImpl implements ExportService {
                                      final int level) {
         int maxLevel = level;
         final Set<Comment> childComments = childCommentMap.get(commentId);
-        if (childComments != null) {
+        if (childComments != null && !childComments.isEmpty()) {
             for (final Comment comment : childComments) {
                 final Integer commentLevel = hasChildComments(childCommentMap, comment.getId(), level + 1);
                 if (commentLevel > maxLevel) {
