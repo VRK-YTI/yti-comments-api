@@ -158,21 +158,21 @@ public class ExportServiceImpl implements ExportService {
                                   final Set<CommentThread> commentThreads) {
         final Sheet sheet = workbook.createSheet(EXPORT_EXCEL_TAB_COMMENTS);
         final Row rowhead = sheet.createRow((short) 0);
-        int j = 0;
+        int headerCellIndex = 0;
         final CellStyle style = createCellStyle(workbook);
-        addCellToRow(rowhead, style, j++, EXPORT_HEADER_RESOURCE);
-        addCellToRow(rowhead, style, j++, EXPORT_HEADER_USER);
-        addCellToRow(rowhead, style, j++, EXPORT_HEADER_MAIN_LEVEL);
+        addCellToRow(rowhead, style, headerCellIndex++, EXPORT_HEADER_RESOURCE);
+        addCellToRow(rowhead, style, headerCellIndex++, EXPORT_HEADER_USER);
+        addCellToRow(rowhead, style, headerCellIndex++, EXPORT_HEADER_MAIN_LEVEL);
         final int maxLevel = getCommentsMaxLevels(commentThreads);
         int level = 2;
         while (level <= maxLevel) {
-            addCellToRow(rowhead, style, j++, EXPORT_HEADER_LEVEL + " " + level);
+            addCellToRow(rowhead, style, headerCellIndex++, EXPORT_HEADER_LEVEL + " " + level);
             level++;
         }
-        addCellToRow(rowhead, style, j++, EXPORT_HEADER_SUGGESTED_STATUS);
-        addCellToRow(rowhead, style, j++, EXPORT_HEADER_CREATED);
-        addCellToRow(rowhead, style, j++, EXPORT_HEADER_MODIFIED);
-        addCellToRow(rowhead, style, j, EXPORT_HEADER_COMMENT_URI);
+        addCellToRow(rowhead, style, headerCellIndex++, EXPORT_HEADER_SUGGESTED_STATUS);
+        addCellToRow(rowhead, style, headerCellIndex++, EXPORT_HEADER_CREATED);
+        addCellToRow(rowhead, style, headerCellIndex++, EXPORT_HEADER_MODIFIED);
+        addCellToRow(rowhead, style, headerCellIndex, EXPORT_HEADER_COMMENT_URI);
         int rowIndex = 1;
         for (final CommentThread commentThread : commentThreads) {
             final Row row = sheet.createRow(rowIndex++);
@@ -185,7 +185,7 @@ public class ExportServiceImpl implements ExportService {
             }
             rowIndex++;
         }
-        autoSizeColumns(sheet, j);
+        autoSizeColumns(sheet, headerCellIndex);
     }
 
     private Set<Comment> mapMainLevelComments(final CommentThread commentThread,
@@ -322,7 +322,11 @@ public class ExportServiceImpl implements ExportService {
         for (int i = 0; i <= columnCount; i++) {
             try {
                 sheet.autoSizeColumn(i);
-            } catch (NullPointerException e) {
+                final int columnWidth = sheet.getColumnWidth(i);
+                if (columnWidth > 15000) {
+                    sheet.setColumnWidth(i, 15000);
+                }
+            } catch (final NullPointerException e) {
                 LOG.warn("Auto sizing Excel columns failed due to issue for column " + i + ", with column count: " + columnCount, e);
             }
         }
