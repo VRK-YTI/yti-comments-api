@@ -213,9 +213,8 @@ public class ExportServiceImpl implements ExportService {
         for (final CommentThread commentThread : commentThreads) {
             final Map<UUID, Set<Comment>> childCommentMap = new HashMap<>();
             final Set<Comment> mainLevelComments = mapMainLevelComments(commentThread, childCommentMap);
-            int level = 1;
             for (final Comment mainLevelComment : mainLevelComments) {
-                level = getChildCommentMaxLevel(childCommentMap, mainLevelComment.getId(), level);
+                final int level = getChildCommentMaxLevel(childCommentMap, mainLevelComment.getId(), 1);
                 if (level > maxLevel) {
                     maxLevel = level;
                 }
