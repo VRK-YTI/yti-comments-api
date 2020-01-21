@@ -1,6 +1,7 @@
 package fi.vm.yti.comments.api.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -115,6 +116,7 @@ public class CommentRoundServiceImpl extends AbstractService implements CommentR
 
     @Transactional
     public void deleteCommentRound(final CommentRound commentRound) {
+        groupmanagementProxyService.addOrUpdateTempUsers(commentRound.getUri(), new HashSet<>());
         commentRoundDao.deleteCommentRound(commentRound);
     }
 
