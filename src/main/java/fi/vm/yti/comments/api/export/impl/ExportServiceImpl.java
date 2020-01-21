@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import fi.vm.yti.comments.api.dao.CommentDao;
+import fi.vm.yti.comments.api.dto.UserDTO;
 import fi.vm.yti.comments.api.entity.Comment;
 import fi.vm.yti.comments.api.entity.CommentRound;
 import fi.vm.yti.comments.api.entity.CommentThread;
@@ -92,7 +93,7 @@ public class ExportServiceImpl implements ExportService {
         addCellToRow(row, style, cellIndex++, checkEmptyValue(commentRound.getDescription()));
         addCellToRow(row, style, cellIndex++, checkEmptyValue(localizeRoundStatusToFinnish(commentRound.getStatus())));
         addCellToRow(row, style, cellIndex++, checkEmptyValue(commentRound.getUri()));
-        addCellToRow(row, style, cellIndex++, checkEmptyValue(userService.getUserById(commentRound.getUserId()).getDisplayName()));
+        addCellToRow(row, style, cellIndex++, getUserName(commentRound.getUserId()));
         addCellToRow(row, style, cellIndex++, checkEmptyValue(getOrganizationsOfCommentRound(commentRound)));
         addCellToRow(row, style, cellIndex++, checkEmptyValue(localizeSourceLabelToFinnish(commentRound.getSourceLabel())));
         addCellToRow(row, style, cellIndex++, checkEmptyValue(localizeSourceTypeToFinnish(commentRound.getSource().getContainerType())));
@@ -160,6 +161,7 @@ public class ExportServiceImpl implements ExportService {
         addCellToRow(rowhead, style, j++, EXPORT_HEADER_USER);
         addCellToRow(rowhead, style, j++, EXPORT_HEADER_MAIN_LEVEL);
         final int maxLevel = getCommentsMaxLevels(commentThreads);
+        LOG.info("Max level for comments: " + maxLevel);
         int level = 2;
         while (level <= maxLevel) {
             addCellToRow(rowhead, style, j++, EXPORT_HEADER_LEVEL + " " + level);
@@ -238,6 +240,18 @@ public class ExportServiceImpl implements ExportService {
         return maxLevel;
     }
 
+    private String getUserName(final UUID userId) {
+        final UserDTO user = userService.getUserById(userId);
+        if (user != null) {
+            final String firstName = user.getFirstName();
+            final String lastName = user.getLastName();
+            if (firstName != null && !firstName.isEmpty() && lastName != null && !lastName.isEmpty()) {
+                return firstName + " " + lastName;
+            }
+        }
+        return "Poistettu käyttäjä";
+    }
+
     private int addCommentRows(final Sheet sheet,
                                int rowIndex,
                                final int level,
@@ -248,7 +262,7 @@ public class ExportServiceImpl implements ExportService {
         for (final Comment comment : comments) {
             final Row row = sheet.createRow(rowIndex++);
             int cellIndex = 1;
-            addCellToRow(row, style, cellIndex, checkEmptyValue(userService.getUserById(comment.getUserId()).getDisplayName()));
+            addCellToRow(row, style, cellIndex, getUserName(comment.getUserId()));
             cellIndex = cellIndex + level;
             addCellToRow(row, style, cellIndex, checkEmptyValue(comment.getContent()));
             cellIndex = 2 + maxLevel;
