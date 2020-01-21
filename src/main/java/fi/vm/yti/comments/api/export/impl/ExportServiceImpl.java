@@ -5,11 +5,13 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -62,7 +64,7 @@ public class ExportServiceImpl implements ExportService {
     public Workbook exportCommentRoundToExcel(final CommentRound commentRound) {
         final Workbook workbook = new XSSFWorkbook();
         addCommentRoundSheet(workbook, commentRound);
-        final Set<CommentThread> commentThreads = commentRound.getCommentThreads();
+        final Set<CommentThread> commentThreads = commentRound.getCommentThreads().stream().sorted(Comparator.comparing(CommentThread::getCreated)).collect(Collectors.toCollection(LinkedHashSet::new));
         addCommentThreadsSheet(workbook, commentThreads);
         addCommentsSheet(workbook, commentThreads);
         return workbook;
@@ -161,7 +163,6 @@ public class ExportServiceImpl implements ExportService {
         addCellToRow(rowhead, style, j++, EXPORT_HEADER_USER);
         addCellToRow(rowhead, style, j++, EXPORT_HEADER_MAIN_LEVEL);
         final int maxLevel = getCommentsMaxLevels(commentThreads);
-        LOG.info("Max level for comments: " + maxLevel);
         int level = 2;
         while (level <= maxLevel) {
             addCellToRow(rowhead, style, j++, EXPORT_HEADER_LEVEL + " " + level);
@@ -188,8 +189,8 @@ public class ExportServiceImpl implements ExportService {
 
     private Set<Comment> mapMainLevelComments(final CommentThread commentThread,
                                               final Map<UUID, Set<Comment>> childCommentMap) {
-        final Set<Comment> mainLevelComments = new HashSet<>();
-        final Set<Comment> comments = commentThread.getComments();
+        final Set<Comment> mainLevelComments = new LinkedHashSet<>();
+        final Set<Comment> comments = commentThread.getComments().stream().sorted(Comparator.comparing(Comment::getCreated)).collect(Collectors.toCollection(LinkedHashSet::new));
         comments.forEach(comment -> {
             final Comment parentComment = comment.getParentComment();
             if (parentComment == null) {
@@ -197,7 +198,7 @@ public class ExportServiceImpl implements ExportService {
             } else {
                 Set<Comment> childComments = childCommentMap.get(parentComment.getId());
                 if (childComments == null) {
-                    childComments = new HashSet<>();
+                    childComments = new LinkedHashSet<>();
                     childComments.add(comment);
                 } else {
                     childComments.add(comment);
@@ -223,15 +224,15 @@ public class ExportServiceImpl implements ExportService {
         return maxLevel;
     }
 
-    private Integer getChildCommentMaxLevel(final Map<UUID, Set<Comment>> childCommentMap,
-                                            final UUID commentId,
-                                            final int level) {
+    private int getChildCommentMaxLevel(final Map<UUID, Set<Comment>> childCommentMap,
+                                        final UUID commentId,
+                                        final int level) {
         int maxLevel = level;
         final Set<Comment> childComments = childCommentMap.get(commentId);
         if (childComments != null && !childComments.isEmpty()) {
             final int nextLevel = level + 1;
             for (final Comment comment : childComments) {
-                final Integer commentLevel = getChildCommentMaxLevel(childCommentMap, comment.getId(), nextLevel);
+                final int commentLevel = getChildCommentMaxLevel(childCommentMap, comment.getId(), nextLevel);
                 if (commentLevel > maxLevel) {
                     maxLevel = commentLevel;
                 }
@@ -391,6 +392,9 @@ public class ExportServiceImpl implements ExportService {
             }
             case "terminology": {
                 return "sanasto";
+            }
+            case "datamodel": {
+                return "tietomalli";
             }
             case "library": {
                 return "tietokomponenttikirjasto";
