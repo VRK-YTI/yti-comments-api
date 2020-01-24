@@ -129,7 +129,8 @@ public class ExportServiceImpl implements ExportService {
         addCellToRow(rowhead, style, headerCellIndex++, EXPORT_HEADER_SOURCE_ORIGINAL_STATUS);
         addCellToRow(rowhead, style, headerCellIndex++, EXPORT_HEADER_ADMIN_STATUS_SUGGESTION);
         addCellToRow(rowhead, style, headerCellIndex++, EXPORT_HEADER_ADMIN_COMMENT);
-        addCellToRow(rowhead, style, headerCellIndex, EXPORT_HEADER_CREATED);
+        addCellToRow(rowhead, style, headerCellIndex++, EXPORT_HEADER_CREATED);
+        addCellToRow(rowhead, style, headerCellIndex, EXPORT_HEADER_USER);
         int rowIndex = 1;
         for (final CommentThread commentThread : commentThreads) {
             final Row row = sheet.createRow(rowIndex++);
@@ -149,7 +150,8 @@ public class ExportServiceImpl implements ExportService {
             addCellToRow(row, style, cellIndex++, checkEmptyValue(localizeResourceStatusToFinnish(commentThread.getCurrentStatus())));
             addCellToRow(row, style, cellIndex++, checkEmptyValue(localizeResourceStatusToFinnish(commentThread.getProposedStatus())));
             addCellToRow(row, style, cellIndex++, checkEmptyValue(commentThread.getProposedText()));
-            addCellToRow(row, style, cellIndex, formatDateToExportWithMinutesInHelsinkiTimezone(commentThread.getCreated()));
+            addCellToRow(row, style, cellIndex++, formatDateToExportWithMinutesInHelsinkiTimezone(commentThread.getCreated()));
+            addCellToRow(row, style, cellIndex, getUserName(commentThread.getUserId()));
         }
         autoSizeColumns(sheet, headerCellIndex);
     }
