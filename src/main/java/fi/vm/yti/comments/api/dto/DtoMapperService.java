@@ -277,6 +277,7 @@ public class DtoMapperService {
         resourceDto.setUri(commentRound.getUri());
         resourceDto.setLocalName(commentRound.getSequenceId().toString());
         resourceDto.setStatus(commentRound.getStatus());
+        resourceDto.setCreated(convertLocalDateTimeToDate(commentRound.getCreated()));
         resourceDto.setModified(convertLocalDateTimeToDate(commentRound.getModified()));
         resourceDto.setStatusModified(convertLocalDateTimeToDate(commentRound.getStatusModified()));
         resourceDto.setContentModified(convertLocalDateTimeToDate(commentRound.getContentModified()));
@@ -298,6 +299,7 @@ public class DtoMapperService {
         resourceDto.setDescription(copyStringMap(commentThread.getDescription()));
         resourceDto.setUri(commentThread.getUri());
         resourceDto.setLocalName(commentThread.getSequenceId().toString());
+        resourceDto.setCreated(convertLocalDateTimeToDate(commentThread.getCreated()));
         resourceDto.setModified(convertLocalDateTimeToDate(commentThread.getCreated()));
         resourceDto.setContentModified(convertLocalDateTimeToDate(commentThread.getCommentsModified()));
         resourceDto.setType("commentthread");
