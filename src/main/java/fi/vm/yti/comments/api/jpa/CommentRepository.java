@@ -43,4 +43,7 @@ public interface CommentRepository extends PagingAndSortingRepository<Comment, S
 
     @Query(value = "SELECT nextval(:sequenceName)", nativeQuery = true)
     Integer getNextSequenceId(@Param("sequenceName") final String sequenceName);
+
+    @Query(value = "SELECT COUNT(c) FROM comment AS c WHERE c.commentthread_id = :commentThreadId AND c.parentcomment_id IS NULL", nativeQuery = true)
+    long getCommentThreadMainCommentCount(@Param("commentThreadId") final UUID commentThreadId);
 }

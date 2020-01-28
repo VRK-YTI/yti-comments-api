@@ -39,4 +39,6 @@ public interface CommentDao {
     void deleteComment(final Comment comment);
 
     boolean commentHasChildren(Comment comment);
+
+    long getCommentThreadMainCommentCount(final UUID commentThreadId);
 }

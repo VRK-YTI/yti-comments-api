@@ -28,7 +28,6 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import static fi.vm.yti.comments.api.constants.ApiConstants.FILTER_NAME_COMMENT;
 import static fi.vm.yti.comments.api.constants.ApiConstants.FILTER_NAME_COMMENTTHREAD;
@@ -49,9 +48,7 @@ public class CommentThreadResource implements AbstractBaseResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Operation(summary = "CommentThread API for requesting all CommentThreads.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Returns all CommentThreads.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentThreadDTO.class))) })
-    })
+    @ApiResponse(responseCode = "200", description = "Returns all CommentThreads.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentThreadDTO.class))) })
     @Tag(name = "CommentThread")
     @Transactional
     public Response getCommentThreads(@Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand) {
@@ -63,10 +60,8 @@ public class CommentThreadResource implements AbstractBaseResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Operation(summary = "CommentThread API for requesting single existing CommentThread.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Returns one CommentThread matching UUID.", content = { @Content(schema = @Schema(implementation = CommentThreadDTO.class)) }),
-        @ApiResponse(responseCode = "404", description = "No CommentThread found with given UUID.")
-    })
+    @ApiResponse(responseCode = "200", description = "Returns one CommentThread matching UUID.", content = { @Content(schema = @Schema(implementation = CommentThreadDTO.class)) })
+    @ApiResponse(responseCode = "404", description = "No CommentThread found with given UUID.")
     @Tag(name = "CommentThread")
     @Transactional
     @Path("{commentThreadId}")
@@ -84,10 +79,8 @@ public class CommentThreadResource implements AbstractBaseResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Operation(summary = "CommentThread API for requesting Comments for CommentThread.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Returns list of Comments for this CommentThread.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentRoundDTO.class))) }),
-        @ApiResponse(responseCode = "404", description = "No CommentThread found with given UUID.")
-    })
+    @ApiResponse(responseCode = "200", description = "Returns list of Comments for this CommentThread.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentRoundDTO.class))) })
+    @ApiResponse(responseCode = "404", description = "No CommentThread found with given UUID.")
     @Tag(name = "Comment")
     @Transactional
     @Path("{commentThreadId}/comments")

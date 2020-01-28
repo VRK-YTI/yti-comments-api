@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import fi.vm.yti.comments.api.entity.AbstractIdentifyableEntity;
 import fi.vm.yti.comments.api.entity.Comment;
 import fi.vm.yti.comments.api.entity.CommentRound;
-import fi.vm.yti.comments.api.service.UserService;
 import fi.vm.yti.security.AuthenticatedUserProvider;
 import fi.vm.yti.security.Role;
 import fi.vm.yti.security.YtiUser;
@@ -26,13 +25,11 @@ import static fi.vm.yti.security.Role.*;
 public class AuthorizationManagerImpl implements AuthorizationManager {
 
     private final AuthenticatedUserProvider userProvider;
-    private final UserService userService;
+    private static final String TOKEN_ROLE_MEMBER = "MEMBER";
 
     @Inject
-    AuthorizationManagerImpl(final AuthenticatedUserProvider userProvider,
-                             final UserService userService) {
+    AuthorizationManagerImpl(final AuthenticatedUserProvider userProvider) {
         this.userProvider = userProvider;
-        this.userService = userService;
     }
 
     public boolean isSuperUser() {
@@ -41,6 +38,10 @@ public class AuthorizationManagerImpl implements AuthorizationManager {
 
     public UUID getUserId() {
         return userProvider.getUser().getId();
+    }
+
+    public String getContainerUri() {
+        return userProvider.getUser().getContainerUri();
     }
 
     public String getUserEmail() {
@@ -74,31 +75,57 @@ public class AuthorizationManagerImpl implements AuthorizationManager {
 
     public boolean canUserDeleteCommentRound(final CommentRound commentRound) {
         final YtiUser user = userProvider.getUser();
-        return user.isSuperuser() || (userService.getUserEmailById(commentRound.getUserId()).equalsIgnoreCase(user.getEmail()));
+        return user.isSuperuser() || (commentRound.getUserId().equals(user.getId()));
     }
 
     public boolean canUserDeleteCommentThread(final CommentRound commentRound) {
         final YtiUser user = userProvider.getUser();
-        return (user.isSuperuser() || (userService.getUserEmailById(commentRound.getUserId()).equalsIgnoreCase(user.getEmail()))) && commentRound.getStatus().equalsIgnoreCase(STATUS_INPROGRESS);
+        return user.isSuperuser() || (commentRound.getUserId().equals(user.getId()) && commentRound.getStatus().equalsIgnoreCase(STATUS_INPROGRESS));
     }
 
     public boolean canUserModifyCommentRound(final CommentRound commentRound) {
         final YtiUser user = userProvider.getUser();
-        return user.isSuperuser() || user.getId().equals(commentRound.getUserId());
+        return user.isSuperuser() || commentRound.getUserId().equals(user.getId());
     }
 
     public boolean canUserAddCommentsToCommentRound(final CommentRound commentRound) {
         final YtiUser user = userProvider.getUser();
         final Collection<UUID> organizationIds = commentRound.getOrganizations().stream().map(AbstractIdentifyableEntity::getId).collect(Collectors.toList());
-        return user.isSuperuser() || (user.isInAnyRole(EnumSet.of(ADMIN, CODE_LIST_EDITOR, TERMINOLOGY_EDITOR, DATA_MODEL_EDITOR, MEMBER), organizationIds) && STATUS_INPROGRESS.equalsIgnoreCase(commentRound.getStatus()));
+        if (STATUS_INPROGRESS.equalsIgnoreCase(commentRound.getStatus())) {
+            if (user.isSuperuser()) {
+                return true;
+            } else if (user.getId().equals(commentRound.getUserId())) {
+                return true;
+            } else if (user.isInAnyRole(EnumSet.of(ADMIN, CODE_LIST_EDITOR, TERMINOLOGY_EDITOR, DATA_MODEL_EDITOR, MEMBER), organizationIds)) {
+                return true;
+            } else if (user.getTokenRole() != null && TOKEN_ROLE_MEMBER.equalsIgnoreCase(user.getTokenRole()) && user.getContainerUri() != null && user.getContainerUri().equalsIgnoreCase(commentRound.getUri())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean canUserAddCommentThreadsToCommentRound(final CommentRound commentRound) {
         final YtiUser user = userProvider.getUser();
         final Collection<UUID> organizationIds = commentRound.getOrganizations().stream().map(AbstractIdentifyableEntity::getId).collect(Collectors.toList());
-        return user.isSuperuser() ||
-            (user.getId().equals(commentRound.getUserId()) && STATUS_INCOMPLETE.equalsIgnoreCase(commentRound.getStatus())) ||
-            ((user.getId().equals(commentRound.getUserId()) || user.isInAnyRole(EnumSet.of(ADMIN, CODE_LIST_EDITOR, TERMINOLOGY_EDITOR, DATA_MODEL_EDITOR, MEMBER), organizationIds)) &&
-                (STATUS_INPROGRESS.equalsIgnoreCase(commentRound.getStatus()) && !commentRound.getFixedThreads()));
+        if (STATUS_INCOMPLETE.equalsIgnoreCase(commentRound.getStatus())) {
+            if (user.isSuperuser()) {
+                return true;
+            } else if (commentRound.getUserId().equals(user.getId())) {
+                return true;
+            }
+        }
+        if (STATUS_INPROGRESS.equalsIgnoreCase(commentRound.getStatus()) && !commentRound.getFixedThreads()) {
+            if (user.isSuperuser()) {
+                return true;
+            } else if (commentRound.getUserId().equals(user.getId())) {
+                return true;
+            } else if (user.isInAnyRole(EnumSet.of(ADMIN, CODE_LIST_EDITOR, TERMINOLOGY_EDITOR, DATA_MODEL_EDITOR, MEMBER), organizationIds)) {
+                return true;
+            } else if (user.getTokenRole() != null && TOKEN_ROLE_MEMBER.equalsIgnoreCase(user.getTokenRole()) && user.getContainerUri() != null && user.getContainerUri().equalsIgnoreCase(commentRound.getUri())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

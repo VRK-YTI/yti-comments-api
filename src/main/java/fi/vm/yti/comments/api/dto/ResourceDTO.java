@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @XmlRootElement
-@XmlType(propOrder = { "uri", "prefLabel", "description", "type", "localName", "status", "modified", "contentModified", "statusModified" })
+@XmlType(propOrder = { "uri", "prefLabel", "description", "type", "localName", "status", "created", "modified", "contentModified", "statusModified" })
 @Schema(name = "Resource", description = "Resource DTO that represents data for one single Container or Resource for integration use.")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResourceDTO implements Serializable {
@@ -27,6 +27,7 @@ public class ResourceDTO implements Serializable {
     private String localName;
     private String uri;
     private String status;
+    private Date created;
     private Date modified;
     private Date contentModified;
     private Date statusModified;
@@ -82,6 +83,16 @@ public class ResourceDTO implements Serializable {
 
     public void setStatus(final String status) {
         this.status = status;
+    }
+
+    @Schema(format = "dateTime")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(final Date created) {
+        this.created = created;
     }
 
     @Schema(format = "dateTime")

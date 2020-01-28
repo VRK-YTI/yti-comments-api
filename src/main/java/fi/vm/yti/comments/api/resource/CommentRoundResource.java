@@ -48,6 +48,7 @@ import fi.vm.yti.comments.api.security.AuthorizationManager;
 import fi.vm.yti.comments.api.service.CommentRoundService;
 import fi.vm.yti.comments.api.service.CommentService;
 import fi.vm.yti.comments.api.service.CommentThreadService;
+import fi.vm.yti.comments.api.service.GroupmanagementProxyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -56,7 +57,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import static fi.vm.yti.comments.api.constants.ApiConstants.*;
 import static fi.vm.yti.comments.api.exception.ErrorConstants.ERR_MSG_USER_OTHER_USER_ALREADY_RESPONDED_TO_THIS_COMMENT_CANT_MODIFY_OR_DELETE;
@@ -76,6 +76,7 @@ public class CommentRoundResource implements AbstractBaseResource {
     private final CommentParser commentParser;
     private final AuthorizationManager authorizationManager;
     private final ExportService exportService;
+    private final GroupmanagementProxyService groupManagementProxyService;
 
     @Inject
     public CommentRoundResource(final CommentRoundService commentRoundService,
@@ -88,7 +89,8 @@ public class CommentRoundResource implements AbstractBaseResource {
                                 final CommentThreadParser commentThreadParser,
                                 final CommentParser commentParser,
                                 final AuthorizationManager authorizationManager,
-                                final ExportService exportService) {
+                                final ExportService exportService,
+                                final GroupmanagementProxyService groupManagementProxyService) {
         this.commentRoundService = commentRoundService;
         this.commentRoundDao = commentRoundDao;
         this.commentThreadDao = commentThreadDao;
@@ -100,14 +102,13 @@ public class CommentRoundResource implements AbstractBaseResource {
         this.commentParser = commentParser;
         this.authorizationManager = authorizationManager;
         this.exportService = exportService;
+        this.groupManagementProxyService = groupManagementProxyService;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Operation(summary = "CommentRound API for requesting all commentRounds.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Returns all commentRounds from the system as a set.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentRoundDTO.class))) })
-    })
+    @ApiResponse(responseCode = "200", description = "Returns all commentRounds from the system as a set.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentRoundDTO.class))) })
     @Tag(name = "CommentRound")
     @Transactional
     public Response getCommentRounds(@Parameter(description = "Filter option for organization filtering.", in = ParameterIn.QUERY) @QueryParam("organizationId") final UUID organizationId,
@@ -137,16 +138,15 @@ public class CommentRoundResource implements AbstractBaseResource {
             commentRoundDtos = commentRoundService.findAll();
         }
         final UUID userUuid = authorizationManager.getUserId();
-        if (filterIncomplete && commentRoundDtos != null) {
+        if (filterIncomplete && commentRoundDtos != null && !commentRoundDtos.isEmpty()) {
             commentRoundDtos = commentRoundDtos.stream().filter(commentRound -> {
-                if (STATUS_INCOMPLETE.equalsIgnoreCase(commentRound.getStatus()) && userUuid != null && userUuid.equals(commentRound.getUser().getId()) || authorizationManager.isSuperUser()) {
+                if (STATUS_INCOMPLETE.equalsIgnoreCase(commentRound.getStatus()) && userUuid != null && commentRound.getUser() != null && userUuid.equals(commentRound.getUser().getId()) || authorizationManager.isSuperUser()) {
                     return true;
                 } else {
                     return !STATUS_INCOMPLETE.equalsIgnoreCase(commentRound.getStatus());
                 }
             }).collect(Collectors.toSet());
         }
-
         if (searchTerm != null && !searchTerm.isEmpty() && commentRoundDtos != null) {
             commentRoundDtos = commentRoundDtos.stream().filter(commentRound -> {
                 if (commentRound.getLabel().toUpperCase().startsWith(searchTerm.toUpperCase()) || commentRound.getLabel().toUpperCase().endsWith(searchTerm.toUpperCase())) {
@@ -156,11 +156,12 @@ public class CommentRoundResource implements AbstractBaseResource {
                 }
             }).collect(Collectors.toSet());
         }
-
         final Set<CommentRoundDTO> commentRoundDtosToReturn = new HashSet<>();
         if (filterContent && commentRoundDtos != null && !commentRoundDtos.isEmpty()) {
             for (final CommentRoundDTO commentRoundDto : commentRoundDtos) {
-                if ((commentRoundDto.getUser() != null && commentRoundDto.getUser().getId().equals(userUuid)) || authorizationManager.isSuperUser()) {
+                if (authorizationManager.getContainerUri() != null && authorizationManager.getContainerUri().equalsIgnoreCase(commentRoundDto.getUri())) {
+                    commentRoundDtosToReturn.add(commentRoundDto);
+                } else if ((commentRoundDto.getUser() != null && commentRoundDto.getUser().getId().equals(userUuid)) || authorizationManager.isSuperUser()) {
                     commentRoundDtosToReturn.add(commentRoundDto);
                 } else if (!STATUS_INCOMPLETE.equalsIgnoreCase(commentRoundDto.getStatus())) {
                     for (final OrganizationDTO organization : commentRoundDto.getOrganizations()) {
@@ -180,10 +181,8 @@ public class CommentRoundResource implements AbstractBaseResource {
     @GET
     @Produces({ MediaType.APPLICATION_JSON + ";charset=UTF-8", "application/xlsx" })
     @Operation(summary = "CommentRound API for requesting single commentRound.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Returns single commentRound.", content = { @Content(schema = @Schema(implementation = CommentRoundDTO.class)) }),
-        @ApiResponse(responseCode = "404", description = "No CommentRound found with given UUID.")
-    })
+    @ApiResponse(responseCode = "200", description = "Returns single commentRound.", content = { @Content(schema = @Schema(implementation = CommentRoundDTO.class)) })
+    @ApiResponse(responseCode = "404", description = "No CommentRound found with given UUID.")
     @Tag(name = "CommentRound")
     @Transactional
     @Path("{commentRoundIdentifier}")
@@ -194,7 +193,8 @@ public class CommentRoundResource implements AbstractBaseResource {
         if (FORMAT_EXCEL.equalsIgnoreCase(format)) {
             final CommentRound commentRound = commentRoundDao.findByIdentifier(commentRoundIdentifier);
             if (commentRound != null) {
-                return streamExcelOutput(exportService.exportCommentRoundToExcel(commentRound), "commentround.xlsx");
+                final String fileName = commentRound.getLabel() + ".xlsx";
+                return streamExcelOutput(exportService.exportCommentRoundToExcel(commentRound), fileName);
             } else {
                 throw new NotFoundException();
             }
@@ -214,10 +214,8 @@ public class CommentRoundResource implements AbstractBaseResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Operation(summary = "CommentRound API for requesting users entry comments for each thread.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Returns list of comments for this commentThread.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDTO.class))) }),
-        @ApiResponse(responseCode = "404", description = "No CommentThread found with given UUID.")
-    })
+    @ApiResponse(responseCode = "200", description = "Returns list of comments for this commentThread.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDTO.class))) })
+    @ApiResponse(responseCode = "404", description = "No CommentThread found with given UUID.")
     @Tag(name = "Comment")
     @Transactional
     @Path("{commentRoundIdentifier}/mycomments")
@@ -236,10 +234,8 @@ public class CommentRoundResource implements AbstractBaseResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Operation(summary = "CommentRound API for requesting comments for commentThread.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Returns list of comments for this commentThread.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDTO.class))) }),
-        @ApiResponse(responseCode = "404", description = "No commentRound found with given UUID.")
-    })
+    @ApiResponse(responseCode = "200", description = "Returns list of comments for this commentThread.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDTO.class))) })
+    @ApiResponse(responseCode = "404", description = "No commentRound found with given UUID.")
     @Tag(name = "CommentThread")
     @Transactional
     @Path("{commentRoundId}/commentthreads/")
@@ -258,10 +254,8 @@ public class CommentRoundResource implements AbstractBaseResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Operation(summary = "CommentThread API for requesting single existing CommentThread.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Returns one CommentThread matching UUID.", content = { @Content(schema = @Schema(implementation = CommentThreadDTO.class)) }),
-        @ApiResponse(responseCode = "404", description = "No CommentThread found with given UUID.")
-    })
+    @ApiResponse(responseCode = "200", description = "Returns one CommentThread matching UUID.", content = { @Content(schema = @Schema(implementation = CommentThreadDTO.class)) })
+    @ApiResponse(responseCode = "404", description = "No CommentThread found with given UUID.")
     @Tag(name = "CommentThread")
     @Transactional
     @Path("{commentRoundIdentifier}/commentthreads/{commentThreadIdentifier}")
@@ -284,10 +278,8 @@ public class CommentRoundResource implements AbstractBaseResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Operation(summary = "CommentThread API for requesting comments for CommentThread.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Returns list of comments for this CommentThread.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDTO.class))) }),
-        @ApiResponse(responseCode = "404", description = "No CommentThread found with given UUID.")
-    })
+    @ApiResponse(responseCode = "200", description = "Returns list of comments for this CommentThread.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDTO.class))) })
+    @ApiResponse(responseCode = "404", description = "No CommentThread found with given UUID.")
     @Tag(name = "Comment")
     @Transactional
     @Path("{commentRoundIdentifier}/commentthreads/{commentThreadIdentifier}/comments")
@@ -309,10 +301,8 @@ public class CommentRoundResource implements AbstractBaseResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Operation(summary = "CommentThread API for requesting a single Commment for CommentThread.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Returns a single Comment for this CommentThread.", content = { @Content(schema = @Schema(implementation = CommentDTO.class)) }),
-        @ApiResponse(responseCode = "404", description = "No CommentThread found with given UUID.")
-    })
+    @ApiResponse(responseCode = "200", description = "Returns a single Comment for this CommentThread.", content = { @Content(schema = @Schema(implementation = CommentDTO.class)) })
+    @ApiResponse(responseCode = "404", description = "No CommentThread found with given UUID.")
     @Tag(name = "Comment")
     @Transactional
     @Path("{commentRoundIdentifier}/commentthreads/{commentThreadIdentifier}/comments/{commentIdentifier}")
@@ -337,11 +327,9 @@ public class CommentRoundResource implements AbstractBaseResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Operation(summary = "CommentRound API for creating or updating one or many CommentRounds from a list type JSON payload.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Returns created or updated CommentRounds after storing them to database.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentRoundDTO.class))) }),
-        @ApiResponse(responseCode = "401", description = "Not authorized for given action."),
-        @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
-    })
+    @ApiResponse(responseCode = "200", description = "Returns created or updated CommentRounds after storing them to database.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentRoundDTO.class))) })
+    @ApiResponse(responseCode = "401", description = "Not authorized for given action.")
+    @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
     @Tag(name = "CommentRound")
     @Transactional
     public Response createOrUpdateCommentRounds(@Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand,
@@ -350,6 +338,7 @@ public class CommentRoundResource implements AbstractBaseResource {
         if (authorizationManager.canUserAddCommentRound()) {
             ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTROUND, expand)));
             final Set<CommentRoundDTO> commentRoundDtos = commentRoundService.addOrUpdateCommentRoundsFromDtos(commentRoundParser.parseCommentRoundsFromJson(jsonPayload), removeCommentThreadOrphans);
+            commentRoundDtos.forEach(this::sendInvitationEmails);
             return createResponse("CommentRounds", MESSAGE_TYPE_ADDED_OR_MODIFIED, commentRoundDtos);
         } else {
             throw new UnauthorizedException();
@@ -359,12 +348,10 @@ public class CommentRoundResource implements AbstractBaseResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Operation(summary = "CommentRound API for updating an existing CommentRound.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Updates a single existing CommentRound.", content = { @Content(schema = @Schema(implementation = CommentDTO.class)) }),
-        @ApiResponse(responseCode = "401", description = "Not authorized for given action."),
-        @ApiResponse(responseCode = "404", description = "No CommentRound found with given UUID."),
-        @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
-    })
+    @ApiResponse(responseCode = "200", description = "Updates a single existing CommentRound.", content = { @Content(schema = @Schema(implementation = CommentDTO.class)) })
+    @ApiResponse(responseCode = "401", description = "Not authorized for given action.")
+    @ApiResponse(responseCode = "404", description = "No CommentRound found with given UUID.")
+    @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
     @Tag(name = "CommentRound")
     @Transactional
     @Path("{commentRoundIdentifier}")
@@ -377,6 +364,7 @@ public class CommentRoundResource implements AbstractBaseResource {
             if (authorizationManager.canUserModifyCommentRound(commentRound)) {
                 ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTROUND, expand)));
                 final CommentRoundDTO commentRoundDto = commentRoundService.addOrUpdateCommentRoundFromDto(commentRoundParser.parseCommentRoundFromJson(jsonPayload), removeCommentThreadOrphans);
+                sendInvitationEmails(commentRoundDto);
                 if (commentRoundDto != null) {
                     return Response.ok(commentRoundDto).build();
                 } else {
@@ -393,11 +381,9 @@ public class CommentRoundResource implements AbstractBaseResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Operation(summary = "CommentRound API for creating or updating one or many Comments from a list type JSON payload.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Returns created or updated Comments after storing them to database.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDTO.class))) }),
-        @ApiResponse(responseCode = "401", description = "Not authorized for given action."),
-        @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
-    })
+    @ApiResponse(responseCode = "200", description = "Returns created or updated Comments after storing them to database.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDTO.class))) })
+    @ApiResponse(responseCode = "401", description = "Not authorized for given action.")
+    @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
     @Tag(name = "Comment")
     @Transactional
     @Path("{commentRoundIdentifier}/comments")
@@ -417,11 +403,9 @@ public class CommentRoundResource implements AbstractBaseResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Operation(summary = "CommentRound API for creating or updating one or many CommentThreads from a list type JSON payload.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Returns created or updated CommentThreads after storing them to database.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentThreadDTO.class))) }),
-        @ApiResponse(responseCode = "401", description = "Not authorized for given action."),
-        @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
-    })
+    @ApiResponse(responseCode = "200", description = "Returns created or updated CommentThreads after storing them to database.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentThreadDTO.class))) })
+    @ApiResponse(responseCode = "401", description = "Not authorized for given action.")
+    @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
     @Tag(name = "CommentThread")
     @Transactional
     @Path("{commentRoundIdentifier}/commentthreads")
@@ -443,12 +427,10 @@ public class CommentRoundResource implements AbstractBaseResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Operation(summary = "CommentRound API for updating an existing CommentThread.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Updates a single existing CommentThread.", content = { @Content(schema = @Schema(implementation = CommentThreadDTO.class)) }),
-        @ApiResponse(responseCode = "401", description = "Not authorized for given action."),
-        @ApiResponse(responseCode = "404", description = "No CommentRound found with given UUID."),
-        @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
-    })
+    @ApiResponse(responseCode = "200", description = "Updates a single existing CommentThread.", content = { @Content(schema = @Schema(implementation = CommentThreadDTO.class)) })
+    @ApiResponse(responseCode = "401", description = "Not authorized for given action.")
+    @ApiResponse(responseCode = "404", description = "No CommentRound found with given UUID.")
+    @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
     @Tag(name = "CommentThread")
     @Transactional
     @Path("{commentRoundIdentifier}/commentthreads/{commentThreadIdentifier}")
@@ -477,11 +459,9 @@ public class CommentRoundResource implements AbstractBaseResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Operation(summary = "CommentRound API for creating or updating one or many Comments from a list type JSON payload.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Returns created or updated Comments after storing them to database.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDTO.class))) }),
-        @ApiResponse(responseCode = "401", description = "Not authorized for given action."),
-        @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
-    })
+    @ApiResponse(responseCode = "200", description = "Returns created or updated Comments after storing them to database.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDTO.class))) })
+    @ApiResponse(responseCode = "401", description = "Not authorized for given action.")
+    @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
     @Tag(name = "Comment")
     @Transactional
     @Path("{commentRoundIdentifier}/commentthreads/{commentThreadIdentifier}/comments")
@@ -507,12 +487,10 @@ public class CommentRoundResource implements AbstractBaseResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Operation(summary = "CommentRound API for updating an existing Comment.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Updates a single existing Comment.", content = { @Content(schema = @Schema(implementation = CommentDTO.class)) }),
-        @ApiResponse(responseCode = "401", description = "Not authorized for given action."),
-        @ApiResponse(responseCode = "404", description = "No Comment found with given UUID."),
-        @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
-    })
+    @ApiResponse(responseCode = "200", description = "Updates a single existing Comment.", content = { @Content(schema = @Schema(implementation = CommentDTO.class)) })
+    @ApiResponse(responseCode = "401", description = "Not authorized for given action.")
+    @ApiResponse(responseCode = "404", description = "No Comment found with given UUID.")
+    @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
     @Tag(name = "Comment")
     @Transactional
     @Path("{commentRoundIdentifier}/commentthreads/{commentThreadIdentifier}/comments/{commentIdentifier}")
@@ -551,10 +529,8 @@ public class CommentRoundResource implements AbstractBaseResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Operation(summary = "Deletes a single existing CommentRound.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "CommentRound deleted.", content = { @Content(schema = @Schema(implementation = ResponseWrapper.class)) }),
-        @ApiResponse(responseCode = "404", description = "CommentRound not found.")
-    })
+    @ApiResponse(responseCode = "200", description = "CommentRound deleted.", content = { @Content(schema = @Schema(implementation = ResponseWrapper.class)) })
+    @ApiResponse(responseCode = "404", description = "CommentRound not found.")
     @Tag(name = "CommentRound")
     public Response deleteCommentRound(@Parameter(description = "CommentRound identifier, either UUID or sequenceId.", in = ParameterIn.PATH, required = true) @PathParam("commentRoundIdentifier") final String commentRoundIdentifier) {
         final CommentRound existingCommentRound = commentRoundDao.findByIdentifier(commentRoundIdentifier);
@@ -574,10 +550,8 @@ public class CommentRoundResource implements AbstractBaseResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Operation(summary = "Deletes a single existing CommentThread.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "CommentThread deleted.", content = { @Content(schema = @Schema(implementation = ResponseWrapper.class)) }),
-        @ApiResponse(responseCode = "404", description = "CommentThread not found.")
-    })
+    @ApiResponse(responseCode = "200", description = "CommentThread deleted.", content = { @Content(schema = @Schema(implementation = ResponseWrapper.class)) })
+    @ApiResponse(responseCode = "404", description = "CommentThread not found.")
     @Tag(name = "CommentThread")
     public Response deleteCommentRoundCommentThread(@Parameter(description = "CommentRound identifier, either UUID or sequenceId.", in = ParameterIn.PATH, required = true) @PathParam("commentRoundIdentifier") final String commentRoundIdentifier,
                                                     @Parameter(description = "CommentThread identifier, either UUID or sequenceId.", in = ParameterIn.PATH, required = true) @PathParam("commentThreadIdentifier") final String commentThreadIdentifier) {
@@ -601,10 +575,8 @@ public class CommentRoundResource implements AbstractBaseResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Operation(summary = "Deletes a single existing Comment.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Comment deleted.", content = { @Content(schema = @Schema(implementation = ResponseWrapper.class)) }),
-        @ApiResponse(responseCode = "404", description = "Comment not found.")
-    })
+    @ApiResponse(responseCode = "200", description = "Comment deleted.", content = { @Content(schema = @Schema(implementation = ResponseWrapper.class)) })
+    @ApiResponse(responseCode = "404", description = "Comment not found.")
     @Tag(name = "Comment")
     public Response deleteCommentRoundCommentThreadComment(@Parameter(description = "CommentRound identifier, either UUID or sequenceId.", in = ParameterIn.PATH, required = true) @PathParam("commentRoundIdentifier") final String commentRoundIdentifier,
                                                            @Parameter(description = "CommentThread identifier, either UUID or sequenceId.", in = ParameterIn.PATH, required = true) @PathParam("commentThreadIdentifier") final String commentThreadIdentifier,
@@ -629,5 +601,11 @@ public class CommentRoundResource implements AbstractBaseResource {
             }
         }
         throw new NotFoundException();
+    }
+
+    private void sendInvitationEmails(final CommentRoundDTO commentRoundDto) {
+        if (commentRoundDto.getStatus().equalsIgnoreCase("INPROGRESS") && commentRoundDto.getTempUsers() != null && commentRoundDto.getTempUsers().size() > 0) {
+            groupManagementProxyService.sendInvitationEmailsToRound(commentRoundDto.getUri());
+        }
     }
 }

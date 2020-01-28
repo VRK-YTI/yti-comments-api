@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import fi.vm.yti.comments.api.error.ErrorModel;
 import static fi.vm.yti.comments.api.exception.ErrorConstants.ERR_MSG_USER_401;
 
-@ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
+@ResponseStatus(HttpStatus.UNAUTHORIZED)
 public class UnauthorizedException extends YtiCommentsException {
 
     public UnauthorizedException() {

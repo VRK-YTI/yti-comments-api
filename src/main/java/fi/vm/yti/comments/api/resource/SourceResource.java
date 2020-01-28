@@ -27,7 +27,6 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import static fi.vm.yti.comments.api.constants.ApiConstants.FILTER_NAME_SOURCE;
 
@@ -48,9 +47,7 @@ public class SourceResource implements AbstractBaseResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Operation(summary = "Source API for requesting all Sources.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Returns all Sources from the system as a list.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = SourceDTO.class))) })
-    })
+    @ApiResponse(responseCode = "200", description = "Returns all Sources from the system as a list.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = SourceDTO.class))) })
     @Transactional
     public Response getSources(@Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_SOURCE, expand)));
@@ -61,10 +58,8 @@ public class SourceResource implements AbstractBaseResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Operation(summary = "Source API for requesting single Source.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Returns single Source.", content = { @Content(schema = @Schema(implementation = SourceDTO.class)) }),
-        @ApiResponse(responseCode = "404", description = "No source found with given UUID.")
-    })
+    @ApiResponse(responseCode = "200", description = "Returns single Source.", content = { @Content(schema = @Schema(implementation = SourceDTO.class)) })
+    @ApiResponse(responseCode = "404", description = "No source found with given UUID.")
     @Transactional
     @Path("{sourceId}")
     public Response getSource(@Parameter(description = "Source UUID.", in = ParameterIn.PATH, required = true) @PathParam("sourceId") final UUID sourceId,
@@ -81,10 +76,8 @@ public class SourceResource implements AbstractBaseResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Operation(summary = "Source API for creating or updating one or many Sources from a list type JSON payload.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Returns created or updated Sources after storing them to database.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = SourceDTO.class))) }),
-        @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
-    })
+    @ApiResponse(responseCode = "200", description = "Returns created or updated Sources after storing them to database.", content = { @Content(array = @ArraySchema(schema = @Schema(implementation = SourceDTO.class))) })
+    @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
     @Transactional
     public Response createOrUpdateSources(@Parameter(description = "JSON playload for source data.", required = true) final String jsonPayload) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProvider(null, null)));
@@ -95,11 +88,9 @@ public class SourceResource implements AbstractBaseResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Operation(summary = "Source API for updating an existing Source.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Updates a single existing Source.", content = { @Content(schema = @Schema(implementation = SourceDTO.class)) }),
-        @ApiResponse(responseCode = "404", description = "No Source found with given UUID."),
-        @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
-    })
+    @ApiResponse(responseCode = "200", description = "Updates a single existing Source.", content = { @Content(schema = @Schema(implementation = SourceDTO.class)) })
+    @ApiResponse(responseCode = "404", description = "No Source found with given UUID.")
+    @ApiResponse(responseCode = "406", description = "Data payload error, please check input data.")
     @Transactional
     @Path("{sourceId}")
     public Response updateSource(@Parameter(description = "Source UUID.", in = ParameterIn.PATH, required = true) @PathParam("sourceId") final UUID sourceId,

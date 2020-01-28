@@ -18,6 +18,7 @@ import fi.vm.yti.comments.api.dto.CommentThreadResultDTO;
 import fi.vm.yti.comments.api.entity.Comment;
 import fi.vm.yti.comments.api.entity.CommentThread;
 import fi.vm.yti.comments.api.service.ResultService;
+import static fi.vm.yti.comments.api.utils.StatusUtils.localizeResourceStatusToFinnish;
 
 @Component
 public class ResultServiceImpl implements ResultService {
@@ -63,11 +64,11 @@ public class ResultServiceImpl implements ResultService {
     }
 
     @Transactional
-    public String getResultsForCommentThreadAsText(final UUID commentThreadId) {
+    public String getResultsForCommentThreadAsTextInFinnish(final UUID commentThreadId) {
         final StringBuilder results = new StringBuilder();
         final Set<CommentThreadResultDTO> commentThreadResults = getResultsForCommentThread(commentThreadId);
         for (final CommentThreadResultDTO result : commentThreadResults) {
-            results.append(result.getStatus());
+            results.append(localizeResourceStatusToFinnish(result.getStatus()));
             results.append(": ");
             results.append(result.getCount());
             results.append(" (");

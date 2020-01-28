@@ -26,7 +26,6 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import static fi.vm.yti.comments.api.constants.ApiConstants.FILTER_NAME_ORGANIZATION;
 
@@ -58,10 +57,8 @@ public class OrganizationResource implements AbstractBaseResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Operation(summary = "Organizations fetching API for single Organization.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Returns one single Organization.", content = { @Content(schema = @Schema(implementation = OrganizationDTO.class)) }),
-        @ApiResponse(responseCode = "404", description = "No Organization found with given UUID.")
-    })
+    @ApiResponse(responseCode = "200", description = "Returns one single Organization.", content = { @Content(schema = @Schema(implementation = OrganizationDTO.class)) })
+    @ApiResponse(responseCode = "404", description = "No Organization found with given UUID.")
     @Transactional
     @Path("{organizationId}")
     public Response getOrganization(@Parameter(description = "Organization UUID.", in = ParameterIn.PATH, required = true) @PathParam("organizationId") final UUID organizationId,

@@ -62,6 +62,11 @@ public class CommentDaoImpl implements CommentDao {
     }
 
     @Transactional
+    public long getCommentThreadMainCommentCount(final UUID commentThreadId) {
+        return commentRepository.getCommentThreadMainCommentCount(commentThreadId);
+    }
+
+    @Transactional
     public Comment findByCommentThreadIdAndCommentIdentifier(final UUID commentThreadId,
                                                              final String commentIdentifier) {
         final UUID commentId = parseUuidFromString(commentIdentifier);

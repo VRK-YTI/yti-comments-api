@@ -139,10 +139,15 @@ public class DtoMapperService {
         commentRoundDto.setLabel(commentRound.getLabel());
         commentRoundDto.setUser(userService.getUserById(commentRound.getUserId()));
         commentRoundDto.setStatus(commentRound.getStatus());
-        commentRoundDto.setUri(commentRound.getUri());
+        final String commentRoundUri = commentRound.getUri();
+        commentRoundDto.setUri(commentRoundUri);
         commentRoundDto.setSequenceId(commentRound.getSequenceId());
         if (deep) {
             commentRoundDto.setCommentThreads(mapCommentThreads(commentRound.getCommentThreads(), false));
+            final Set<UserDTO> tempUsers = userService.getUsersByCommentRoundUri(commentRoundUri);
+            if (tempUsers != null && !tempUsers.isEmpty()) {
+                commentRoundDto.setTempUsers(tempUsers);
+            }
         }
         if (deep || mapSource) {
             commentRoundDto.setSource(mapSource(commentRound.getSource()));
@@ -272,6 +277,7 @@ public class DtoMapperService {
         resourceDto.setUri(commentRound.getUri());
         resourceDto.setLocalName(commentRound.getSequenceId().toString());
         resourceDto.setStatus(commentRound.getStatus());
+        resourceDto.setCreated(convertLocalDateTimeToDate(commentRound.getCreated()));
         resourceDto.setModified(convertLocalDateTimeToDate(commentRound.getModified()));
         resourceDto.setStatusModified(convertLocalDateTimeToDate(commentRound.getStatusModified()));
         resourceDto.setContentModified(convertLocalDateTimeToDate(commentRound.getContentModified()));
@@ -293,6 +299,7 @@ public class DtoMapperService {
         resourceDto.setDescription(copyStringMap(commentThread.getDescription()));
         resourceDto.setUri(commentThread.getUri());
         resourceDto.setLocalName(commentThread.getSequenceId().toString());
+        resourceDto.setCreated(convertLocalDateTimeToDate(commentThread.getCreated()));
         resourceDto.setModified(convertLocalDateTimeToDate(commentThread.getCreated()));
         resourceDto.setContentModified(convertLocalDateTimeToDate(commentThread.getCommentsModified()));
         resourceDto.setType("commentthread");

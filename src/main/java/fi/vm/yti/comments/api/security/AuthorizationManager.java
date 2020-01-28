@@ -14,6 +14,8 @@ public interface AuthorizationManager {
 
     String getUserEmail();
 
+    String getContainerUri();
+
     Set<UUID> getUserOrganizations();
 
     boolean canUserModifyComment(final Comment comment);

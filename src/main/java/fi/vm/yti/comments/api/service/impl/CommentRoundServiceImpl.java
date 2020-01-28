@@ -1,6 +1,7 @@
 package fi.vm.yti.comments.api.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -16,17 +17,21 @@ import fi.vm.yti.comments.api.dto.ResourceDTO;
 import fi.vm.yti.comments.api.entity.CommentRound;
 import fi.vm.yti.comments.api.error.Meta;
 import fi.vm.yti.comments.api.service.CommentRoundService;
+import fi.vm.yti.comments.api.service.GroupmanagementProxyService;
 
 @Component
 public class CommentRoundServiceImpl extends AbstractService implements CommentRoundService {
 
     private final CommentRoundDao commentRoundDao;
     private final DtoMapperService dtoMapperService;
+    private final GroupmanagementProxyService groupmanagementProxyService;
 
     public CommentRoundServiceImpl(final CommentRoundDao commentRoundDao,
-                                   final DtoMapperService dtoMapperService) {
+                                   final DtoMapperService dtoMapperService,
+                                   final GroupmanagementProxyService groupmanagementProxyService) {
         this.commentRoundDao = commentRoundDao;
         this.dtoMapperService = dtoMapperService;
+        this.groupmanagementProxyService = groupmanagementProxyService;
     }
 
     @Transactional
@@ -92,17 +97,26 @@ public class CommentRoundServiceImpl extends AbstractService implements CommentR
     @Transactional
     public CommentRoundDTO addOrUpdateCommentRoundFromDto(final CommentRoundDTO fromCommentRound,
                                                           final boolean removeCommentThreadOrphans) {
+        addOrUpdateGroupmanagementTempUsers(fromCommentRound);
         return dtoMapperService.mapDeepCommentRound(commentRoundDao.addOrUpdateCommentRoundFromDto(fromCommentRound, removeCommentThreadOrphans));
     }
 
     @Transactional
     public Set<CommentRoundDTO> addOrUpdateCommentRoundsFromDtos(final Set<CommentRoundDTO> fromCommentRounds,
                                                                  final boolean removeCommentThreadOrphans) {
+        fromCommentRounds.forEach(this::addOrUpdateGroupmanagementTempUsers);
         return dtoMapperService.mapDeepCommentRounds(commentRoundDao.addOrUpdateCommentRoundsFromDtos(fromCommentRounds, removeCommentThreadOrphans));
+    }
+
+    private void addOrUpdateGroupmanagementTempUsers(final CommentRoundDTO commentRoundDto) {
+        if (commentRoundDto.getUri() != null) {
+            groupmanagementProxyService.addOrUpdateTempUsers(commentRoundDto.getUri(), commentRoundDto.getTempUsers());
+        }
     }
 
     @Transactional
     public void deleteCommentRound(final CommentRound commentRound) {
+        groupmanagementProxyService.addOrUpdateTempUsers(commentRound.getUri(), new HashSet<>());
         commentRoundDao.deleteCommentRound(commentRound);
     }
 
