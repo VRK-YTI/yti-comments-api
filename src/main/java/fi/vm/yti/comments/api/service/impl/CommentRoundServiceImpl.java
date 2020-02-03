@@ -136,7 +136,7 @@ public class CommentRoundServiceImpl extends AbstractService implements CommentR
         meta.setTotalResults(commentRoundCount);
         int page = getPageIndex(meta);
         final int pageSize = meta.getPageSize() != null ? meta.getPageSize() : MAX_PAGE_SIZE;
-        final PageRequest pageRequest = PageRequest.of(page, pageSize, new Sort(Sort.Direction.ASC, FIELD_SEQUENCE_ID));
+        final PageRequest pageRequest = PageRequest.of(page, pageSize, Sort.by(Sort.Direction.ASC, FIELD_SEQUENCE_ID));
         if (commentRoundUris != null && !commentRoundUris.isEmpty()) {
             return dtoMapperService.mapCommentRoundsToResources(commentRoundDao.findByUriIn(commentRoundUris, after, before, pageRequest));
         } else {
