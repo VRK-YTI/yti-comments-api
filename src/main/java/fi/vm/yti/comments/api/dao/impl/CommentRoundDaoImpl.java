@@ -316,11 +316,6 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
                         commentThreadDao.delete(existingCommentThread);
                     }
                 });
-                commentThreadDao.saveAll(commentThreads);
-                existingCommentRound.setCommentThreads(commentThreads);
-            } else {
-                commentThreadDao.saveAll(commentThreads);
-                existingCommentRound.setCommentThreads(commentThreads);
             }
         } else {
             if (existingCommentRound.getCommentThreads() != null) {
@@ -332,9 +327,9 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
                     }
                 });
             }
-            commentThreadDao.saveAll(commentThreads);
-            existingCommentRound.setCommentThreads(commentThreads);
         }
+        commentThreadDao.saveAll(commentThreads);
+        existingCommentRound.setCommentThreads(commentThreads);
         ensureProperStatus(existingCommentRound);
         return existingCommentRound;
     }
