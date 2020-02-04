@@ -16,6 +16,10 @@ import static fi.vm.yti.comments.api.constants.ApiConstants.*;
 @Component
 public class ApiUtils {
 
+    private static final String URI_SUOMI_COMMENT_ROUND_URL = "http://uri.suomi.fi/comments/round/";
+    private static final String PATH_THREAD = "/thread";
+    private static final String PATH_COMMENT = "/comment";
+
     private final CommentsApiConfiguration commentsApiConfiguration;
     private final FrontendConfiguration frontendConfiguration;
     private final GroupManagementProperties groupManagementProperties;
@@ -138,17 +142,17 @@ public class ApiUtils {
     }
 
     public String createCommentRoundUri(final Integer commentRoundSequenceId) {
-        return "http://uri.suomi.fi/comments/round/" + commentRoundSequenceId.toString();
+        return URI_SUOMI_COMMENT_ROUND_URL + commentRoundSequenceId.toString();
     }
 
     public String createCommentThreadUri(final Integer commentRoundSequenceId,
                                          final Integer commentThreadSequenceId) {
-        return "http://uri.suomi.fi/comments/round/" + commentRoundSequenceId.toString() + "/thread/" + commentThreadSequenceId.toString();
+        return URI_SUOMI_COMMENT_ROUND_URL + commentRoundSequenceId.toString() + PATH_THREAD + "/" + commentThreadSequenceId.toString();
     }
 
     public String createCommentUri(final Integer commentRoundSequenceId,
                                    final Integer commentThreadSequenceId,
                                    final Integer commentSequenceId) {
-        return "http://uri.suomi.fi/comments/round/" + commentRoundSequenceId.toString() + "/thread/" + commentThreadSequenceId.toString() + "/comment/" + commentSequenceId.toString();
+        return URI_SUOMI_COMMENT_ROUND_URL + commentRoundSequenceId.toString() + PATH_THREAD + "/" + commentThreadSequenceId.toString() + PATH_COMMENT + "/" + commentSequenceId.toString();
     }
 }
