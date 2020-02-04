@@ -78,17 +78,21 @@ public class GroupManagementProxyResource implements AbstractBaseResource {
         final String response = restTemplate.getForObject(createGroupManagementRequestsApiUrl(user.getId().toString()), String.class);
         final ObjectMapper mapper = new ObjectMapper();
         mapper.setFilterProvider(new SimpleFilterProvider().setFailOnUnknownId(false));
-        try {
-            final Set<GroupManagementUserRequest> userRequests = mapper.readValue(response, new TypeReference<Set<GroupManagementUserRequest>>() {
-            });
-            final Meta meta = new Meta();
-            final ResponseWrapper<GroupManagementUserRequest> wrapper = new ResponseWrapper<>(meta);
-            meta.setCode(200);
-            meta.setResultCount(userRequests.size());
-            wrapper.setResults(userRequests);
-            return Response.ok(wrapper).build();
-        } catch (final IOException e) {
-            throw new YtiCommentsException(new ErrorModel(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Error parsing userRequests from groupmanagement!"));
+        if (response != null) {
+            try {
+                final Set<GroupManagementUserRequest> userRequests = mapper.readValue(response, new TypeReference<Set<GroupManagementUserRequest>>() {
+                });
+                final Meta meta = new Meta();
+                final ResponseWrapper<GroupManagementUserRequest> wrapper = new ResponseWrapper<>(meta);
+                meta.setCode(200);
+                meta.setResultCount(userRequests.size());
+                wrapper.setResults(userRequests);
+                return Response.ok(wrapper).build();
+            } catch (final IOException e) {
+                throw new YtiCommentsException(new ErrorModel(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Error parsing userRequests from groupmanagement!"));
+            }
+        } else {
+            throw new YtiCommentsException(new ErrorModel(HttpStatus.INTERNAL_SERVER_ERROR.value(), "User request API did not respond correctly!"));
         }
     }
 
