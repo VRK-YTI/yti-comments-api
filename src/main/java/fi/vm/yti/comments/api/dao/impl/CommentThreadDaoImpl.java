@@ -229,14 +229,10 @@ public class CommentThreadDaoImpl implements CommentThreadDao {
                         delete(existingCommentThread);
                     }
                 });
-                saveAll(commentThreads);
-                commentRound.setCommentThreads(commentThreads);
-                commentRoundDao.save(commentRound);
-            } else {
-                saveAll(commentThreads);
-                commentRound.setCommentThreads(commentThreads);
-                commentRoundDao.save(commentRound);
             }
+            saveAll(commentThreads);
+            commentRound.setCommentThreads(commentThreads);
+            commentRoundDao.save(commentRound);
         } else {
             saveAll(commentThreads);
         }

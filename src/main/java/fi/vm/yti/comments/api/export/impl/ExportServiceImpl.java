@@ -202,10 +202,8 @@ public class ExportServiceImpl implements ExportService {
                 Set<Comment> childComments = childCommentMap.get(parentComment.getId());
                 if (childComments == null) {
                     childComments = new LinkedHashSet<>();
-                    childComments.add(comment);
-                } else {
-                    childComments.add(comment);
                 }
+                childComments.add(comment);
                 childCommentMap.put(parentComment.getId(), childComments);
             }
         });
