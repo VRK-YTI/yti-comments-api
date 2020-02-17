@@ -364,8 +364,8 @@ public class CommentRoundResource implements AbstractBaseResource {
             if (authorizationManager.canUserModifyCommentRound(commentRound)) {
                 ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTROUND, expand)));
                 final CommentRoundDTO commentRoundDto = commentRoundService.addOrUpdateCommentRoundFromDto(commentRoundParser.parseCommentRoundFromJson(jsonPayload), removeCommentThreadOrphans);
-                sendInvitationEmails(commentRoundDto);
                 if (commentRoundDto != null) {
+                    sendInvitationEmails(commentRoundDto);
                     return Response.ok(commentRoundDto).build();
                 } else {
                     throw new NotFoundException();

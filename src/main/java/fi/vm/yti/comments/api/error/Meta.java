@@ -69,7 +69,7 @@ public class Meta {
             try {
                 return dateFormat.parse(dateString);
             } catch (ParseException e) {
-                LOG.error(String.format("Parsing date from string failed: " + dateString));
+                LOG.error("Parsing date from string failed: " + dateString);
                 throw new YtiCommentsException(new ErrorModel(HttpStatus.BAD_REQUEST.value(), "Date input not valid: " + dateString));
             }
         }
