@@ -174,12 +174,15 @@ public class ExportServiceImpl implements ExportService {
         addCellToRow(rowhead, style, headerCellIndex++, EXPORT_HEADER_SUGGESTED_STATUS);
         addCellToRow(rowhead, style, headerCellIndex++, EXPORT_HEADER_CREATED);
         addCellToRow(rowhead, style, headerCellIndex++, EXPORT_HEADER_MODIFIED);
-        addCellToRow(rowhead, style, headerCellIndex, EXPORT_HEADER_COMMENT_URI);
+        addCellToRow(rowhead, style, headerCellIndex++, EXPORT_HEADER_COMMENT_URI);
+        addCellToRow(rowhead, style, headerCellIndex, EXPORT_HEADER_RESOURCE_URI);
+        final int resourceUriHeaderIndex = headerCellIndex;
         int rowIndex = 1;
         for (final CommentThread commentThread : commentThreads) {
             final Row row = sheet.createRow(rowIndex++);
             int cellIndex = 0;
             addCellToRow(row, createCellStyle(workbook, true), cellIndex, formatResourceLabel(commentThread.getLabel(), commentThread.getLocalName()));
+            addCellToRow(row, createCellStyle(workbook, false), resourceUriHeaderIndex, commentThread.getResourceUri());
             final Map<UUID, Set<Comment>> childCommentMap = new HashMap<>();
             final Set<Comment> topLevelComments = mapMainLevelComments(commentThread, childCommentMap);
             if (!topLevelComments.isEmpty()) {
@@ -275,7 +278,8 @@ public class ExportServiceImpl implements ExportService {
             }
             addCellToRow(row, style, cellIndex++, formatDateToExportWithMinutesInHelsinkiTimezone(comment.getCreated()));
             addCellToRow(row, style, cellIndex++, formatDateToExportWithMinutesInHelsinkiTimezone(comment.getModified()));
-            addCellToRow(row, style, cellIndex, checkEmptyValue(comment.getUri()));
+            addCellToRow(row, style, cellIndex++, checkEmptyValue(comment.getUri()));
+            addCellToRow(row, style, cellIndex, checkEmptyValue(comment.getCommentThread().getResourceUri()));
             final Set<Comment> childComments = childCommentMap.get(comment.getId());
             if (childComments != null && !childComments.isEmpty()) {
                 rowIndex = addCommentRows(sheet, rowIndex, level + 1, maxLevel, childComments, style, childCommentMap);
