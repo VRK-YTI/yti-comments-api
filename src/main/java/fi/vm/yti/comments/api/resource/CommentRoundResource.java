@@ -179,7 +179,7 @@ public class CommentRoundResource implements AbstractBaseResource {
     }
 
     @GET
-    @Produces({ MediaType.APPLICATION_JSON + ";charset=UTF-8", "application/xlsx" })
+    @Produces({ MediaType.APPLICATION_JSON + ";charset=UTF-8", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" })
     @Operation(summary = "CommentRound API for requesting single commentRound.")
     @ApiResponse(responseCode = "200", description = "Returns single commentRound.", content = { @Content(schema = @Schema(implementation = CommentRoundDTO.class)) })
     @ApiResponse(responseCode = "404", description = "No CommentRound found with given UUID.")

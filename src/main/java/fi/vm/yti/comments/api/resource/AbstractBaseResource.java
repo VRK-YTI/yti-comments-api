@@ -1,7 +1,10 @@
 package fi.vm.yti.comments.api.resource;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -39,6 +42,8 @@ public interface AbstractBaseResource {
     String MESSAGE_TYPE_ADDED_OR_MODIFIED = "MESSAGE_TYPE_ADDED_OR_MODIFIED";
 
     String MESSAGE_TYPE_GET_RESOURCES = "MESSAGE_TYPE_GET_RESOURCES";
+
+    String UTF_8_ENCODING = "UTF-8";
 
     default SimpleFilterProvider createSimpleFilterProviderWithSingleFilter(final String baseFilter,
                                                                             final String expand) {
@@ -85,8 +90,12 @@ public interface AbstractBaseResource {
                 throw new YtiCommentsException(new ErrorModel(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Excel output generation failed!"));
             }
         };
-        return Response.ok(stream).header(HEADER_CONTENT_DISPOSITION, "attachment; filename = " + filename).build();
-    }
+        try {
+            return Response.ok(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet").header(HEADER_CONTENT_DISPOSITION, "attachment; filename = " + URLEncoder.encode(filename, UTF_8_ENCODING)).build();
+        } catch (final UnsupportedEncodingException e) {
+            throw new YtiCommentsException(new ErrorModel(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Excel output generation failed due to charset issue!"));
+        }
+}
 
     default Response createDeleteResponse(final String objectType) {
         final Meta meta = new Meta();
