@@ -91,7 +91,7 @@ public interface AbstractBaseResource {
             }
         };
         try {
-            return Response.ok(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet").header(HEADER_CONTENT_DISPOSITION, "attachment; filename = " + URLEncoder.encode(filename, UTF_8_ENCODING)).build();
+            return Response.ok(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet").header(HEADER_CONTENT_DISPOSITION, "attachment; filename = " + URLEncoder.encode(filename.replace(" ", "_"), UTF_8_ENCODING)).build();
         } catch (final UnsupportedEncodingException e) {
             throw new YtiCommentsException(new ErrorModel(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Excel output generation failed due to charset issue!"));
         }
