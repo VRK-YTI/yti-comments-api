@@ -2,6 +2,7 @@ package fi.vm.yti.comments.api.dao;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -24,12 +25,12 @@ public interface CommentRoundDao {
                               final LocalDateTime before,
                               final PageRequest pageRequest);
 
-    Set<CommentRound> findByOrganizationsIdAndStatus(final UUID organizationId,
-                                                     final String status);
+    Set<CommentRound> findByOrganizationsIdAndStatusIn(final UUID organizationId,
+                                                       final Set<String> statuses);
 
     Set<CommentRound> findByOrganizationsId(final UUID organizationId);
 
-    Set<CommentRound> findByStatus(final String status);
+    Set<CommentRound> findByStatusIn(final Set<String> statuses);
 
     Set<CommentRound> findByStatusAndEndDateBefore(final String status,
                                                    final LocalDate now);
@@ -39,15 +40,15 @@ public interface CommentRoundDao {
 
     Set<CommentRound> findBySourceContainerType(final String containerType);
 
-    Set<CommentRound> findByOrganizationsIdAndStatusAndSourceContainerType(final UUID organizationId,
-                                                                           final String status,
-                                                                           final String containerType);
+    Set<CommentRound> findByOrganizationsIdAndSourceContainerTypeAndStatusIn(final UUID organizationId,
+                                                                             final String containerType,
+                                                                             final Set<String> statuses);
 
     Set<CommentRound> findByOrganizationsIdAndSourceContainerType(final UUID organizationId,
                                                                   final String containerType);
 
-    Set<CommentRound> findByStatusAndSourceContainerType(final String status,
-                                                         final String containerType);
+    Set<CommentRound> findBySourceContainerTypeAndStatusIn(final String containerType,
+                                                           final Set<String> statuses);
 
     CommentRound findById(final UUID commentRoundId);
 

@@ -3,6 +3,7 @@ package fi.vm.yti.comments.api.dao.impl;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -86,9 +87,9 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
     }
 
     @Transactional
-    public Set<CommentRound> findByOrganizationsIdAndStatus(final UUID organizationId,
-                                                            final String status) {
-        return commentRoundRepository.findByOrganizationsIdAndStatus(organizationId, status);
+    public Set<CommentRound> findByOrganizationsIdAndStatusIn(final UUID organizationId,
+                                                              final Set<String> statuses) {
+        return commentRoundRepository.findByOrganizationsIdAndStatusIn(organizationId, statuses);
     }
 
     @Transactional
@@ -97,8 +98,8 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
     }
 
     @Transactional
-    public Set<CommentRound> findByStatus(final String status) {
-        return commentRoundRepository.findByStatus(status);
+    public Set<CommentRound> findByStatusIn(final Set<String> statuses) {
+        return commentRoundRepository.findByStatusIn(statuses);
     }
 
     @Transactional
@@ -119,10 +120,10 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
     }
 
     @Transactional
-    public Set<CommentRound> findByOrganizationsIdAndStatusAndSourceContainerType(final UUID organizationId,
-                                                                                  final String status,
-                                                                                  final String containerType) {
-        return commentRoundRepository.findByOrganizationsIdAndStatusAndSourceContainerType(organizationId, status, containerType);
+    public Set<CommentRound> findByOrganizationsIdAndSourceContainerTypeAndStatusIn(final UUID organizationId,
+                                                                                    final String containerType,
+                                                                                    final Set<String> statuses) {
+        return commentRoundRepository.findByOrganizationsIdAndSourceContainerTypeAndStatusIn(organizationId, containerType, statuses);
     }
 
     @Transactional
@@ -132,9 +133,9 @@ public class CommentRoundDaoImpl implements CommentRoundDao {
     }
 
     @Transactional
-    public Set<CommentRound> findByStatusAndSourceContainerType(final String status,
-                                                                final String containerType) {
-        return commentRoundRepository.findByStatusAndSourceContainerType(status, containerType);
+    public Set<CommentRound> findBySourceContainerTypeAndStatusIn(final String containerType,
+                                                                  final Set<String> statuses) {
+        return commentRoundRepository.findBySourceContainerTypeAndStatusIn(containerType, statuses);
     }
 
     @Transactional

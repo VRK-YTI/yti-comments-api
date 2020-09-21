@@ -6,6 +6,7 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -33,6 +34,7 @@ import fi.vm.yti.comments.api.dto.ResourceDTO;
 import fi.vm.yti.comments.api.error.ErrorModel;
 import fi.vm.yti.comments.api.error.Meta;
 import fi.vm.yti.comments.api.exception.YtiCommentsException;
+import fi.vm.yti.comments.api.model.Status;
 import static fi.vm.yti.comments.api.constants.ApiConstants.*;
 
 public interface AbstractBaseResource {
@@ -95,7 +97,7 @@ public interface AbstractBaseResource {
         } catch (final UnsupportedEncodingException e) {
             throw new YtiCommentsException(new ErrorModel(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Excel output generation failed due to charset issue!"));
         }
-}
+    }
 
     default Response createDeleteResponse(final String objectType) {
         final Meta meta = new Meta();
@@ -170,6 +172,21 @@ public interface AbstractBaseResource {
                                    final JsonGenerator g) {
             return w.with(provider);
         }
+    }
+
+    default Set<String> parseStatusCsl(final String statusCsl) {
+        final Set<String> statuses = new HashSet<>();
+        if (statusCsl != null) {
+            for (final String s : statusCsl.split(",")) {
+                try {
+                    final Status status = Status.valueOf(s.toUpperCase().trim());
+                    statuses.add(status.toString());
+                } catch (final Exception e) {
+                    throw new YtiCommentsException(new ErrorModel(HttpStatus.BAD_REQUEST.value(), "Status code is not valid: " + s));
+                }
+            }
+        }
+        return statuses;
     }
 
     default URI parseUriFromString(final String uriString) {

@@ -119,23 +119,24 @@ public class CommentRoundResource implements AbstractBaseResource {
                                      @Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand,
                                      @Parameter(description = "Filter by user organizations or user id.", in = ParameterIn.QUERY) @QueryParam("filterContent") @DefaultValue("false") final boolean filterContent) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTROUND, expand)));
+        final Set<String> statuses = parseStatusCsl(status);
         final UUID userUuid = authorizationManager.getUserId();
         Set<CommentRoundDTO> commentRoundDtos;
         final boolean includeCommentThreads = checkExpandCommentThreads(expand);
         if (userUuid == null) {
             commentRoundDtos = new HashSet<>();
-        } else if (organizationId != null && status != null && containerType != null) {
-            commentRoundDtos = commentRoundService.findByOrganizationsIdAndStatusAndSourceContainerType(organizationId, status, containerType, includeCommentThreads);
-        } else if (organizationId != null && status != null) {
-            commentRoundDtos = commentRoundService.findByOrganizationsIdAndStatus(organizationId, status, includeCommentThreads);
+        } else if (organizationId != null && !statuses.isEmpty() && containerType != null) {
+            commentRoundDtos = commentRoundService.findByOrganizationsIdAndSourceContainerTypeAndStatusIn(organizationId, containerType, statuses, includeCommentThreads);
+        } else if (organizationId != null && !statuses.isEmpty()) {
+            commentRoundDtos = commentRoundService.findByOrganizationsIdAndStatusIn(organizationId, statuses, includeCommentThreads);
         } else if (organizationId != null && containerType != null) {
             commentRoundDtos = commentRoundService.findByOrganizationsIdAndSourceContainerType(organizationId, containerType, includeCommentThreads);
-        } else if (status != null && containerType != null) {
-            commentRoundDtos = commentRoundService.findByStatusAndSourceContainerType(status, containerType, includeCommentThreads);
+        } else if (!statuses.isEmpty() && containerType != null) {
+            commentRoundDtos = commentRoundService.findBySourceContainerTypeAndStatusIn(containerType, statuses, includeCommentThreads);
         } else if (organizationId != null) {
             commentRoundDtos = commentRoundService.findByOrganizationsId(organizationId, includeCommentThreads);
-        } else if (status != null) {
-            commentRoundDtos = commentRoundService.findByStatus(status, includeCommentThreads);
+        } else if (!statuses.isEmpty()) {
+            commentRoundDtos = commentRoundService.findByStatusIn(statuses, includeCommentThreads);
         } else if (containerType != null) {
             commentRoundDtos = commentRoundService.findBySourceContainerType(containerType, includeCommentThreads);
         } else {

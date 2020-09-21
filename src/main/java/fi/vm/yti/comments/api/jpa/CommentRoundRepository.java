@@ -3,6 +3,7 @@ package fi.vm.yti.comments.api.jpa;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -27,12 +28,12 @@ public interface CommentRoundRepository extends PagingAndSortingRepository<Comme
 
     Set<CommentRound> findAll();
 
-    Set<CommentRound> findByOrganizationsIdAndStatus(final UUID id,
-                                                     final String status);
+    Set<CommentRound> findByOrganizationsIdAndStatusIn(final UUID id,
+                                                       final Set<String> statuses);
 
     Set<CommentRound> findByOrganizationsId(final UUID id);
 
-    Set<CommentRound> findByStatus(final String status);
+    Set<CommentRound> findByStatusIn(final Set<String> statuses);
 
     Set<CommentRound> findByStatusAndEndDateBefore(final String status,
                                                    final LocalDate now);
@@ -42,15 +43,15 @@ public interface CommentRoundRepository extends PagingAndSortingRepository<Comme
 
     Set<CommentRound> findBySourceContainerType(final String containerType);
 
-    Set<CommentRound> findByOrganizationsIdAndStatusAndSourceContainerType(final UUID id,
-                                                                           final String status,
-                                                                           final String containerType);
+    Set<CommentRound> findByOrganizationsIdAndSourceContainerTypeAndStatusIn(final UUID id,
+                                                                             final String containerType,
+                                                                             final Set<String> statuses);
 
     Set<CommentRound> findByOrganizationsIdAndSourceContainerType(final UUID id,
                                                                   final String containerType);
 
-    Set<CommentRound> findByStatusAndSourceContainerType(final String status,
-                                                         final String containerType);
+    Set<CommentRound> findBySourceContainerTypeAndStatusIn(final String containerType,
+                                                           final Set<String> statuses);
 
     Page<CommentRound> findByUriInAndModifiedBetweenOrContentModifiedBetween(final Set<String> uris,
                                                                              final LocalDateTime after,
