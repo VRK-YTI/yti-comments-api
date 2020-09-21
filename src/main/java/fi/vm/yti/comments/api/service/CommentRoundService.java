@@ -12,32 +12,41 @@ import fi.vm.yti.comments.api.error.Meta;
 
 public interface CommentRoundService {
 
-    Set<CommentRoundDTO> findAll();
+    Set<CommentRoundDTO> findAll(final boolean includeCommentThreads);
 
     Set<CommentRoundDTO> findAll(final PageRequest pageable);
 
     Set<CommentRoundDTO> findByOrganizationsIdAndStatus(final UUID organizationId,
-                                                        final String status);
+                                                        final String status,
+                                                        final boolean includeCommentThreads);
 
-    Set<CommentRoundDTO> findByOrganizationsId(final UUID organizationId);
+    Set<CommentRoundDTO> findByOrganizationsId(final UUID organizationId,
+                                               final boolean includeCommentThreads);
 
-    Set<CommentRoundDTO> findByStatus(final String status);
+    Set<CommentRoundDTO> findByStatus(final String status,
+                                      final boolean includeCommentThreads);
 
-    Set<CommentRoundDTO> findBySourceContainerType(final String containerType);
+    Set<CommentRoundDTO> findBySourceContainerType(final String containerType,
+                                                   final boolean includeCommentThreads);
 
     Set<CommentRoundDTO> findByOrganizationsIdAndStatusAndSourceContainerType(final UUID organizationId,
                                                                               final String status,
-                                                                              final String containerType);
+                                                                              final String containerType,
+                                                                              final boolean includeCommentThreads);
 
     Set<CommentRoundDTO> findByOrganizationsIdAndSourceContainerType(final UUID organizationId,
-                                                                     final String containerType);
+                                                                     final String containerType,
+                                                                     final boolean includeCommentThreads);
 
     Set<CommentRoundDTO> findByStatusAndSourceContainerType(final String status,
-                                                            final String containerType);
+                                                            final String containerType,
+                                                            final boolean includeCommentThreads);
 
-    CommentRoundDTO findById(final UUID commentRoundId);
+    CommentRoundDTO findById(final UUID commentRoundId,
+                             final boolean includeCommentThreads);
 
-    CommentRoundDTO findByIdentifier(final String commentRoundIdentifier);
+    CommentRoundDTO findByIdentifier(final String commentRoundIdentifier,
+                                     final boolean includeCommentThreads);
 
     CommentRoundDTO addOrUpdateCommentRoundFromDto(final CommentRoundDTO fromCommentRound,
                                                    final boolean removeCommentThreadOrphans);

@@ -119,25 +119,28 @@ public class CommentRoundResource implements AbstractBaseResource {
                                      @Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand,
                                      @Parameter(description = "Filter by user organizations or user id.", in = ParameterIn.QUERY) @QueryParam("filterContent") @DefaultValue("false") final boolean filterContent) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTROUND, expand)));
-        Set<CommentRoundDTO> commentRoundDtos;
-        if (organizationId != null && status != null && containerType != null) {
-            commentRoundDtos = commentRoundService.findByOrganizationsIdAndStatusAndSourceContainerType(organizationId, status, containerType);
-        } else if (organizationId != null && status != null) {
-            commentRoundDtos = commentRoundService.findByOrganizationsIdAndStatus(organizationId, status);
-        } else if (organizationId != null && containerType != null) {
-            commentRoundDtos = commentRoundService.findByOrganizationsIdAndSourceContainerType(organizationId, containerType);
-        } else if (status != null && containerType != null) {
-            commentRoundDtos = commentRoundService.findByStatusAndSourceContainerType(status, containerType);
-        } else if (organizationId != null) {
-            commentRoundDtos = commentRoundService.findByOrganizationsId(organizationId);
-        } else if (status != null) {
-            commentRoundDtos = commentRoundService.findByStatus(status);
-        } else if (containerType != null) {
-            commentRoundDtos = commentRoundService.findBySourceContainerType(containerType);
-        } else {
-            commentRoundDtos = commentRoundService.findAll();
-        }
         final UUID userUuid = authorizationManager.getUserId();
+        Set<CommentRoundDTO> commentRoundDtos;
+        final boolean includeCommentThreads = checkExpandCommentThreads(expand);
+        if (userUuid == null) {
+            commentRoundDtos = new HashSet<>();
+        } else if (organizationId != null && status != null && containerType != null) {
+            commentRoundDtos = commentRoundService.findByOrganizationsIdAndStatusAndSourceContainerType(organizationId, status, containerType, includeCommentThreads);
+        } else if (organizationId != null && status != null) {
+            commentRoundDtos = commentRoundService.findByOrganizationsIdAndStatus(organizationId, status, includeCommentThreads);
+        } else if (organizationId != null && containerType != null) {
+            commentRoundDtos = commentRoundService.findByOrganizationsIdAndSourceContainerType(organizationId, containerType, includeCommentThreads);
+        } else if (status != null && containerType != null) {
+            commentRoundDtos = commentRoundService.findByStatusAndSourceContainerType(status, containerType, includeCommentThreads);
+        } else if (organizationId != null) {
+            commentRoundDtos = commentRoundService.findByOrganizationsId(organizationId, includeCommentThreads);
+        } else if (status != null) {
+            commentRoundDtos = commentRoundService.findByStatus(status, includeCommentThreads);
+        } else if (containerType != null) {
+            commentRoundDtos = commentRoundService.findBySourceContainerType(containerType, includeCommentThreads);
+        } else {
+            commentRoundDtos = commentRoundService.findAll(includeCommentThreads);
+        }
         if (filterIncomplete && commentRoundDtos != null && !commentRoundDtos.isEmpty()) {
             commentRoundDtos = commentRoundDtos.stream().filter(commentRound -> {
                 if (STATUS_INCOMPLETE.equalsIgnoreCase(commentRound.getStatus()) && userUuid != null && commentRound.getUser() != null && userUuid.equals(commentRound.getUser().getId()) || authorizationManager.isSuperUser()) {
@@ -199,7 +202,7 @@ public class CommentRoundResource implements AbstractBaseResource {
                 throw new NotFoundException();
             }
         } else {
-            final CommentRoundDTO commentRound = commentRoundService.findByIdentifier(commentRoundIdentifier);
+            final CommentRoundDTO commentRound = commentRoundService.findByIdentifier(commentRoundIdentifier, checkExpandCommentThreads(expand));
             if (commentRound != null) {
                 if (commentRound.getCommentThreads() != null) {
                     commentRound.setCommentThreads(commentRound.getCommentThreads().stream().sorted(Comparator.comparing(CommentThreadDTO::getResourceUri, Comparator.nullsLast(Comparator.reverseOrder()))).collect(Collectors.toCollection(LinkedHashSet::new)));
@@ -222,7 +225,7 @@ public class CommentRoundResource implements AbstractBaseResource {
     public Response getCommentRoundMyMainComments(@Parameter(description = "CommentRound identifier, either UUID or sequenceId.", in = ParameterIn.PATH, required = true) @PathParam("commentRoundIdentifier") final String commentRoundIdentifier,
                                                   @Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENT, expand)));
-        final CommentRoundDTO commentRound = commentRoundService.findByIdentifier(commentRoundIdentifier);
+        final CommentRoundDTO commentRound = commentRoundService.findByIdentifier(commentRoundIdentifier, checkExpandCommentThreads(expand));
         if (commentRound != null) {
             final Set<CommentDTO> commentDtos = commentService.findCommentRoundMainLevelCommentsForUserId(commentRound.getId(), authorizationManager.getUserId());
             final Set<CommentDTO> sortedComments = commentDtos.stream().sorted(Comparator.comparing(CommentDTO::getCreated)).collect(Collectors.toCollection(LinkedHashSet::new));
@@ -242,7 +245,7 @@ public class CommentRoundResource implements AbstractBaseResource {
     public Response getCommentRoundCommentThreads(@Parameter(description = "CommentRound identifier, either UUID or sequenceId.", in = ParameterIn.PATH, required = true) @PathParam("commentRoundId") final String commentRoundIdentifier,
                                                   @Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTTHREAD, expand)));
-        final CommentRoundDTO commentRound = commentRoundService.findByIdentifier(commentRoundIdentifier);
+        final CommentRoundDTO commentRound = commentRoundService.findByIdentifier(commentRoundIdentifier, checkExpandCommentThreads(expand));
         if (commentRound != null) {
             final Set<CommentThreadDTO> commentThreadDtos = commentThreadService.findByCommentRoundId(commentRound.getId());
             final Set<CommentThreadDTO> sortedThreads = commentThreadDtos.stream().sorted(Comparator.comparing(CommentThreadDTO::getResourceUri, Comparator.nullsLast(Comparator.reverseOrder()))).collect(Collectors.toCollection(LinkedHashSet::new));
@@ -263,7 +266,7 @@ public class CommentRoundResource implements AbstractBaseResource {
                                                  @Parameter(description = "CommentThread identifier, either UUID or sequenceId.", in = ParameterIn.PATH, required = true) @PathParam("commentThreadIdentifier") final String commentThreadIdentifier,
                                                  @Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENTTHREAD, expand)));
-        final CommentRoundDTO commentRound = commentRoundService.findByIdentifier(commentRoundIdentifier);
+        final CommentRoundDTO commentRound = commentRoundService.findByIdentifier(commentRoundIdentifier, checkExpandCommentThreads(expand));
         if (commentRound != null) {
             final CommentThreadDTO commentThread = commentThreadService.findById(commentRound.getId());
             if (commentThread != null) {
@@ -287,7 +290,7 @@ public class CommentRoundResource implements AbstractBaseResource {
                                                          @Parameter(description = "CommentThread identifier, either UUID or sequenceId.", in = ParameterIn.PATH, required = true) @PathParam("commentThreadIdentifier") final String commentThreadIdentifier,
                                                          @Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENT, expand)));
-        final CommentRoundDTO commentRound = commentRoundService.findByIdentifier(commentRoundIdentifier);
+        final CommentRoundDTO commentRound = commentRoundService.findByIdentifier(commentRoundIdentifier, checkExpandCommentThreads(expand));
         if (commentRound != null) {
             final CommentThreadDTO commentThread = commentThreadService.findByCommentRoundIdAndCommentThreadIdentifier(commentRound.getId(), commentThreadIdentifier);
             if (commentThread != null) {
@@ -311,7 +314,7 @@ public class CommentRoundResource implements AbstractBaseResource {
                                                         @Parameter(description = "Comment identifier, either UUID or sequenceId.", in = ParameterIn.PATH, required = true) @PathParam("commentIdentifier") final String commentIdentifier,
                                                         @Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand) {
         ObjectWriterInjector.set(new FilterModifier(createSimpleFilterProviderWithSingleFilter(FILTER_NAME_COMMENT, expand)));
-        final CommentRoundDTO commentRound = commentRoundService.findByIdentifier(commentRoundIdentifier);
+        final CommentRoundDTO commentRound = commentRoundService.findByIdentifier(commentRoundIdentifier, checkExpandCommentThreads(expand));
         if (commentRound != null) {
             final CommentThreadDTO commentThread = commentThreadService.findByCommentRoundIdAndCommentThreadIdentifier(commentRound.getId(), commentThreadIdentifier);
             if (commentThread != null) {
@@ -499,7 +502,7 @@ public class CommentRoundResource implements AbstractBaseResource {
                                                            @Parameter(description = "Comment identifier, either UUID or sequenceId.", in = ParameterIn.PATH, required = true) @PathParam("commentIdentifier") final String commentIdentifier,
                                                            @Parameter(description = "Filter string (csl) for expanding specific child objects.", in = ParameterIn.QUERY) @QueryParam("expand") final String expand,
                                                            @RequestBody(description = "JSON playload for commentRound data.", required = true) final String jsonPayload) {
-        final CommentRoundDTO commentRound = commentRoundService.findByIdentifier(commentRoundIdentifier);
+        final CommentRoundDTO commentRound = commentRoundService.findByIdentifier(commentRoundIdentifier, checkExpandCommentThreads(expand));
         if (commentRound != null) {
             final CommentThreadDTO commentThread = commentThreadService.findByCommentRoundIdAndCommentThreadIdentifier(commentRound.getId(), commentThreadIdentifier);
             if (commentThread != null) {
@@ -581,7 +584,7 @@ public class CommentRoundResource implements AbstractBaseResource {
     public Response deleteCommentRoundCommentThreadComment(@Parameter(description = "CommentRound identifier, either UUID or sequenceId.", in = ParameterIn.PATH, required = true) @PathParam("commentRoundIdentifier") final String commentRoundIdentifier,
                                                            @Parameter(description = "CommentThread identifier, either UUID or sequenceId.", in = ParameterIn.PATH, required = true) @PathParam("commentThreadIdentifier") final String commentThreadIdentifier,
                                                            @Parameter(description = "Comment identifier, either UUID or sequenceId.", in = ParameterIn.PATH, required = true) @PathParam("commentIdentifier") final String commentIdentifier) {
-        final CommentRoundDTO commentRound = commentRoundService.findByIdentifier(commentRoundIdentifier);
+        final CommentRoundDTO commentRound = commentRoundService.findByIdentifier(commentRoundIdentifier, false);
         if (commentRound != null) {
             final CommentThreadDTO commentThread = commentThreadService.findByCommentRoundIdAndCommentThreadIdentifier(commentRound.getId(), commentThreadIdentifier);
             if (commentThread != null) {
@@ -607,5 +610,17 @@ public class CommentRoundResource implements AbstractBaseResource {
         if (commentRoundDto.getStatus().equalsIgnoreCase("INPROGRESS") && commentRoundDto.getTempUsers() != null && commentRoundDto.getTempUsers().size() > 0) {
             groupManagementProxyService.sendInvitationEmailsToRound(commentRoundDto.getUri());
         }
+    }
+
+    private boolean checkExpandCommentThreads(final String expand) {
+        if (!expand.isEmpty()) {
+            final String[] filterOptions = expand.split(",");
+            for (final String filter : filterOptions) {
+                if (filter.equalsIgnoreCase("commentThread")) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

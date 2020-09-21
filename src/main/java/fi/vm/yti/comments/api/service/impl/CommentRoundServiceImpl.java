@@ -35,8 +35,12 @@ public class CommentRoundServiceImpl extends AbstractService implements CommentR
     }
 
     @Transactional
-    public Set<CommentRoundDTO> findAll() {
-        return dtoMapperService.mapDeepCommentRounds(commentRoundDao.findAll());
+    public Set<CommentRoundDTO> findAll(final boolean includeCommentThreads) {
+        if (!includeCommentThreads) {
+            return dtoMapperService.mapDeepCommentRounds(commentRoundDao.findAll());
+        } else {
+            return dtoMapperService.mapSimpleCommentRounds(commentRoundDao.findAll());
+        }
     }
 
     @Override
@@ -46,51 +50,80 @@ public class CommentRoundServiceImpl extends AbstractService implements CommentR
 
     @Transactional
     public Set<CommentRoundDTO> findByOrganizationsIdAndStatus(final UUID organizationId,
-                                                               final String status) {
-        return dtoMapperService.mapDeepCommentRounds(commentRoundDao.findByOrganizationsIdAndStatus(organizationId, status));
+                                                               final String status,
+                                                               final boolean includeCommentThreads) {
+        if (!includeCommentThreads) {
+            return dtoMapperService.mapDeepCommentRounds(commentRoundDao.findByOrganizationsIdAndStatus(organizationId, status));
+        } else {
+            return dtoMapperService.mapSimpleCommentRounds(commentRoundDao.findByOrganizationsIdAndStatus(organizationId, status));
+        }
     }
 
     @Transactional
-    public Set<CommentRoundDTO> findByOrganizationsId(final UUID organizationId) {
+    public Set<CommentRoundDTO> findByOrganizationsId(final UUID organizationId,
+                                                      final boolean includeCommentThreads) {
         return dtoMapperService.mapDeepCommentRounds(commentRoundDao.findByOrganizationsId(organizationId));
     }
 
     @Transactional
-    public Set<CommentRoundDTO> findByStatus(final String status) {
+    public Set<CommentRoundDTO> findByStatus(final String status,
+                                             final boolean includeCommentThreads) {
         return dtoMapperService.mapDeepCommentRounds(commentRoundDao.findByStatus(status));
     }
 
     @Transactional
-    public Set<CommentRoundDTO> findBySourceContainerType(final String containerType) {
-        return dtoMapperService.mapDeepCommentRounds(commentRoundDao.findBySourceContainerType(containerType));
+    public Set<CommentRoundDTO> findBySourceContainerType(final String containerType,
+                                                          final boolean includeCommentThreads) {
+        if (!includeCommentThreads) {
+            return dtoMapperService.mapDeepCommentRounds(commentRoundDao.findBySourceContainerType(containerType));
+        } else {
+            return dtoMapperService.mapSimpleCommentRounds(commentRoundDao.findBySourceContainerType(containerType));
+        }
     }
 
     @Transactional
     public Set<CommentRoundDTO> findByOrganizationsIdAndStatusAndSourceContainerType(final UUID organizationId,
                                                                                      final String status,
-                                                                                     final String containerType) {
-        return dtoMapperService.mapDeepCommentRounds(commentRoundDao.findByOrganizationsIdAndStatusAndSourceContainerType(organizationId, status, containerType));
+                                                                                     final String containerType,
+                                                                                     final boolean includeCommentThreads) {
+        if (!includeCommentThreads) {
+            return dtoMapperService.mapDeepCommentRounds(commentRoundDao.findByOrganizationsIdAndStatusAndSourceContainerType(organizationId, status, containerType));
+        } else {
+            return dtoMapperService.mapSimpleCommentRounds(commentRoundDao.findByOrganizationsIdAndStatusAndSourceContainerType(organizationId, status, containerType));
+        }
     }
 
     @Transactional
     public Set<CommentRoundDTO> findByOrganizationsIdAndSourceContainerType(final UUID organizationId,
-                                                                            final String containerType) {
+                                                                            final String containerType,
+                                                                            final boolean includeCommentThreads) {
         return dtoMapperService.mapDeepCommentRounds(commentRoundDao.findByOrganizationsIdAndSourceContainerType(organizationId, containerType));
     }
 
     @Transactional
     public Set<CommentRoundDTO> findByStatusAndSourceContainerType(final String status,
-                                                                   final String containerType) {
-        return dtoMapperService.mapDeepCommentRounds(commentRoundDao.findByStatusAndSourceContainerType(status, containerType));
+                                                                   final String containerType,
+                                                                   final boolean includeCommentThreads) {
+        if (!includeCommentThreads) {
+            return dtoMapperService.mapDeepCommentRounds(commentRoundDao.findByStatusAndSourceContainerType(status, containerType));
+        } else {
+            return dtoMapperService.mapSimpleCommentRounds(commentRoundDao.findByStatusAndSourceContainerType(status, containerType));
+        }
     }
 
     @Transactional
-    public CommentRoundDTO findById(final UUID commentRoundId) {
-        return dtoMapperService.mapDeepCommentRound(commentRoundDao.findById(commentRoundId));
+    public CommentRoundDTO findById(final UUID commentRoundId,
+                                    final boolean includeCommentThreads) {
+        if (!includeCommentThreads) {
+            return dtoMapperService.mapDeepCommentRound(commentRoundDao.findById(commentRoundId));
+        } else {
+            return dtoMapperService.mapSimpleCommentRound(commentRoundDao.findById(commentRoundId));
+        }
     }
 
     @Transactional
-    public CommentRoundDTO findByIdentifier(final String commentRoundIdentifier) {
+    public CommentRoundDTO findByIdentifier(final String commentRoundIdentifier,
+                                            final boolean includeCommentThreads) {
         return dtoMapperService.mapDeepCommentRound(commentRoundDao.findByIdentifier(commentRoundIdentifier));
     }
 

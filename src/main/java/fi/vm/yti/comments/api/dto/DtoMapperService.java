@@ -104,7 +104,18 @@ public class DtoMapperService {
         final Set<CommentRoundDTO> commentRoundDtos = new HashSet<>();
         if (commentRounds != null && !commentRounds.isEmpty()) {
             for (final CommentRound commentRound : commentRounds) {
-                commentRoundDtos.add(mapCommentRound(commentRound, deep, false, false));
+                commentRoundDtos.add(mapCommentRound(commentRound, deep, false, false, false));
+            }
+        }
+        return commentRoundDtos;
+    }
+
+    @Transactional
+    public Set<CommentRoundDTO> mapSimpleCommentRounds(final Set<CommentRound> commentRounds) {
+        final Set<CommentRoundDTO> commentRoundDtos = new HashSet<>();
+        if (commentRounds != null && !commentRounds.isEmpty()) {
+            for (final CommentRound commentRound : commentRounds) {
+                commentRoundDtos.add(mapCommentRound(commentRound, false, true, true, true));
             }
         }
         return commentRoundDtos;
@@ -112,14 +123,20 @@ public class DtoMapperService {
 
     @Transactional
     public CommentRoundDTO mapDeepCommentRound(final CommentRound commentRound) {
-        return mapCommentRound(commentRound, true, true, true);
+        return mapCommentRound(commentRound, true, true, true, true);
+    }
+
+    @Transactional
+    public CommentRoundDTO mapSimpleCommentRound(final CommentRound commentRound) {
+        return mapCommentRound(commentRound, false, true, true, true);
     }
 
     @Transactional
     public CommentRoundDTO mapCommentRound(final CommentRound commentRound,
                                            final boolean deep,
                                            final boolean mapSource,
-                                           final boolean mapOrganization) {
+                                           final boolean mapOrganization,
+                                           final boolean mapTempUsers) {
         if (commentRound == null) {
             return null;
         }
@@ -144,6 +161,8 @@ public class DtoMapperService {
         commentRoundDto.setSequenceId(commentRound.getSequenceId());
         if (deep) {
             commentRoundDto.setCommentThreads(mapCommentThreads(commentRound.getCommentThreads(), false));
+        }
+        if (deep || mapTempUsers) {
             final Set<UserDTO> tempUsers = userService.getUsersByCommentRoundUri(commentRoundUri);
             if (tempUsers != null && !tempUsers.isEmpty()) {
                 commentRoundDto.setTempUsers(tempUsers);
@@ -206,7 +225,7 @@ public class DtoMapperService {
             commentThreadDto.setCommentCount(commentThread.getComments().size());
         }
         if (deep) {
-            commentThreadDto.setCommentRound(mapCommentRound(commentThread.getCommentRound(), false, true, true));
+            commentThreadDto.setCommentRound(mapCommentRound(commentThread.getCommentRound(), false, true, true, true));
             commentThreadDto.setComments(mapComments(commentThread.getComments(), false));
         }
         return commentThreadDto;
@@ -316,7 +335,7 @@ public class DtoMapperService {
         }
     }
 
-    private Map copyStringMap(final Map<String, String> map) {
+    private Map<String, String> copyStringMap(final Map<String, String> map) {
         if (map != null && map.size() > 0) {
             return new HashMap<>(map);
         }
