@@ -614,7 +614,7 @@ public class CommentRoundResource implements AbstractBaseResource {
     }
 
     private boolean checkExpandCommentThreads(final String expand) {
-        if (!expand.isEmpty()) {
+        if (expand != null && !expand.isEmpty()) {
             final String[] filterOptions = expand.split(",");
             for (final String filter : filterOptions) {
                 if (filter.equalsIgnoreCase("commentThread")) {
