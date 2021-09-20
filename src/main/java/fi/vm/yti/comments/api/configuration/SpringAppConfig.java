@@ -6,6 +6,8 @@ import javax.sql.DataSource;
 
 import org.apache.catalina.connector.Connector;
 import org.apache.coyote.ajp.AjpNioProtocol;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
@@ -32,6 +34,8 @@ public class SpringAppConfig {
 
     private static final int CONNECTION_TIMEOUT = 180000;
 
+    private static final Logger LOG = LoggerFactory.getLogger(SpringAppConfig.class);
+
     @Value(value = "${application.contextPath}")
     private String contextPath;
 
@@ -45,7 +49,7 @@ public class SpringAppConfig {
         final TomcatServletWebServerFactory tomcat = new TomcatServletWebServerFactory();
         tomcat.setContextPath(contextPath);
         tomcat.addErrorPages(new ErrorPage(HttpStatus.NOT_FOUND, "/notfound.html"));
-        System.out.println("AJP PORT " + ajpPort);
+        LOG.info("AJP PORT: " + ajpPort);
         if (ajpPort != null) {
             final Connector ajpConnector = new Connector("AJP/1.3");
             ajpConnector.setPort(ajpPort);
