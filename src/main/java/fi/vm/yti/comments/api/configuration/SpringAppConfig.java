@@ -45,6 +45,7 @@ public class SpringAppConfig {
         final TomcatServletWebServerFactory tomcat = new TomcatServletWebServerFactory();
         tomcat.setContextPath(contextPath);
         tomcat.addErrorPages(new ErrorPage(HttpStatus.NOT_FOUND, "/notfound.html"));
+        System.out.println("AJP PORT " + ajpPort);
         if (ajpPort != null) {
             final Connector ajpConnector = new Connector("AJP/1.3");
             ajpConnector.setPort(ajpPort);
