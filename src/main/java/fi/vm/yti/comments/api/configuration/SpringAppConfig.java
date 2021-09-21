@@ -58,6 +58,7 @@ public class SpringAppConfig {
             ajpConnector.setSecure(false);
             ajpConnector.setAllowTrace(false);
             ajpConnector.setScheme("http");
+            ajpConnector.setProperty("allowedRequestAttributesPattern", ".*");
 
             AjpNioProtocol protocol = (AjpNioProtocol)ajpConnector.getProtocolHandler();
             protocol.setSecretRequired(false);
