@@ -13,20 +13,20 @@ thread:
     min: 10
 
 groupmanagement:
-  url: https://rhp.dev.yti.cloud.vrk.fi
-  publicUrl: https://rhp.dev.yti.cloud.vrk.fi
+  url: https://rhp.dev.yti.cloud.dvv.fi
+  publicUrl: https://rhp.dev.yti.cloud.dvv.fi
 
 codelist:
-  url: https://koodistot.dev.yti.cloud.vrk.fi
-  publicUrl: https://koodistot.dev.yti.cloud.vrk.fi
+  url: https://koodistot.dev.yti.cloud.dvv.fi
+  publicUrl: https://koodistot.dev.yti.cloud.dvv.fi
 
 terminology:
-  url: https://sanastot.dev.yti.cloud.vrk.fi
-  publicUrl: https://sanastot.dev.yti.cloud.vrk.fi
+  url: https://sanastot.dev.yti.cloud.dvv.fi
+  publicUrl: https://sanastot.dev.yti.cloud.dvv.fi
 
 datamodel:
-  url: https://tietomallit.dev.yti.cloud.vrk.fi
-  publicUrl: https://tietomallit.dev.yti.cloud.vrk.fi
+  url: https://tietomallit.dev.yti.cloud.dvv.fi
+  publicUrl: https://tietomallit.dev.yti.cloud.dvv.fi
 
 service:
   name: yti-comments-api
