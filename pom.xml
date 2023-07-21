@@ -43,7 +43,7 @@
         <dependency>
             <groupId>fi.vm.yti</groupId>
             <artifactId>yti-spring-security</artifactId>
-            <version>0.1.17</version>
+            <version>0.2.0</version>
         </dependency>
 
         <!-- Spring security -->
@@ -109,7 +109,7 @@
         <dependency>
             <groupId>commons-net</groupId>
             <artifactId>commons-net</artifactId>
-            <version>3.8.0</version>
+            <version>3.9.0</version>
         </dependency>
 
         <!-- Apache Commons IO -->
@@ -129,7 +129,7 @@
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-core</artifactId>
-            <version>3.4.4</version>
+            <version>3.4.10</version>
         </dependency>
 
         <!-- Apache HTTP Client -->
@@ -172,7 +172,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>30.1.1-jre</version>
+            <version>32.0.0-jre</version>
         </dependency>
 
         <!-- Swagger -->
@@ -492,7 +492,7 @@
         <swagger.version>2.1.10</swagger.version>
         <swagger-ui.version>3.23.11</swagger-ui.version>
         <apache.httpclient.version>4.5.13</apache.httpclient.version>
-        <postgresql.version>42.3.3</postgresql.version>
+        <postgresql.version>42.3.8</postgresql.version>
         <apache.poi.version>5.0.0</apache.poi.version>
     </properties>
 
