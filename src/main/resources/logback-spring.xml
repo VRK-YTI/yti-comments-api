@@ -4,8 +4,6 @@
         <logger name="org.apache" level="WARN"/>
         <logger name="org.springframework" level="INFO"/>
         <logger name="fi.vm" level="INFO"/>
-        <logger name="fi.vm.yti.comments.api.filter" level="DEBUG"/>
-        <logger name="fi.vm.yti.security" level="INFO"/>
         <property name="SERVICE_NAME" value="yti-comments-api"/>
         <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
             <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
@@ -64,5 +62,3 @@
         </root>
     </springProfile>
 </configuration>
-
-
